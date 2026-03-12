@@ -149,7 +149,7 @@ def scrape_bdo() -> list[ScrapedRate]:
 
 def scrape_metrobank() -> list[ScrapedRate]:
     """Metrobank — savings + time deposit rates."""
-    url = "https://www.metrobank.com.ph/articles/time-deposit-rates-and-fees"
+    url = "https://www.metrobank.com.ph/articles/deposit-rates-and-fees"
     soup = fetch_page(url)
     if not soup:
         return []
