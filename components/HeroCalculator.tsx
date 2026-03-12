@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { BankWithRates } from "@/lib/supabase";
-import { formatPeso, calcInterest, AMOUNT_BRACKETS } from "@/lib/utils";
+import { formatPeso, calcInterest, getRateForAmount, AMOUNT_BRACKETS } from "@/lib/utils";
 
 function AnimatedNumber({
   value,
@@ -56,14 +56,20 @@ export default function HeroCalculator({
   const [amount, setAmount] = useState(100000);
 
   const fromBank = banks.find((b) => b.id === fromBankId);
-  const bestDigi = [...digiBanks].sort(
-    (a, b) => b.savings_rate - a.savings_rate
-  )[0];
+
+  // Find best digital bank for this specific amount
+  const bestDigi = [...digiBanks].sort((a, b) => {
+    const rateA = getRateForAmount(a.savings_tiers, amount);
+    const rateB = getRateForAmount(b.savings_tiers, amount);
+    return rateB - rateA;
+  })[0];
 
   if (!fromBank || !bestDigi) return null;
 
-  const currentEarnings = calcInterest(amount, fromBank.savings_rate);
-  const bestEarnings = calcInterest(amount, bestDigi.savings_rate);
+  const fromRate = getRateForAmount(fromBank.savings_tiers, amount);
+  const bestRate = getRateForAmount(bestDigi.savings_tiers, amount);
+  const currentEarnings = calcInterest(amount, fromRate);
+  const bestEarnings = calcInterest(amount, bestRate);
   const diff = bestEarnings - currentEarnings;
 
   return (
@@ -96,7 +102,7 @@ export default function HeroCalculator({
             >
               {tradBanks.map((b) => (
                 <option key={b.id} value={b.id}>
-                  {b.name} ({b.savings_rate}%)
+                  {b.name} ({getRateForAmount(b.savings_tiers, amount)}%)
                 </option>
               ))}
             </select>
@@ -125,7 +131,7 @@ export default function HeroCalculator({
           <div className="grid grid-cols-[1fr_auto_1fr] gap-4 items-center mb-5">
             <div>
               <p className="font-mono text-[10px] uppercase tracking-[2px] text-white/40 mb-1">
-                {fromBank.name} ({fromBank.savings_rate}%)
+                {fromBank.name} ({fromRate}%)
               </p>
               <p className="font-display text-xl md:text-2xl font-bold text-white/50">
                 <AnimatedNumber value={currentEarnings} prefix="₱" />
@@ -135,7 +141,7 @@ export default function HeroCalculator({
             <div className="text-2xl text-white/20">→</div>
             <div className="text-right">
               <p className="font-mono text-[10px] uppercase tracking-[2px] text-alkansya-green mb-1">
-                {bestDigi.name} ({bestDigi.savings_rate}%)
+                {bestDigi.name} ({bestRate}%)
               </p>
               <p className="font-display text-xl md:text-2xl font-bold text-alkansya-green">
                 <AnimatedNumber value={bestEarnings} prefix="₱" />
