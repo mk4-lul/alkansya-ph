@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap');
 
 :root {
   --alkansya-bg: #f6f4f0;
@@ -18,19 +18,19 @@
 body {
   background: var(--alkansya-bg);
   color: var(--alkansya-text);
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 * {
   box-sizing: border-box;
 }
 
-/* Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 3px; }
 
-/* Animations */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-8px); }
   to { opacity: 1; transform: translateY(0); }
@@ -46,29 +46,11 @@ body {
   50% { opacity: 0.5; }
 }
 
-.animate-slide-up {
-  animation: slideUp 0.6s ease forwards;
-}
+.animate-slide-up { animation: slideUp 0.6s ease forwards; }
+.animate-fade-in { animation: fadeIn 0.3s ease forwards; }
+.animate-pulse-dot { animation: pulse 2s ease infinite; }
+.rate-bar-fill { transition: width 0.5s ease; }
 
-.animate-fade-in {
-  animation: fadeIn 0.3s ease forwards;
-}
-
-.animate-pulse-dot {
-  animation: pulse 2s ease infinite;
-}
-
-/* Rate bar fill animation */
-.rate-bar-fill {
-  transition: width 0.5s ease;
-}
-
-/* Table row hover */
-.bank-row:hover {
-  background: rgba(0, 0, 0, 0.02);
-}
-
-/* Select styling */
 select:focus {
   border-color: var(--alkansya-gold) !important;
   outline: none;
