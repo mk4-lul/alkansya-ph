@@ -1,6 +1,5 @@
 [build]
-builder = "nixpacks"
-buildCommand = "pip install -r requirements.txt"
+dockerfilePath = "scraper/Dockerfile"
 
 [deploy]
 startCommand = "python scraper.py"
