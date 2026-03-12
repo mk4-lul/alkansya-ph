@@ -1,9 +1,21 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+let _supabase: SupabaseClient | null = null;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+function getSupabase(): SupabaseClient | null {
+  if (_supabase) return _supabase;
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!url || !key) {
+    console.warn("Supabase credentials not configured — using fallback data");
+    return null;
+  }
+
+  _supabase = createClient(url, key);
+  return _supabase;
+}
 
 // ---------------------------------------------------------------------------
 // Types
@@ -43,6 +55,9 @@ export interface BankWithRates extends Bank {
 // ---------------------------------------------------------------------------
 
 export async function getBanksWithRates(): Promise<BankWithRates[]> {
+  const supabase = getSupabase();
+  if (!supabase) return [];
+
   // Fetch all current rates via the view
   const { data, error } = await supabase
     .from("current_rates")
@@ -101,6 +116,9 @@ export async function getBanksWithRates(): Promise<BankWithRates[]> {
 }
 
 export async function flagRate(bankId: string, reason?: string) {
+  const supabase = getSupabase();
+  if (!supabase) return;
+
   const { error } = await supabase.from("rate_flags").insert({
     bank_id: bankId,
     reason: reason || "Rate may be outdated",
