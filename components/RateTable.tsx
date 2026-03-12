@@ -187,6 +187,7 @@ export default function RateTable({ banks }: { banks: BankWithRates[] }) {
   const [bankType, setBankType] = useState<"all" | "traditional" | "digital">("all");
   const [amount, setAmount] = useState(100000);
   const [sortBy, setSortBy] = useState("rate_desc");
+  const [showTdInfo, setShowTdInfo] = useState(false);
 
   const filtered = useMemo(() => {
     let list = [...banks];
@@ -215,7 +216,12 @@ export default function RateTable({ banks }: { banks: BankWithRates[] }) {
       <div className="flex flex-wrap gap-2 sm:gap-3 mb-4 sm:mb-6">
         <div className="flex bg-white rounded-xl p-0.5 border border-[#e5e0d8]">
           <button onClick={() => setDepositType("savings")} className={toggleBtn(depositType === "savings")}>Savings</button>
-          <button onClick={() => setDepositType("time_deposit")} className={toggleBtn(depositType === "time_deposit")}>Time Deposit</button>
+          <button onClick={() => setDepositType("time_deposit")} className={toggleBtn(depositType === "time_deposit")}>
+            Time Deposit
+            <span onClick={(e) => { e.stopPropagation(); setShowTdInfo(true); }}
+              className="inline-flex items-center justify-center w-4 h-4 ml-1 rounded-full border border-current text-[9px] font-mono opacity-50 hover:opacity-100 transition-opacity"
+              title="What is a time deposit?">i</span>
+          </button>
         </div>
         <div className="flex bg-white rounded-xl p-0.5 border border-[#e5e0d8]">
           {([["all", "All"], ["traditional", "Trad."], ["digital", "Digital"]] as const).map(([val, label]) => (
@@ -249,6 +255,23 @@ export default function RateTable({ banks }: { banks: BankWithRates[] }) {
         {filtered.map((bank) => <BankRow key={bank.id} bank={bank} depositType={depositType} amount={amount} />)}
         {filtered.length === 0 && <p className="text-center py-8 font-mono text-sm text-[#9a9490]">No banks match your filters</p>}
       </div>
+
+      {/* Time Deposit info modal */}
+      {showTdInfo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4" onClick={() => setShowTdInfo(false)}>
+          <div className="absolute inset-0 bg-black/30" />
+          <div className="relative bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => setShowTdInfo(false)}
+              className="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full hover:bg-[#f0ece6] text-[#9a9490] hover:text-[#1a1a1a] transition-colors text-lg">
+              ×
+            </button>
+            <p className="font-display text-base font-bold text-[#1a1a1a] mb-2">What is a Time Deposit?</p>
+            <p className="font-display text-sm text-[#6b6560] leading-relaxed">
+              A time deposit is a safe, fixed-term, high-interest savings account where money is locked in for a specific period.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
