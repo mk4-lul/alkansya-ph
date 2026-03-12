@@ -1,0 +1,9 @@
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "python scraper/scraper.py"
+restartPolicyType = "never"
+
+# Run every Sunday at 8AM UTC (4PM PHT)
+cronSchedule = "0 8 * * 0"
