@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@300;400;500&display=swap');
+
+:root {
+  --alkansya-bg: #080e1a;
+  --alkansya-card: #0d1526;
+  --alkansya-gold: #ffc300;
+  --alkansya-green: #00d296;
+  --alkansya-red: #ff6b6b;
+}
+
+body {
+  background: var(--alkansya-bg);
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.6s ease forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.animate-pulse-dot {
+  animation: pulse 2s ease infinite;
+}
+
+/* Rate bar fill animation */
+.rate-bar-fill {
+  transition: width 0.5s ease;
+}
+
+/* Table row hover */
+.bank-row:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* Select styling */
+select:focus {
+  border-color: rgba(255, 195, 0, 0.4) !important;
+  outline: none;
+}
+
+select option {
+  background: var(--alkansya-card);
+}
