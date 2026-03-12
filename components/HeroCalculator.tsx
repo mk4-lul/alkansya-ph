@@ -59,7 +59,7 @@ export default function HeroCalculator({ banks }: { banks: BankWithRates[] }) {
         style={{ background: "radial-gradient(circle, rgba(200,148,10,0.15) 0%, transparent 70%)" }} />
 
       <div className="relative z-10">
-        <p className="font-mono text-[10px] sm:text-[11px] uppercase tracking-[3px] text-amber-400 mb-2">
+        <p className="font-mono text-[10px] sm:text-[11px] uppercase tracking-[3px] text-amber-400 mb-5 sm:mb-6">
           Opportunity Cost Calculator
         </p>
 
