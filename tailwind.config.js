@@ -19,8 +19,8 @@ module.exports = {
         },
       },
       fontFamily: {
-        display: ["Outfit", "sans-serif"],
-        mono: ["DM Mono", "monospace"],
+        display: ["Plus Jakarta Sans", "sans-serif"],
+        mono: ["JetBrains Mono", "monospace"],
       },
     },
   },
