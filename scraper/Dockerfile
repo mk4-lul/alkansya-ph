@@ -1,7 +1,6 @@
 FROM python:3.11-slim
 WORKDIR /app
-COPY requirements.txt .
+COPY scraper/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-COPY scraper.py .
-COPY .env* ./
+COPY scraper/scraper.py .
 CMD ["python", "scraper.py"]
