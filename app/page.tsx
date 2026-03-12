@@ -114,7 +114,7 @@ export default async function HomePage() {
               alkansya<span className="text-[#c8940a]">.ph</span>
             </p>
             <p className="font-mono text-[9px] sm:text-[10px] text-[#9a9490] mt-1">
-              Making smarter savings accessible to every Filipino.
+              Aggregating Philippine financial rates so you don't have to.
             </p>
           </div>
           <p className="font-mono text-[8px] sm:text-[9px] text-[#b0aaa4]">
