@@ -9,8 +9,8 @@ function fb(id: string, name: string, type: "traditional" | "digital", logo: str
   const rates = allTiers.map((t) => t.rate);
   return {
     id, name, type, logo, source_url: url, notes, has_promo: hasPromo, promo_rate: promoRate, promo_terms: promoTerms,
-    savings_rate: Math.max(...rates, 0),
-    savings_min_rate: Math.min(...rates, 0),
+    savings_rate: rates.length > 0 ? Math.max(...rates) : 0,
+    savings_min_rate: rates.length > 0 ? Math.min(...rates) : 0,
     savings_tiers: allTiers,
     savings_products: products.map((p) => ({
       name: p.name,
@@ -24,8 +24,14 @@ function fb(id: string, name: string, type: "traditional" | "digital", logo: str
 }
 
 const FALLBACK_BANKS: BankWithRates[] = [
-  fb("bpi", "BPI", "traditional", "🏛️", "https://www.bpi.com.ph/personal/bank/deposits/deposit-rates-savings-and-checking", "Regular savings passbook", false, null, null,
-    [{ name: "Regular Savings", tiers: [{ rate: 0.0625, min_deposit: 0, max_deposit: null }] }],
+  fb("bpi", "BPI", "traditional", "🏛️", "https://www.bpi.com.ph/personal/bank/deposits/deposit-rates-savings-and-checking", "Multiple savings products", false, null, null,
+    [
+      { name: "#SaveUp", tiers: [{ rate: 0.0925, min_deposit: 5000, max_deposit: null }] },
+      { name: "#MySaveUp", tiers: [{ rate: 0.0925, min_deposit: 5000, max_deposit: null }] },
+      { name: "Jumpstart Savings", tiers: [{ rate: 0.0625, min_deposit: 2000, max_deposit: null }] },
+      { name: "Maxi-Saver", tiers: [{ rate: 0.125, min_deposit: 2000000, max_deposit: null }] },
+      { name: "Saver-Plus", tiers: [{ rate: 0.0625, min_deposit: 50000, max_deposit: null }] },
+    ],
     [{ term_days: 30, rate: 0.25 }, { term_days: 90, rate: 0.5 }, { term_days: 180, rate: 0.75 }, { term_days: 360, rate: 1.0 }],
     "2026-03-10T00:00:00Z"),
 
