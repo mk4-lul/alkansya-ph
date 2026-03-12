@@ -33,7 +33,7 @@ function FlagButton({ bankId }: { bankId: string }) {
         flagRate(bankId);
         setFlagged(true);
       }}
-      className="border border-white/10 rounded-md px-2 py-0.5 font-mono text-[10px] text-white/35 hover:text-white/60 hover:border-white/20 transition-colors"
+      className="border border-alkansya-border rounded-md px-2 py-0.5 font-mono text-[10px] text-alkansya-muted hover:text-alkansya-text hover:border-alkansya-muted transition-colors"
       title="Flag this rate as outdated"
     >
       ⚑ Flag
@@ -52,7 +52,6 @@ function BankRow({
 }) {
   const [expanded, setExpanded] = useState(false);
 
-  // For display: use tier-matched rate for savings, 360d rate for TD
   const displayRate =
     depositType === "savings"
       ? getRateForAmount(bank.savings_tiers, amount)
@@ -63,7 +62,6 @@ function BankRow({
   const isDigital = bank.type === "digital";
   const barWidth = Math.min((displayRate / 6) * 100, 100);
 
-  // Rate range for savings
   const hasMultipleTiers = bank.savings_tiers.length > 1;
   const rateRangeText =
     depositType === "savings" && hasMultipleTiers
@@ -75,17 +73,17 @@ function BankRow({
       ? "text-alkansya-green"
       : displayRate >= 0.5
       ? "text-alkansya-gold"
-      : "text-white/40";
+      : "text-alkansya-muted";
 
   const barBg =
     displayRate >= 2
-      ? "linear-gradient(90deg, #00d296, #00b377)"
+      ? "linear-gradient(90deg, #0a8f65, #0b7a57)"
       : displayRate >= 0.5
-      ? "linear-gradient(90deg, #ffc300, #e6a800)"
-      : "rgba(255,255,255,0.15)";
+      ? "linear-gradient(90deg, #c8940a, #b38308)"
+      : "rgba(0,0,0,0.08)";
 
   return (
-    <div className="border-b border-white/5">
+    <div className="border-b border-alkansya-border/60">
       <div
         onClick={() => setExpanded(!expanded)}
         className="grid items-center px-4 py-3.5 cursor-pointer bank-row transition-colors"
@@ -97,14 +95,14 @@ function BankRow({
         <div className="flex items-center gap-2.5">
           <span className="text-xl">{bank.logo}</span>
           <div>
-            <p className="font-display text-sm font-semibold text-white">
+            <p className="font-display text-sm font-semibold text-alkansya-text">
               {bank.name}
             </p>
             <span
               className={`inline-block font-mono text-[9px] uppercase tracking-[1.5px] px-1.5 py-0.5 rounded mt-0.5 ${
                 isDigital
-                  ? "bg-alkansya-green/10 text-alkansya-green"
-                  : "bg-white/5 text-white/40"
+                  ? "bg-emerald-50 text-alkansya-green"
+                  : "bg-stone-100 text-alkansya-muted"
               }`}
             >
               {isDigital ? "Digital" : "Traditional"}
@@ -112,7 +110,7 @@ function BankRow({
           </div>
         </div>
 
-        {/* Rate — show range for savings if multiple tiers */}
+        {/* Rate */}
         <div className="text-right">
           <p className={`font-display text-lg font-extrabold ${rateColor}`}>
             {rateRangeText}
@@ -126,7 +124,7 @@ function BankRow({
 
         {/* Bar */}
         <div className="px-4">
-          <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+          <div className="h-1.5 bg-black/[0.06] rounded-full overflow-hidden">
             <div
               className="h-full rounded-full rate-bar-fill"
               style={{ width: `${barWidth}%`, background: barBg }}
@@ -136,15 +134,15 @@ function BankRow({
 
         {/* Earnings */}
         <div className="text-right">
-          <p className="font-mono text-[13px] text-white/70">
+          <p className="font-mono text-[13px] text-alkansya-text/70">
             {formatPeso(earnings)}
           </p>
-          <p className="font-mono text-[9px] text-white/30">/year</p>
+          <p className="font-mono text-[9px] text-alkansya-muted">/year</p>
         </div>
 
         {/* Expand arrow */}
         <div
-          className={`text-center text-xs text-white/30 transition-transform duration-200 ${
+          className={`text-center text-xs text-alkansya-muted/50 transition-transform duration-200 ${
             expanded ? "rotate-180" : ""
           }`}
         >
@@ -158,7 +156,7 @@ function BankRow({
           {/* Savings tiers */}
           {depositType === "savings" && bank.savings_tiers.length > 0 && (
             <div className="mb-3">
-              <p className="font-mono text-[9px] uppercase tracking-[1.5px] text-white/40 mb-2">
+              <p className="font-mono text-[9px] uppercase tracking-[1.5px] text-alkansya-muted mb-2">
                 Savings Rate Tiers
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -179,25 +177,25 @@ function BankRow({
                       key={i}
                       className={`rounded-xl p-3 border ${
                         isActive
-                          ? "bg-white/[0.06] border-alkansya-gold/30"
-                          : "bg-white/[0.02] border-white/[0.06]"
+                          ? "bg-amber-50/80 border-alkansya-gold/30"
+                          : "bg-stone-50 border-alkansya-border"
                       }`}
                     >
-                      <p className="font-mono text-[9px] uppercase tracking-[1.5px] text-white/40">
+                      <p className="font-mono text-[9px] uppercase tracking-[1.5px] text-alkansya-muted">
                         {tierLabel}
                       </p>
                       <p
                         className={`font-display text-lg font-bold mt-1 ${
-                          tier.rate >= 2 ? "text-alkansya-green" : tier.rate >= 0.5 ? "text-alkansya-gold" : "text-white/50"
+                          tier.rate >= 2 ? "text-alkansya-green" : tier.rate >= 0.5 ? "text-alkansya-gold" : "text-alkansya-muted"
                         }`}
                       >
                         {tier.rate}%
                       </p>
-                      <p className="font-mono text-[10px] text-white/30">
+                      <p className="font-mono text-[10px] text-alkansya-muted">
                         {formatPeso(tierEarnings)}/yr
                       </p>
                       {isActive && (
-                        <span className="inline-block mt-1 font-mono text-[8px] uppercase tracking-[1px] text-alkansya-gold/70">
+                        <span className="inline-block mt-1 font-mono text-[8px] uppercase tracking-[1px] text-alkansya-gold">
                           Your tier
                         </span>
                       )}
@@ -208,19 +206,19 @@ function BankRow({
             </div>
           )}
 
-          {/* Single savings rate (no tiers) */}
+          {/* Single savings rate */}
           {depositType === "savings" && bank.savings_tiers.length <= 1 && (
             <div className="mb-3">
-              <div className="bg-white/[0.03] rounded-xl p-3 border border-white/[0.06] inline-block">
-                <p className="font-mono text-[9px] uppercase tracking-[1.5px] text-white/40">
+              <div className="bg-stone-50 rounded-xl p-3 border border-alkansya-border inline-block">
+                <p className="font-mono text-[9px] uppercase tracking-[1.5px] text-alkansya-muted">
                   Savings Rate
                 </p>
                 <p className={`font-display text-lg font-bold mt-1 ${
-                  displayRate >= 2 ? "text-alkansya-green" : displayRate >= 0.5 ? "text-alkansya-gold" : "text-white/50"
+                  displayRate >= 2 ? "text-alkansya-green" : displayRate >= 0.5 ? "text-alkansya-gold" : "text-alkansya-muted"
                 }`}>
                   {displayRate}%
                 </p>
-                <p className="font-mono text-[10px] text-white/30">
+                <p className="font-mono text-[10px] text-alkansya-muted">
                   {formatPeso(earnings)}/yr on {formatPesoShort(amount)}
                 </p>
               </div>
@@ -236,9 +234,9 @@ function BankRow({
                 return (
                   <div
                     key={td.term_days}
-                    className="bg-white/[0.03] rounded-xl p-3 border border-white/[0.06]"
+                    className="bg-stone-50 rounded-xl p-3 border border-alkansya-border"
                   >
-                    <p className="font-mono text-[9px] uppercase tracking-[1.5px] text-white/40">
+                    <p className="font-mono text-[9px] uppercase tracking-[1.5px] text-alkansya-muted">
                       {TERM_LABELS[tdDays] || `${tdDays}d`}
                     </p>
                     <p
@@ -248,7 +246,7 @@ function BankRow({
                     >
                       {td.rate}%
                     </p>
-                    <p className="font-mono text-[10px] text-white/30">
+                    <p className="font-mono text-[10px] text-alkansya-muted">
                       {formatPeso(tdEarnings)}
                     </p>
                   </div>
@@ -258,20 +256,20 @@ function BankRow({
           )}
 
           {depositType === "time_deposit" && bank.time_deposit_rates.length === 0 && (
-            <p className="font-mono text-[11px] text-white/30 mb-3">
+            <p className="font-mono text-[11px] text-alkansya-muted mb-3">
               No time deposit products available
             </p>
           )}
 
           <div className="flex items-center gap-4 flex-wrap">
-            <span className="font-mono text-[10px] text-white/30">
+            <span className="font-mono text-[10px] text-alkansya-muted/70">
               Verified {timeAgo(bank.last_verified)} ·{" "}
               {bank.source_url ? (
                 <a
                   href={bank.source_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="underline hover:text-white/50"
+                  className="underline hover:text-alkansya-text"
                   onClick={(e) => e.stopPropagation()}
                 >
                   source
@@ -282,12 +280,12 @@ function BankRow({
             </span>
             <FlagButton bankId={bank.id} />
             {bank.has_promo && bank.promo_terms && (
-              <span className="font-mono text-[10px] px-2 py-0.5 bg-alkansya-red/10 text-alkansya-red rounded-md">
+              <span className="font-mono text-[10px] px-2 py-0.5 bg-red-50 text-alkansya-red rounded-md">
                 *{bank.promo_terms}
               </span>
             )}
             {bank.notes && (
-              <span className="font-mono text-[10px] text-white/25">
+              <span className="font-mono text-[10px] text-alkansya-muted/50">
                 {bank.notes}
               </span>
             )}
@@ -342,16 +340,15 @@ export default function RateTable({ banks }: { banks: BankWithRates[] }) {
   ): string =>
     `px-4 py-2 rounded-lg border-none cursor-pointer font-display text-[13px] font-semibold transition-all ${
       isActive
-        ? "bg-alkansya-gold/15 text-alkansya-gold"
-        : "bg-transparent text-white/40 hover:text-white/60"
+        ? "bg-alkansya-gold/10 text-alkansya-gold"
+        : "bg-transparent text-alkansya-muted hover:text-alkansya-text"
     }`;
 
   return (
     <div>
       {/* Filters */}
       <div className="flex flex-wrap gap-3 mb-6">
-        {/* Deposit type toggle */}
-        <div className="flex bg-white/[0.04] rounded-xl p-0.5 border border-white/[0.06]">
+        <div className="flex bg-white rounded-xl p-0.5 border border-alkansya-border">
           <button
             onClick={() => setDepositType("savings")}
             className={toggleBtn(depositType === "savings")}
@@ -366,8 +363,7 @@ export default function RateTable({ banks }: { banks: BankWithRates[] }) {
           </button>
         </div>
 
-        {/* Bank type toggle */}
-        <div className="flex bg-white/[0.04] rounded-xl p-0.5 border border-white/[0.06]">
+        <div className="flex bg-white rounded-xl p-0.5 border border-alkansya-border">
           {(
             [
               ["all", "All Banks"],
@@ -385,11 +381,10 @@ export default function RateTable({ banks }: { banks: BankWithRates[] }) {
           ))}
         </div>
 
-        {/* Amount selector */}
         <select
           value={amount}
           onChange={(e) => setAmount(Number(e.target.value))}
-          className="px-3.5 py-2 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/70 font-display text-[13px] cursor-pointer"
+          className="px-3.5 py-2 rounded-xl border border-alkansya-border bg-white text-alkansya-text/70 font-display text-[13px] cursor-pointer"
         >
           {AMOUNT_BRACKETS.map((a) => (
             <option key={a.value} value={a.value}>
@@ -398,11 +393,10 @@ export default function RateTable({ banks }: { banks: BankWithRates[] }) {
           ))}
         </select>
 
-        {/* Sort */}
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
-          className="px-3.5 py-2 rounded-xl border border-white/[0.08] bg-white/[0.04] text-white/70 font-display text-[13px] cursor-pointer ml-auto"
+          className="px-3.5 py-2 rounded-xl border border-alkansya-border bg-white text-alkansya-text/70 font-display text-[13px] cursor-pointer ml-auto"
         >
           <option value="rate_desc">Highest Rate</option>
           <option value="rate_asc">Lowest Rate</option>
@@ -412,7 +406,7 @@ export default function RateTable({ banks }: { banks: BankWithRates[] }) {
 
       {/* Table header */}
       <div
-        className="grid px-4 py-2.5 border-b border-white/[0.08]"
+        className="grid px-4 py-2.5 border-b border-alkansya-border"
         style={{
           gridTemplateColumns: "minmax(140px, 1.2fr) 100px 1fr 120px 50px",
         }}
@@ -420,7 +414,7 @@ export default function RateTable({ banks }: { banks: BankWithRates[] }) {
         {["Bank", "Rate", "", "Earn / yr", ""].map((h, i) => (
           <p
             key={i}
-            className={`m-0 font-mono text-[9px] uppercase tracking-[2px] text-white/25 ${
+            className={`m-0 font-mono text-[9px] uppercase tracking-[2px] text-alkansya-muted/60 ${
               i === 1 || i === 3 ? "text-right" : ""
             }`}
           >
@@ -430,7 +424,7 @@ export default function RateTable({ banks }: { banks: BankWithRates[] }) {
       </div>
 
       {/* Bank rows */}
-      <div className="bg-white/[0.015] rounded-b-2xl border border-white/[0.04] border-t-0 overflow-hidden">
+      <div className="bg-white rounded-b-2xl border border-alkansya-border border-t-0 overflow-hidden shadow-sm">
         {filtered.map((bank) => (
           <BankRow
             key={bank.id}
@@ -440,7 +434,7 @@ export default function RateTable({ banks }: { banks: BankWithRates[] }) {
           />
         ))}
         {filtered.length === 0 && (
-          <p className="text-center py-8 font-mono text-sm text-white/30">
+          <p className="text-center py-8 font-mono text-sm text-alkansya-muted">
             No banks match your filters
           </p>
         )}
