@@ -74,87 +74,114 @@ def extract_rate(text: str) -> Optional[float]:
     return None
 
 
+def find_rate_near_keyword(soup: BeautifulSoup, keywords: list[str], min_rate: float = 0, max_rate: float = 100) -> Optional[float]:
+    """Search page for a rate near specific keywords. Returns first valid match."""
+    body = soup.get_text(" ", strip=True)
+    for keyword in keywords:
+        # Look for keyword followed by a rate within ~200 chars
+        pattern = rf"{keyword}[^%]{{0,200}}?(\d+\.?\d*)\s*%"
+        matches = re.findall(pattern, body, re.IGNORECASE)
+        for m in matches:
+            val = float(m)
+            if min_rate <= val <= max_rate:
+                return val
+    return None
+
+
 # ---------------------------------------------------------------------------
 # Per-bank scrapers
+# Each returns at most ONE savings rate — the regular/standard savings rate.
 # ---------------------------------------------------------------------------
 
 def scrape_bpi() -> list[ScrapedRate]:
-    """BPI deposit rates page."""
+    """BPI — target Regular Savings only."""
     url = "https://www.bpi.com.ph/personal/bank/deposits/deposit-rates-savings-and-checking"
     soup = fetch_page(url)
     if not soup:
         return []
 
     rates = []
-    tables = soup.find_all("table")
-    for table in tables:
-        text = table.get_text(" ", strip=True).lower()
-        if "savings" in text or "passbook" in text:
-            cells = table.find_all("td")
-            for cell in cells:
-                r = extract_rate(cell.get_text())
-                if r is not None and r < 1:
-                    rates.append(ScrapedRate("bpi", "savings", None, r))
-                    break
 
-    if not rates:
-        body = soup.get_text(" ", strip=True)
-        matches = re.findall(r"(?:savings|passbook)[^%]*?(\d+\.?\d*)\s*%", body, re.IGNORECASE)
-        for m in matches:
-            val = float(m)
-            if val < 2:
-                rates.append(ScrapedRate("bpi", "savings", None, val))
-                break
+    # Look specifically for "Regular Savings" or "Savings Account" rate
+    rate = find_rate_near_keyword(
+        soup,
+        ["regular savings", "savings account", "passbook savings"],
+        min_rate=0.01, max_rate=2.0,
+    )
+
+    if rate is not None:
+        rates.append(ScrapedRate("bpi", "savings", None, rate))
+    else:
+        # Fallback: scan tables for smallest rate < 1% (likely regular savings)
+        all_rates_found = []
+        for table in soup.find_all("table"):
+            for cell in table.find_all("td"):
+                r = extract_rate(cell.get_text())
+                if r is not None and 0 < r < 1:
+                    all_rates_found.append(r)
+        if all_rates_found:
+            # Regular savings is typically the lowest tier
+            rates.append(ScrapedRate("bpi", "savings", None, min(all_rates_found)))
 
     log.info(f"BPI: scraped {len(rates)} rates")
     return rates
 
 
 def scrape_bdo() -> list[ScrapedRate]:
-    """BDO rates."""
+    """BDO — Regular Savings."""
     url = "https://www.bdo.com.ph/personal/accounts/peso-savings/passbook-savings"
     soup = fetch_page(url)
     if not soup:
         return []
 
     rates = []
-    body = soup.get_text(" ", strip=True)
-    matches = re.findall(r"(\d+\.?\d*)\s*%\s*(?:per annum|p\.?a\.?|annual)", body, re.IGNORECASE)
-    for m in matches:
-        val = float(m)
-        if val < 2:
-            rates.append(ScrapedRate("bdo", "savings", None, val))
-            break
+    rate = find_rate_near_keyword(
+        soup,
+        ["regular savings", "savings", "passbook", "per annum", "p.a."],
+        min_rate=0.01, max_rate=2.0,
+    )
+    if rate is not None:
+        rates.append(ScrapedRate("bdo", "savings", None, rate))
 
     log.info(f"BDO: scraped {len(rates)} rates")
     return rates
 
 
 def scrape_metrobank() -> list[ScrapedRate]:
-    """Metrobank rates page."""
+    """Metrobank — savings + time deposit rates."""
     url = "https://www.metrobank.com.ph/articles/time-deposit-rates-and-fees"
     soup = fetch_page(url)
     if not soup:
         return []
 
     rates = []
+
+    # Try to find savings rate
+    savings_rate = find_rate_near_keyword(
+        soup,
+        ["regular savings", "savings account", "fun savers"],
+        min_rate=0.01, max_rate=2.0,
+    )
+    if savings_rate is not None:
+        rates.append(ScrapedRate("metrobank", "savings", None, savings_rate))
+
+    # Time deposit rates from tables
     tables = soup.find_all("table")
+    seen_terms = set()
     for table in tables:
         rows = table.find_all("tr")
         for row in rows:
             cells = row.find_all(["td", "th"])
             text = " ".join(c.get_text(strip=True) for c in cells).lower()
 
-            term_map = {
-                "30": 30, "60": 60, "90": 90, "120": 120,
-                "180": 180, "360": 360, "365": 360,
-            }
+            term_map = {"30": 30, "90": 90, "180": 180, "360": 360}
             for term_str, term_days in term_map.items():
-                if term_str in text:
+                if term_str in text and term_days not in seen_terms:
                     for cell in cells:
                         r = extract_rate(cell.get_text())
-                        if r is not None:
+                        if r is not None and r > 0:
                             rates.append(ScrapedRate("metrobank", "time_deposit", term_days, r))
+                            seen_terms.add(term_days)
                             break
 
     log.info(f"Metrobank: scraped {len(rates)} rates")
@@ -162,8 +189,7 @@ def scrape_metrobank() -> list[ScrapedRate]:
 
 
 def scrape_maya() -> list[ScrapedRate]:
-    """Maya Bank."""
-    # Try multiple possible URLs
+    """Maya Bank — headline savings rate."""
     urls = [
         "https://www.maya.ph/savings",
         "https://www.maya.ph/",
@@ -178,13 +204,13 @@ def scrape_maya() -> list[ScrapedRate]:
         return []
 
     rates = []
-    body = soup.get_text(" ", strip=True)
-    matches = re.findall(r"(\d+\.?\d*)\s*%\s*(?:per annum|p\.?a\.?|interest|annual)", body, re.IGNORECASE)
-    for m in matches:
-        val = float(m)
-        if 1 < val < 10:
-            rates.append(ScrapedRate("maya", "savings", None, val))
-            break
+    rate = find_rate_near_keyword(
+        soup,
+        ["savings", "interest", "earn", "per annum", "p.a."],
+        min_rate=1.0, max_rate=10.0,
+    )
+    if rate is not None:
+        rates.append(ScrapedRate("maya", "savings", None, rate))
 
     log.info(f"Maya: scraped {len(rates)} rates")
     return rates
@@ -192,7 +218,6 @@ def scrape_maya() -> list[ScrapedRate]:
 
 def scrape_cimb() -> list[ScrapedRate]:
     """CIMB UpSave."""
-    # Try with SSL verification disabled as fallback
     url = "https://www.cimb.com.ph/en/personal/banking/accounts/upsave.html"
     soup = fetch_page(url)
     if not soup:
@@ -201,13 +226,13 @@ def scrape_cimb() -> list[ScrapedRate]:
         return []
 
     rates = []
-    body = soup.get_text(" ", strip=True)
-    matches = re.findall(r"(\d+\.?\d*)\s*%\s*(?:per annum|p\.?a\.?|interest)", body, re.IGNORECASE)
-    for m in matches:
-        val = float(m)
-        if 1 < val < 10:
-            rates.append(ScrapedRate("cimb", "savings", None, val))
-            break
+    rate = find_rate_near_keyword(
+        soup,
+        ["upsave", "savings", "interest", "earn", "per annum", "p.a."],
+        min_rate=1.0, max_rate=10.0,
+    )
+    if rate is not None:
+        rates.append(ScrapedRate("cimb", "savings", None, rate))
 
     log.info(f"CIMB: scraped {len(rates)} rates")
     return rates
@@ -221,13 +246,13 @@ def scrape_tonik() -> list[ScrapedRate]:
         return []
 
     rates = []
-    body = soup.get_text(" ", strip=True)
-    matches = re.findall(r"(\d+\.?\d*)\s*%\s*(?:per annum|p\.?a\.?|interest|annual)", body, re.IGNORECASE)
-    for m in matches:
-        val = float(m)
-        if 1 < val < 10:
-            rates.append(ScrapedRate("tonik", "savings", None, val))
-            break
+    rate = find_rate_near_keyword(
+        soup,
+        ["savings", "stash", "interest", "earn", "per annum", "p.a."],
+        min_rate=1.0, max_rate=10.0,
+    )
+    if rate is not None:
+        rates.append(ScrapedRate("tonik", "savings", None, rate))
 
     log.info(f"Tonik: scraped {len(rates)} rates")
     return rates
@@ -241,13 +266,13 @@ def scrape_seabank() -> list[ScrapedRate]:
         return []
 
     rates = []
-    body = soup.get_text(" ", strip=True)
-    matches = re.findall(r"(\d+\.?\d*)\s*%\s*(?:per annum|p\.?a\.?|interest|annual)", body, re.IGNORECASE)
-    for m in matches:
-        val = float(m)
-        if 1 < val < 10:
-            rates.append(ScrapedRate("seabank", "savings", None, val))
-            break
+    rate = find_rate_near_keyword(
+        soup,
+        ["savings", "interest", "earn", "per annum", "p.a."],
+        min_rate=1.0, max_rate=10.0,
+    )
+    if rate is not None:
+        rates.append(ScrapedRate("seabank", "savings", None, rate))
 
     log.info(f"SeaBank: scraped {len(rates)} rates")
     return rates
