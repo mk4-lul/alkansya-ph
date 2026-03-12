@@ -35,8 +35,8 @@ function BankRow({ bank, depositType, amount }: { bank: BankWithRates; depositTy
   const earnings = calcInterest(amount, displayRate);
   const isDigital = bank.type === "digital";
   const barWidth = Math.min((displayRate / 6) * 100, 100);
-  const hasMultipleTiers = bank.savings_tiers.length > 1;
-  const rateRangeText = depositType === "savings" && hasMultipleTiers
+  const hasRange = bank.savings_min_rate !== bank.savings_rate;
+  const rateRangeText = depositType === "savings" && hasRange
     ? formatRateRange(bank.savings_min_rate, bank.savings_rate) : `${displayRate}%`;
 
   const rateColor = displayRate >= 2 ? "text-[#0a8f65]" : displayRate >= 0.5 ? "text-[#c8940a]" : "text-[#9a9490]";
@@ -45,7 +45,7 @@ function BankRow({ bank, depositType, amount }: { bank: BankWithRates; depositTy
 
   return (
     <div className="border-b border-[#e5e0d8]">
-      {/* Desktop row (hidden on mobile) */}
+      {/* Desktop row */}
       <div onClick={() => setExpanded(!expanded)}
         className="hidden sm:grid items-center px-4 py-3.5 cursor-pointer hover:bg-[#f0ece6] transition-colors"
         style={{ gridTemplateColumns: "minmax(140px, 1.2fr) 100px 1fr 120px 40px" }}>
@@ -77,7 +77,7 @@ function BankRow({ bank, depositType, amount }: { bank: BankWithRates; depositTy
         <div className={`text-center text-xs text-[#9a9490] transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}>▼</div>
       </div>
 
-      {/* Mobile card row */}
+      {/* Mobile card */}
       <div onClick={() => setExpanded(!expanded)}
         className="sm:hidden px-4 py-3 cursor-pointer hover:bg-[#f0ece6] transition-colors">
         <div className="flex items-center justify-between mb-2">
@@ -107,45 +107,61 @@ function BankRow({ bank, depositType, amount }: { bank: BankWithRates; depositTy
         </div>
       </div>
 
-      {/* Expanded details — responsive */}
+      {/* Expanded */}
       {expanded && (
         <div className="px-4 pb-4 sm:pl-14 animate-fade-in">
-          {depositType === "savings" && bank.savings_tiers.length > 0 && (
+          {/* Savings products */}
+          {depositType === "savings" && bank.savings_products.length > 0 && (
             <div className="mb-3">
-              <p className="font-mono text-[9px] uppercase tracking-[1.5px] text-[#9a9490] mb-2">Savings Rate Tiers</p>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
-                {bank.savings_tiers.map((tier, i) => {
-                  const tierLabel = tier.max_deposit
-                    ? `${formatPesoShort(tier.min_deposit)} – ${formatPesoShort(tier.max_deposit)}`
-                    : `${formatPesoShort(tier.min_deposit)}+`;
-                  const tierEarnings = calcInterest(Math.max(amount, tier.min_deposit), tier.rate);
-                  const isActive = amount >= tier.min_deposit && (tier.max_deposit === null || amount <= tier.max_deposit);
-                  return (
-                    <div key={i} className={`rounded-lg sm:rounded-xl p-2.5 sm:p-3 border ${
-                      isActive ? "bg-amber-50 border-[#c8940a]/30" : "bg-[#f6f4f0] border-[#e5e0d8]"}`}>
-                      <p className="font-mono text-[8px] sm:text-[9px] uppercase tracking-[1.5px] text-[#9a9490]">{tierLabel}</p>
-                      <p className={`font-display text-base sm:text-lg font-bold mt-0.5 sm:mt-1 ${
-                        tier.rate >= 2 ? "text-[#0a8f65]" : tier.rate >= 0.5 ? "text-[#c8940a]" : "text-[#9a9490]"}`}>{tier.rate}%</p>
-                      <p className="font-mono text-[9px] sm:text-[10px] text-[#6b6560]">{formatPeso(tierEarnings)}/yr</p>
-                      {isActive && <span className="inline-block mt-0.5 font-mono text-[7px] sm:text-[8px] uppercase tracking-[1px] text-[#c8940a]">Your tier</span>}
+              <p className="font-mono text-[9px] uppercase tracking-[1.5px] text-[#9a9490] mb-2">
+                {bank.savings_products.length > 1 ? "Savings Products" : "Savings Rate"}
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
+                {bank.savings_products.map((product, pi) => (
+                  <div key={pi} className="bg-[#f6f4f0] rounded-lg sm:rounded-xl border border-[#e5e0d8] overflow-hidden">
+                    {/* Product header */}
+                    <div className="px-3 py-2 border-b border-[#e5e0d8] flex items-center justify-between">
+                      <p className="font-display text-[13px] font-semibold text-[#1a1a1a]">{product.name}</p>
+                      <p className={`font-display text-sm font-bold ${
+                        product.best_rate >= 2 ? "text-[#0a8f65]" : product.best_rate >= 0.5 ? "text-[#c8940a]" : "text-[#9a9490]"
+                      }`}>
+                        {product.min_rate === product.best_rate ? `${product.best_rate}%` : `${product.min_rate}%–${product.best_rate}%`}
+                      </p>
                     </div>
-                  );
-                })}
+                    {/* Product tiers */}
+                    <div className="px-3 py-2">
+                      {product.tiers.map((tier, ti) => {
+                        const tierLabel = tier.max_deposit
+                          ? `${formatPesoShort(tier.min_deposit)} – ${formatPesoShort(tier.max_deposit)}`
+                          : tier.min_deposit > 0 ? `${formatPesoShort(tier.min_deposit)}+` : "Any amount";
+                        const tierEarnings = calcInterest(Math.max(amount, tier.min_deposit), tier.rate);
+                        const isActive = amount >= tier.min_deposit && (tier.max_deposit === null || amount <= tier.max_deposit);
+
+                        return (
+                          <div key={ti} className={`flex items-center justify-between py-1.5 ${
+                            ti > 0 ? "border-t border-[#e5e0d8]/50" : ""
+                          } ${isActive ? "text-[#1a1a1a]" : "text-[#9a9490]"}`}>
+                            <div className="flex items-center gap-2">
+                              {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#c8940a]" />}
+                              <span className="font-mono text-[10px]">{tierLabel}</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <span className={`font-display text-sm font-bold ${
+                                tier.rate >= 2 ? "text-[#0a8f65]" : tier.rate >= 0.5 ? "text-[#c8940a]" : "text-[#9a9490]"
+                              }`}>{tier.rate}%</span>
+                              <span className="font-mono text-[9px] text-[#9a9490] w-20 text-right">{formatPeso(tierEarnings)}/yr</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
 
-          {depositType === "savings" && bank.savings_tiers.length <= 1 && (
-            <div className="mb-3">
-              <div className="bg-[#f6f4f0] rounded-lg sm:rounded-xl p-2.5 sm:p-3 border border-[#e5e0d8] inline-block">
-                <p className="font-mono text-[9px] uppercase tracking-[1.5px] text-[#9a9490]">Savings Rate</p>
-                <p className={`font-display text-base sm:text-lg font-bold mt-0.5 ${
-                  displayRate >= 2 ? "text-[#0a8f65]" : displayRate >= 0.5 ? "text-[#c8940a]" : "text-[#9a9490]"}`}>{displayRate}%</p>
-                <p className="font-mono text-[9px] sm:text-[10px] text-[#6b6560]">{formatPeso(earnings)}/yr on {formatPesoShort(amount)}</p>
-              </div>
-            </div>
-          )}
-
+          {/* Time deposit */}
           {depositType === "time_deposit" && bank.time_deposit_rates.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-3">
               {bank.time_deposit_rates.map((td) => (
@@ -212,7 +228,6 @@ export default function RateTable({ banks }: { banks: BankWithRates[] }) {
 
   return (
     <div>
-      {/* Filters — wrap on mobile */}
       <div className="flex flex-wrap gap-2 sm:gap-3 mb-4 sm:mb-6">
         <div className="flex bg-white rounded-xl p-0.5 border border-[#e5e0d8]">
           <button onClick={() => setDepositType("savings")} className={toggleBtn(depositType === "savings")}>Savings</button>
@@ -242,7 +257,6 @@ export default function RateTable({ banks }: { banks: BankWithRates[] }) {
         </div>
       </div>
 
-      {/* Desktop table header (hidden on mobile) */}
       <div className="hidden sm:grid px-4 py-2.5 border-b border-[#e5e0d8]"
         style={{ gridTemplateColumns: "minmax(140px, 1.2fr) 100px 1fr 120px 40px" }}>
         {["Bank", "Rate", "", "Earn / yr", ""].map((h, i) => (
@@ -250,13 +264,11 @@ export default function RateTable({ banks }: { banks: BankWithRates[] }) {
         ))}
       </div>
 
-      {/* Bank rows */}
       <div className="bg-white rounded-2xl sm:rounded-b-2xl sm:rounded-t-none border border-[#e5e0d8] sm:border-t-0 overflow-hidden shadow-sm">
         {filtered.map((bank) => <BankRow key={bank.id} bank={bank} depositType={depositType} amount={amount} />)}
         {filtered.length === 0 && <p className="text-center py-8 font-mono text-sm text-[#9a9490]">No banks match your filters</p>}
       </div>
 
-      {/* Time Deposit info modal */}
       {showTdInfo && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4" onClick={() => setShowTdInfo(false)}>
           <div className="absolute inset-0 bg-black/30" />
