@@ -4,8 +4,11 @@ import { useState, useMemo } from "react";
 import { BankWithRates, flagRate } from "@/lib/supabase";
 import {
   formatPeso,
+  formatPesoShort,
   calcInterest,
   timeAgo,
+  getRateForAmount,
+  formatRateRange,
   AMOUNT_BRACKETS,
   TERM_LABELS,
 } from "@/lib/utils";
@@ -49,27 +52,35 @@ function BankRow({
 }) {
   const [expanded, setExpanded] = useState(false);
 
-  const rate =
+  // For display: use tier-matched rate for savings, 360d rate for TD
+  const displayRate =
     depositType === "savings"
-      ? bank.savings_rate
+      ? getRateForAmount(bank.savings_tiers, amount)
       : bank.time_deposit_rates.find((r) => r.term_days === 360)?.rate ||
         bank.savings_rate;
 
-  const earnings = calcInterest(amount, rate);
+  const earnings = calcInterest(amount, displayRate);
   const isDigital = bank.type === "digital";
-  const barWidth = Math.min((rate / 6) * 100, 100);
+  const barWidth = Math.min((displayRate / 6) * 100, 100);
+
+  // Rate range for savings
+  const hasMultipleTiers = bank.savings_tiers.length > 1;
+  const rateRangeText =
+    depositType === "savings" && hasMultipleTiers
+      ? formatRateRange(bank.savings_min_rate, bank.savings_rate)
+      : `${displayRate}%`;
 
   const rateColor =
-    rate >= 2
+    displayRate >= 2
       ? "text-alkansya-green"
-      : rate >= 0.5
+      : displayRate >= 0.5
       ? "text-alkansya-gold"
       : "text-white/40";
 
   const barBg =
-    rate >= 2
+    displayRate >= 2
       ? "linear-gradient(90deg, #00d296, #00b377)"
-      : rate >= 0.5
+      : displayRate >= 0.5
       ? "linear-gradient(90deg, #ffc300, #e6a800)"
       : "rgba(255,255,255,0.15)";
 
@@ -79,7 +90,7 @@ function BankRow({
         onClick={() => setExpanded(!expanded)}
         className="grid items-center px-4 py-3.5 cursor-pointer bank-row transition-colors"
         style={{
-          gridTemplateColumns: "minmax(140px, 1.2fr) 90px 1fr 120px 50px",
+          gridTemplateColumns: "minmax(140px, 1.2fr) 100px 1fr 120px 50px",
         }}
       >
         {/* Bank name */}
@@ -101,10 +112,10 @@ function BankRow({
           </div>
         </div>
 
-        {/* Rate */}
+        {/* Rate — show range for savings if multiple tiers */}
         <div className="text-right">
-          <p className={`font-display text-xl font-extrabold ${rateColor}`}>
-            {rate}%
+          <p className={`font-display text-lg font-extrabold ${rateColor}`}>
+            {rateRangeText}
           </p>
           {bank.has_promo && depositType === "savings" && (
             <span className="font-mono text-[9px] text-alkansya-red">
@@ -144,7 +155,80 @@ function BankRow({
       {/* Expanded details */}
       {expanded && (
         <div className="px-4 pb-4 pl-14 animate-fade-in">
-          {bank.time_deposit_rates.length > 0 ? (
+          {/* Savings tiers */}
+          {depositType === "savings" && bank.savings_tiers.length > 0 && (
+            <div className="mb-3">
+              <p className="font-mono text-[9px] uppercase tracking-[1.5px] text-white/40 mb-2">
+                Savings Rate Tiers
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                {bank.savings_tiers.map((tier, i) => {
+                  const tierLabel = tier.max_deposit
+                    ? `${formatPesoShort(tier.min_deposit)} – ${formatPesoShort(tier.max_deposit)}`
+                    : `${formatPesoShort(tier.min_deposit)}+`;
+                  const tierEarnings = calcInterest(
+                    Math.max(amount, tier.min_deposit),
+                    tier.rate
+                  );
+                  const isActive =
+                    amount >= tier.min_deposit &&
+                    (tier.max_deposit === null || amount <= tier.max_deposit);
+
+                  return (
+                    <div
+                      key={i}
+                      className={`rounded-xl p-3 border ${
+                        isActive
+                          ? "bg-white/[0.06] border-alkansya-gold/30"
+                          : "bg-white/[0.02] border-white/[0.06]"
+                      }`}
+                    >
+                      <p className="font-mono text-[9px] uppercase tracking-[1.5px] text-white/40">
+                        {tierLabel}
+                      </p>
+                      <p
+                        className={`font-display text-lg font-bold mt-1 ${
+                          tier.rate >= 2 ? "text-alkansya-green" : tier.rate >= 0.5 ? "text-alkansya-gold" : "text-white/50"
+                        }`}
+                      >
+                        {tier.rate}%
+                      </p>
+                      <p className="font-mono text-[10px] text-white/30">
+                        {formatPeso(tierEarnings)}/yr
+                      </p>
+                      {isActive && (
+                        <span className="inline-block mt-1 font-mono text-[8px] uppercase tracking-[1px] text-alkansya-gold/70">
+                          Your tier
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Single savings rate (no tiers) */}
+          {depositType === "savings" && bank.savings_tiers.length <= 1 && (
+            <div className="mb-3">
+              <div className="bg-white/[0.03] rounded-xl p-3 border border-white/[0.06] inline-block">
+                <p className="font-mono text-[9px] uppercase tracking-[1.5px] text-white/40">
+                  Savings Rate
+                </p>
+                <p className={`font-display text-lg font-bold mt-1 ${
+                  displayRate >= 2 ? "text-alkansya-green" : displayRate >= 0.5 ? "text-alkansya-gold" : "text-white/50"
+                }`}>
+                  {displayRate}%
+                </p>
+                <p className="font-mono text-[10px] text-white/30">
+                  {formatPeso(earnings)}/yr on {formatPesoShort(amount)}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Time deposit rates */}
+          {depositType === "time_deposit" && bank.time_deposit_rates.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
               {bank.time_deposit_rates.map((td) => {
                 const tdDays = td.term_days;
@@ -171,7 +255,9 @@ function BankRow({
                 );
               })}
             </div>
-          ) : (
+          )}
+
+          {depositType === "time_deposit" && bank.time_deposit_rates.length === 0 && (
             <p className="font-mono text-[11px] text-white/30 mb-3">
               No time deposit products available
             </p>
@@ -233,12 +319,12 @@ export default function RateTable({ banks }: { banks: BankWithRates[] }) {
     list.sort((a, b) => {
       const rateA =
         depositType === "savings"
-          ? a.savings_rate
+          ? getRateForAmount(a.savings_tiers, amount)
           : a.time_deposit_rates.find((r) => r.term_days === 360)?.rate ||
             a.savings_rate;
       const rateB =
         depositType === "savings"
-          ? b.savings_rate
+          ? getRateForAmount(b.savings_tiers, amount)
           : b.time_deposit_rates.find((r) => r.term_days === 360)?.rate ||
             b.savings_rate;
 
@@ -249,7 +335,7 @@ export default function RateTable({ banks }: { banks: BankWithRates[] }) {
     });
 
     return list;
-  }, [banks, depositType, bankType, sortBy]);
+  }, [banks, depositType, bankType, sortBy, amount]);
 
   const toggleBtn = (
     isActive: boolean
@@ -328,7 +414,7 @@ export default function RateTable({ banks }: { banks: BankWithRates[] }) {
       <div
         className="grid px-4 py-2.5 border-b border-white/[0.08]"
         style={{
-          gridTemplateColumns: "minmax(140px, 1.2fr) 90px 1fr 120px 50px",
+          gridTemplateColumns: "minmax(140px, 1.2fr) 100px 1fr 120px 50px",
         }}
       >
         {["Bank", "Rate", "", "Earn / yr", ""].map((h, i) => (
