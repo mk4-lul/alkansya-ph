@@ -60,7 +60,7 @@ function BankRow({ bank, depositType, amount }: { bank: BankWithRates; depositTy
           </div>
         </div>
         <div className="text-right">
-          <p className={`font-display text-lg font-extrabold ${rateColor}`}>{rateRangeText}</p>
+          <p className={`font-display font-extrabold whitespace-nowrap ${depositType === "savings" && hasRange ? "text-sm" : "text-lg"} ${rateColor}`}>{rateRangeText}</p>
           {bank.has_promo && depositType === "savings" && (
             <span className="font-mono text-[9px] text-[#d94444]">up to {bank.promo_rate}%*</span>
           )}
@@ -92,7 +92,7 @@ function BankRow({ bank, depositType, amount }: { bank: BankWithRates; depositTy
             </div>
           </div>
           <div className="text-right">
-            <p className={`font-display text-lg font-extrabold ${rateColor}`}>{rateRangeText}</p>
+            <p className={`font-display font-extrabold whitespace-nowrap ${depositType === "savings" && hasRange ? "text-sm" : "text-lg"} ${rateColor}`}>{rateRangeText}</p>
             {bank.has_promo && depositType === "savings" && (
               <span className="font-mono text-[8px] text-[#d94444]">up to {bank.promo_rate}%*</span>
             )}
