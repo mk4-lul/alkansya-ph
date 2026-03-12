@@ -1,8 +1,8 @@
 [build]
 builder = "nixpacks"
+buildCommand = "pip install -r requirements.txt"
 
 [deploy]
 startCommand = "python scraper.py"
 restartPolicyType = "never"
-
 cronSchedule = "0 8 * * 0"
