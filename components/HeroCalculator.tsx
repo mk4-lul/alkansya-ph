@@ -62,9 +62,6 @@ export default function HeroCalculator({ banks }: { banks: BankWithRates[] }) {
         <p className="font-mono text-[10px] sm:text-[11px] uppercase tracking-[3px] text-amber-400 mb-2">
           Opportunity Cost Calculator
         </p>
-        <h2 className="font-display text-xl sm:text-2xl md:text-3xl font-bold text-white mb-5 sm:mb-7 leading-tight">
-          How much are you <span className="text-amber-400">leaving on the table</span>?
-        </h2>
 
         {/* Inputs — stack on mobile */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-5 sm:mb-6">
