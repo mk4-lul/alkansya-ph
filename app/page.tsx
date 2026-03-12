@@ -118,7 +118,7 @@ export default async function HomePage() {
             </p>
           </div>
           <p className="font-mono text-[8px] sm:text-[9px] text-[#b0aaa4]">
-            Rates shown are indicative. Always verify with your bank. Not financial advice.
+            Rates are indicative and may not reflect real-time changes. Always verify directly with your bank before making financial decisions. Alkansya.ph is an independent informational tool — not a financial advisor, broker, or bank. We are not liable for any losses, damages, or issues arising from the use of this site or any third-party platform listed herein.
           </p>
         </footer>
       </main>
