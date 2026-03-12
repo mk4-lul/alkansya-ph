@@ -48,7 +48,7 @@ function BankRow({ bank, depositType, amount }: { bank: BankWithRates; depositTy
       {/* Desktop row */}
       <div onClick={() => setExpanded(!expanded)}
         className="hidden sm:grid items-center px-4 py-3.5 cursor-pointer hover:bg-[#f0ece6] transition-colors"
-        style={{ gridTemplateColumns: "minmax(140px, 1.2fr) 140px 1fr 120px 40px" }}>
+        style={{ gridTemplateColumns: "minmax(140px, 1.2fr) auto 1fr 120px 40px" }}>
         <div className="flex items-center gap-2.5">
           <span className="text-xl">{bank.logo}</span>
           <div>
@@ -59,8 +59,8 @@ function BankRow({ bank, depositType, amount }: { bank: BankWithRates; depositTy
             </span>
           </div>
         </div>
-        <div className="text-right">
-          <p className={`font-display font-extrabold whitespace-nowrap ${depositType === "savings" && hasRange ? "text-sm" : "text-lg"} ${rateColor}`}>{rateRangeText}</p>
+        <div className="text-right pl-2">
+          <p className={`font-display text-lg font-extrabold whitespace-nowrap ${rateColor}`}>{rateRangeText}</p>
           {bank.has_promo && depositType === "savings" && (
             <span className="font-mono text-[9px] text-[#d94444]">up to {bank.promo_rate}%*</span>
           )}
@@ -92,7 +92,7 @@ function BankRow({ bank, depositType, amount }: { bank: BankWithRates; depositTy
             </div>
           </div>
           <div className="text-right">
-            <p className={`font-display font-extrabold whitespace-nowrap ${depositType === "savings" && hasRange ? "text-sm" : "text-lg"} ${rateColor}`}>{rateRangeText}</p>
+            <p className={`font-display text-lg font-extrabold whitespace-nowrap ${rateColor}`}>{rateRangeText}</p>
             {bank.has_promo && depositType === "savings" && (
               <span className="font-mono text-[8px] text-[#d94444]">up to {bank.promo_rate}%*</span>
             )}
@@ -258,7 +258,7 @@ export default function RateTable({ banks }: { banks: BankWithRates[] }) {
       </div>
 
       <div className="hidden sm:grid px-4 py-2.5 border-b border-[#e5e0d8]"
-        style={{ gridTemplateColumns: "minmax(140px, 1.2fr) 140px 1fr 120px 40px" }}>
+        style={{ gridTemplateColumns: "minmax(140px, 1.2fr) auto 1fr 120px 40px" }}>
         {["Bank", "Rate", "", "Earn / yr", ""].map((h, i) => (
           <p key={i} className={`m-0 font-mono text-[9px] uppercase tracking-[2px] text-[#9a9490] ${i === 1 || i === 3 ? "text-right" : ""}`}>{h}</p>
         ))}
