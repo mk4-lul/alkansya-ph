@@ -57,7 +57,6 @@ export default function HeroCalculator({
 
   const fromBank = banks.find((b) => b.id === fromBankId);
 
-  // Find best digital bank for this specific amount
   const bestDigi = [...digiBanks].sort((a, b) => {
     const rateA = getRateForAmount(a.savings_tiers, amount);
     const rateB = getRateForAmount(b.savings_tiers, amount);
@@ -74,20 +73,20 @@ export default function HeroCalculator({
 
   return (
     <div className="relative overflow-hidden rounded-3xl p-8 md:p-10"
-      style={{ background: "linear-gradient(135deg, #0a1628 0%, #132743 40%, #1a3a5c 100%)" }}>
+      style={{ background: "linear-gradient(135deg, #1a2332 0%, #243447 40%, #2d4a5e 100%)" }}>
       {/* Decorative glows */}
       <div className="absolute -top-16 -right-16 w-52 h-52 rounded-full"
-        style={{ background: "radial-gradient(circle, rgba(255,195,0,0.12) 0%, transparent 70%)" }} />
+        style={{ background: "radial-gradient(circle, rgba(200,148,10,0.15) 0%, transparent 70%)" }} />
       <div className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full"
-        style={{ background: "radial-gradient(circle, rgba(0,210,150,0.08) 0%, transparent 70%)" }} />
+        style={{ background: "radial-gradient(circle, rgba(10,143,101,0.1) 0%, transparent 70%)" }} />
 
       <div className="relative z-10">
-        <p className="font-mono text-[11px] uppercase tracking-[3px] text-alkansya-gold mb-2">
+        <p className="font-mono text-[11px] uppercase tracking-[3px] text-amber-400 mb-2">
           Opportunity Cost Calculator
         </p>
         <h2 className="font-display text-2xl md:text-3xl font-bold text-white mb-7 leading-tight">
           How much are you{" "}
-          <span className="text-alkansya-gold">leaving on the table</span>?
+          <span className="text-amber-400">leaving on the table</span>?
         </h2>
 
         <div className="grid grid-cols-2 gap-4 mb-6">
@@ -98,10 +97,10 @@ export default function HeroCalculator({
             <select
               value={fromBankId}
               onChange={(e) => setFromBankId(e.target.value)}
-              className="w-full px-3.5 py-3 rounded-xl border border-white/15 bg-white/5 text-white font-display text-sm cursor-pointer"
+              className="w-full px-3.5 py-3 rounded-xl border border-white/15 bg-white/10 text-white font-display text-sm cursor-pointer"
             >
               {tradBanks.map((b) => (
-                <option key={b.id} value={b.id}>
+                <option key={b.id} value={b.id} style={{ background: "#243447" }}>
                   {b.name} ({getRateForAmount(b.savings_tiers, amount)}%)
                 </option>
               ))}
@@ -114,10 +113,10 @@ export default function HeroCalculator({
             <select
               value={amount}
               onChange={(e) => setAmount(Number(e.target.value))}
-              className="w-full px-3.5 py-3 rounded-xl border border-white/15 bg-white/5 text-white font-display text-sm cursor-pointer"
+              className="w-full px-3.5 py-3 rounded-xl border border-white/15 bg-white/10 text-white font-display text-sm cursor-pointer"
             >
               {AMOUNT_BRACKETS.map((a) => (
-                <option key={a.value} value={a.value}>
+                <option key={a.value} value={a.value} style={{ background: "#243447" }}>
                   {a.label}
                 </option>
               ))}
@@ -127,7 +126,7 @@ export default function HeroCalculator({
 
         {/* Results card */}
         <div className="rounded-2xl p-6 border"
-          style={{ background: "rgba(0,0,0,0.25)", borderColor: "rgba(255,195,0,0.15)" }}>
+          style={{ background: "rgba(0,0,0,0.2)", borderColor: "rgba(255,195,0,0.15)" }}>
           <div className="grid grid-cols-[1fr_auto_1fr] gap-4 items-center mb-5">
             <div>
               <p className="font-mono text-[10px] uppercase tracking-[2px] text-white/40 mb-1">
@@ -140,22 +139,22 @@ export default function HeroCalculator({
             </div>
             <div className="text-2xl text-white/20">→</div>
             <div className="text-right">
-              <p className="font-mono text-[10px] uppercase tracking-[2px] text-alkansya-green mb-1">
+              <p className="font-mono text-[10px] uppercase tracking-[2px] text-emerald-400 mb-1">
                 {bestDigi.name} ({bestRate}%)
               </p>
-              <p className="font-display text-xl md:text-2xl font-bold text-alkansya-green">
+              <p className="font-display text-xl md:text-2xl font-bold text-emerald-400">
                 <AnimatedNumber value={bestEarnings} prefix="₱" />
               </p>
               <p className="font-mono text-[10px] text-white/30">per year</p>
             </div>
           </div>
 
-          <div className="rounded-xl px-5 py-4 border-l-[3px] border-l-alkansya-gold"
-            style={{ background: "linear-gradient(90deg, rgba(255,195,0,0.15), rgba(255,195,0,0.05))" }}>
+          <div className="rounded-xl px-5 py-4 border-l-[3px] border-l-amber-400"
+            style={{ background: "linear-gradient(90deg, rgba(200,148,10,0.15), rgba(200,148,10,0.03))" }}>
             <p className="font-display text-sm text-white/70">
               You&apos;re missing out on
             </p>
-            <p className="font-display text-3xl md:text-4xl font-extrabold text-alkansya-gold mt-1">
+            <p className="font-display text-3xl md:text-4xl font-extrabold text-amber-400 mt-1">
               <AnimatedNumber value={diff} prefix="₱" suffix="/year" />
             </p>
           </div>
