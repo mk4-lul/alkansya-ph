@@ -33,19 +33,16 @@ export interface Bank {
   promo_terms: string | null;
 }
 
-export interface Rate {
-  bank_id: string;
-  product_type: "savings" | "time_deposit";
-  term_days: number | null;
+export interface SavingsTier {
   rate: number;
   min_deposit: number;
   max_deposit: number | null;
-  verified_at: string;
-  source: string;
 }
 
 export interface BankWithRates extends Bank {
-  savings_rate: number;
+  savings_rate: number; // highest savings rate (for sorting)
+  savings_min_rate: number; // lowest savings rate (for range display)
+  savings_tiers: SavingsTier[];
   time_deposit_rates: { term_days: number; rate: number }[];
   last_verified: string;
 }
@@ -85,6 +82,8 @@ export async function getBanksWithRates(): Promise<BankWithRates[]> {
         promo_rate: row.promo_rate,
         promo_terms: row.promo_terms,
         savings_rate: 0,
+        savings_min_rate: Infinity,
+        savings_tiers: [],
         time_deposit_rates: [],
         last_verified: row.verified_at,
       });
@@ -93,7 +92,14 @@ export async function getBanksWithRates(): Promise<BankWithRates[]> {
     const bank = bankMap.get(row.bank_id)!;
 
     if (row.product_type === "savings") {
-      bank.savings_rate = Number(row.rate);
+      const rate = Number(row.rate);
+      bank.savings_tiers.push({
+        rate,
+        min_deposit: Number(row.min_deposit) || 0,
+        max_deposit: row.max_deposit ? Number(row.max_deposit) : null,
+      });
+      if (rate > bank.savings_rate) bank.savings_rate = rate;
+      if (rate < bank.savings_min_rate) bank.savings_min_rate = rate;
     } else if (row.product_type === "time_deposit" && row.term_days) {
       bank.time_deposit_rates.push({
         term_days: row.term_days,
@@ -107,9 +113,12 @@ export async function getBanksWithRates(): Promise<BankWithRates[]> {
     }
   }
 
-  // Sort time deposit rates by term
+  // Sort and fix up
   for (const bank of bankMap.values()) {
     bank.time_deposit_rates.sort((a, b) => a.term_days - b.term_days);
+    bank.savings_tiers.sort((a, b) => a.min_deposit - b.min_deposit);
+    // If no savings tiers found, min = max = 0
+    if (bank.savings_min_rate === Infinity) bank.savings_min_rate = bank.savings_rate;
   }
 
   return Array.from(bankMap.values());
