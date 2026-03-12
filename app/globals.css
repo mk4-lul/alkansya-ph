@@ -5,16 +5,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@300;400;500&display=swap');
 
 :root {
-  --alkansya-bg: #080e1a;
-  --alkansya-card: #0d1526;
-  --alkansya-gold: #ffc300;
-  --alkansya-green: #00d296;
-  --alkansya-red: #ff6b6b;
+  --alkansya-bg: #f6f4f0;
+  --alkansya-card: #ffffff;
+  --alkansya-gold: #c8940a;
+  --alkansya-green: #0a8f65;
+  --alkansya-red: #d94444;
+  --alkansya-text: #1a1a1a;
+  --alkansya-muted: #6b6560;
+  --alkansya-border: #e5e0d8;
 }
 
 body {
   background: var(--alkansya-bg);
-  color: #fff;
+  color: var(--alkansya-text);
   font-family: 'Outfit', sans-serif;
 }
 
@@ -25,7 +28,7 @@ body {
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 3px; }
 
 /* Animations */
 @keyframes fadeIn {
@@ -62,12 +65,12 @@ body {
 
 /* Table row hover */
 .bank-row:hover {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(0, 0, 0, 0.02);
 }
 
 /* Select styling */
 select:focus {
-  border-color: rgba(255, 195, 0, 0.4) !important;
+  border-color: var(--alkansya-gold) !important;
   outline: none;
 }
 
