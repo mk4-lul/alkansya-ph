@@ -8,11 +8,14 @@ module.exports = {
     extend: {
       colors: {
         alkansya: {
-          bg: "#080e1a",
-          card: "#0d1526",
-          gold: "#ffc300",
-          green: "#00d296",
-          red: "#ff6b6b",
+          bg: "#f6f4f0",
+          card: "#ffffff",
+          gold: "#c8940a",
+          green: "#0a8f65",
+          red: "#d94444",
+          text: "#1a1a1a",
+          muted: "#6b6560",
+          border: "#e5e0d8",
         },
       },
       fontFamily: {
