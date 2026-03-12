@@ -1,8 +1,16 @@
+import { SavingsTier } from "@/lib/supabase";
+
 export function formatPeso(amount: number): string {
   return "₱" + amount.toLocaleString("en-PH", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
+}
+
+export function formatPesoShort(amount: number): string {
+  if (amount >= 1000000) return `₱${(amount / 1000000).toFixed(1)}M`;
+  if (amount >= 1000) return `₱${(amount / 1000).toFixed(0)}k`;
+  return `₱${amount}`;
 }
 
 export function calcInterest(
@@ -24,6 +32,27 @@ export function timeAgo(dateStr: string): string {
   if (diffDays < 7) return `${diffDays}d ago`;
   if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
   return `${Math.floor(diffDays / 30)}mo ago`;
+}
+
+/** Get the savings rate for a specific deposit amount from tiers */
+export function getRateForAmount(tiers: SavingsTier[], amount: number): number {
+  if (tiers.length === 0) return 0;
+  // Find the tier that matches the amount
+  for (let i = tiers.length - 1; i >= 0; i--) {
+    if (amount >= tiers[i].min_deposit) {
+      if (tiers[i].max_deposit === null || amount <= tiers[i].max_deposit) {
+        return tiers[i].rate;
+      }
+    }
+  }
+  // Fallback to first tier
+  return tiers[0].rate;
+}
+
+/** Format a rate range like "0.0625% – 0.125%" or just "3.5%" if single tier */
+export function formatRateRange(minRate: number, maxRate: number): string {
+  if (minRate === maxRate) return `${maxRate}%`;
+  return `${minRate}% – ${maxRate}%`;
 }
 
 export const AMOUNT_BRACKETS = [
