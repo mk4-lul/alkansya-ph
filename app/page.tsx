@@ -67,10 +67,7 @@ export default async function HomePage() {
             <br />
             ang <span className="text-[#c8940a]">pera</span> mo?
           </h1>
-          <p className="font-display text-sm sm:text-base md:text-lg text-[#6b6560] max-w-[520px] leading-relaxed mb-6 sm:mb-8">
-            Traditional banks give you 0.0625%. Digital banks give you 50× more.
-            See exactly how much you&apos;re missing out on.
-          </p>
+          
           <HeroCalculator banks={banks} />
         </div>
 
