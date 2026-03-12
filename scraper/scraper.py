@@ -55,10 +55,10 @@ HEADERS = {
     "Accept-Language": "en-US,en;q=0.9",
 }
 
-def fetch_page(url: str, timeout: int = 30) -> Optional[BeautifulSoup]:
+def fetch_page(url: str, timeout: int = 30, verify_ssl: bool = True) -> Optional[BeautifulSoup]:
     """Fetch a page and return parsed BeautifulSoup, or None on failure."""
     try:
-        resp = requests.get(url, headers=HEADERS, timeout=timeout)
+        resp = requests.get(url, headers=HEADERS, timeout=timeout, verify=verify_ssl)
         resp.raise_for_status()
         return BeautifulSoup(resp.text, "lxml")
     except Exception as e:
@@ -77,9 +77,6 @@ def extract_rate(text: str) -> Optional[float]:
 # ---------------------------------------------------------------------------
 # Per-bank scrapers
 # ---------------------------------------------------------------------------
-# Each function returns a list of ScrapedRate.
-# If scraping fails, return empty list (we keep old data).
-# ---------------------------------------------------------------------------
 
 def scrape_bpi() -> list[ScrapedRate]:
     """BPI deposit rates page."""
@@ -89,27 +86,23 @@ def scrape_bpi() -> list[ScrapedRate]:
         return []
 
     rates = []
-    # Look for rate tables
     tables = soup.find_all("table")
     for table in tables:
         text = table.get_text(" ", strip=True).lower()
-        # Try to find savings rate
         if "savings" in text or "passbook" in text:
             cells = table.find_all("td")
             for cell in cells:
                 r = extract_rate(cell.get_text())
-                if r is not None and r < 1:  # Savings rates are tiny
+                if r is not None and r < 1:
                     rates.append(ScrapedRate("bpi", "savings", None, r))
                     break
 
-    # If we found nothing from tables, try scanning all text
     if not rates:
         body = soup.get_text(" ", strip=True)
-        # Common pattern: "Savings Account ... 0.0625%"
         matches = re.findall(r"(?:savings|passbook)[^%]*?(\d+\.?\d*)\s*%", body, re.IGNORECASE)
         for m in matches:
             val = float(m)
-            if val < 2:  # Sanity check for savings
+            if val < 2:
                 rates.append(ScrapedRate("bpi", "savings", None, val))
                 break
 
@@ -138,7 +131,7 @@ def scrape_bdo() -> list[ScrapedRate]:
 
 
 def scrape_metrobank() -> list[ScrapedRate]:
-    """Metrobank rates page - has time deposit table."""
+    """Metrobank rates page."""
     url = "https://www.metrobank.com.ph/articles/time-deposit-rates-and-fees"
     soup = fetch_page(url)
     if not soup:
@@ -152,7 +145,6 @@ def scrape_metrobank() -> list[ScrapedRate]:
             cells = row.find_all(["td", "th"])
             text = " ".join(c.get_text(strip=True) for c in cells).lower()
 
-            # Try to identify term and rate
             term_map = {
                 "30": 30, "60": 60, "90": 90, "120": 120,
                 "180": 180, "360": 360, "365": 360,
@@ -170,20 +162,27 @@ def scrape_metrobank() -> list[ScrapedRate]:
 
 
 def scrape_maya() -> list[ScrapedRate]:
-    """Maya Bank - digital bank, rates often on landing page."""
-    url = "https://www.maya.ph/savings"
-    soup = fetch_page(url)
+    """Maya Bank."""
+    # Try multiple possible URLs
+    urls = [
+        "https://www.maya.ph/savings",
+        "https://www.maya.ph/",
+        "https://maya.ph/",
+    ]
+    soup = None
+    for url in urls:
+        soup = fetch_page(url)
+        if soup:
+            break
     if not soup:
         return []
 
     rates = []
     body = soup.get_text(" ", strip=True)
-
-    # Maya usually advertises their headline rate prominently
     matches = re.findall(r"(\d+\.?\d*)\s*%\s*(?:per annum|p\.?a\.?|interest|annual)", body, re.IGNORECASE)
     for m in matches:
         val = float(m)
-        if 1 < val < 10:  # Digital bank range
+        if 1 < val < 10:
             rates.append(ScrapedRate("maya", "savings", None, val))
             break
 
@@ -193,8 +192,11 @@ def scrape_maya() -> list[ScrapedRate]:
 
 def scrape_cimb() -> list[ScrapedRate]:
     """CIMB UpSave."""
+    # Try with SSL verification disabled as fallback
     url = "https://www.cimb.com.ph/en/personal/banking/accounts/upsave.html"
     soup = fetch_page(url)
+    if not soup:
+        soup = fetch_page(url, verify_ssl=False)
     if not soup:
         return []
 
@@ -264,43 +266,61 @@ SCRAPERS = {
 
 
 # ---------------------------------------------------------------------------
-# Supabase writer
+# Supabase writer (REST API)
 # ---------------------------------------------------------------------------
 
 def write_to_supabase(scraped: list[ScrapedRate]):
-    """Write scraped rates to Supabase, marking old rates as not current."""
-    from supabase import create_client
-
+    """Write scraped rates to Supabase via REST API."""
     url = os.environ.get("SUPABASE_URL")
-    key = os.environ.get("SUPABASE_SERVICE_KEY")  # Use service role key for writes
+    key = os.environ.get("SUPABASE_SERVICE_KEY")
 
     if not url or not key:
         log.error("SUPABASE_URL and SUPABASE_SERVICE_KEY must be set")
         return
 
-    client = create_client(url, key)
+    headers = {
+        "apikey": key,
+        "Authorization": f"Bearer {key}",
+        "Content-Type": "application/json",
+        "Prefer": "return=minimal",
+    }
 
     for rate in scraped:
         try:
-            # Mark existing current rates for this bank+product+term as not current
-            client.table("rates").update({"is_current": False}).match({
-                "bank_id": rate.bank_id,
-                "product_type": rate.product_type,
-                "term_days": rate.term_days,
-                "is_current": True,
-            }).execute()
+            # Mark existing current rates as not current
+            params = {
+                "bank_id": f"eq.{rate.bank_id}",
+                "product_type": f"eq.{rate.product_type}",
+                "is_current": "eq.true",
+            }
+            if rate.term_days is not None:
+                params["term_days"] = f"eq.{rate.term_days}"
+            else:
+                params["term_days"] = "is.null"
+
+            requests.patch(
+                f"{url}/rest/v1/rates",
+                headers=headers,
+                params=params,
+                json={"is_current": False},
+            )
 
             # Insert new rate
-            client.table("rates").insert({
-                "bank_id": rate.bank_id,
-                "product_type": rate.product_type,
-                "term_days": rate.term_days,
-                "rate": rate.rate,
-                "min_deposit": rate.min_deposit,
-                "max_deposit": rate.max_deposit,
-                "source": "scraper",
-                "is_current": True,
-            }).execute()
+            resp = requests.post(
+                f"{url}/rest/v1/rates",
+                headers=headers,
+                json={
+                    "bank_id": rate.bank_id,
+                    "product_type": rate.product_type,
+                    "term_days": rate.term_days,
+                    "rate": rate.rate,
+                    "min_deposit": rate.min_deposit,
+                    "max_deposit": rate.max_deposit,
+                    "source": "scraper",
+                    "is_current": True,
+                },
+            )
+            resp.raise_for_status()
 
             log.info(f"Updated {rate.bank_id} {rate.product_type} "
                      f"{'(' + str(rate.term_days) + 'd)' if rate.term_days else ''}: {rate.rate}%")
