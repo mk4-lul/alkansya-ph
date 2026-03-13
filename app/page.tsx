@@ -1,6 +1,5 @@
 import { getBanksWithRates, BankWithRates } from "@/lib/supabase";
-import HeroCalculator from "@/components/HeroCalculator";
-import RateTable from "@/components/RateTable";
+import Dashboard from "@/components/Dashboard";
 
 export const revalidate = 3600;
 
@@ -145,32 +144,7 @@ export default async function HomePage() {
       </nav>
 
       <main className="max-w-[960px] mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        <div className="mb-8 sm:mb-12 animate-slide-up">
-          <p className="font-mono text-[10px] sm:text-[11px] uppercase tracking-[3px] text-[#c8940a] mb-2">
-            Compare PH Bank Rates
-          </p>
-          <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-extrabold leading-[1.1] mb-6 sm:mb-8 tracking-tight text-[#1a1a1a]">
-            Saan mo ilalagay
-            <br />
-            ang <span className="text-[#c8940a]">pera</span> mo?
-          </h1>
-          <HeroCalculator banks={banks} />
-        </div>
-
-        <div className="grid grid-cols-3 gap-px bg-[#e5e0d8] rounded-xl sm:rounded-2xl overflow-hidden mb-8 sm:mb-10 shadow-sm">
-          {[
-            { label: "Avg. Traditional", value: `${avgTraditional.toFixed(3)}%`, color: "text-[#6b6560]" },
-            { label: "Avg. Digital", value: `${avgDigital.toFixed(1)}%`, color: "text-[#0a8f65]" },
-            { label: "Difference", value: `${multiplier}×`, color: "text-[#c8940a]" },
-          ].map((stat, i) => (
-            <div key={i} className="bg-white py-3 sm:py-5 px-2 sm:px-6 text-center">
-              <p className="font-mono text-[7px] sm:text-[9px] uppercase tracking-[1px] sm:tracking-[2px] text-[#9a9490] mb-1">{stat.label}</p>
-              <p className={`font-display text-lg sm:text-2xl md:text-3xl font-extrabold ${stat.color}`}>{stat.value}</p>
-            </div>
-          ))}
-        </div>
-
-        <RateTable banks={banks} />
+        <Dashboard banks={banks} avgTraditional={avgTraditional} avgDigital={avgDigital} multiplier={multiplier} />
 
         <div className="mt-5 sm:mt-6 p-3 sm:p-5 rounded-xl bg-white border border-[#e5e0d8] flex gap-2 sm:gap-3 shadow-sm">
           <span className="text-base sm:text-lg">🛡️</span>
