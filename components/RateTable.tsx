@@ -49,6 +49,8 @@ function BankRow({ bank, depositType, amount }: { bank: BankWithRates; depositTy
       <div onClick={() => setExpanded(!expanded)}
         className="hidden sm:grid items-center px-4 py-3.5 cursor-pointer hover:bg-[#f0ece6] transition-colors"
         style={{ gridTemplateColumns: "minmax(140px, 1.2fr) 180px 1fr 120px 40px" }}>
+        <div className="flex items-center gap-2.5">
+          <span className="text-xl">{bank.logo}</span>
           <div>
             <p className="font-display text-sm font-semibold text-[#1a1a1a]">{bank.name}</p>
             <span className={`inline-block font-mono text-[9px] uppercase tracking-[1.5px] px-1.5 py-0.5 rounded mt-0.5 ${
@@ -57,7 +59,7 @@ function BankRow({ bank, depositType, amount }: { bank: BankWithRates; depositTy
             </span>
           </div>
         </div>
-        <div className="text-right pl-2">
+        <div className="text-right">
           <p className={`font-display text-lg font-extrabold whitespace-nowrap ${rateColor}`}>{rateRangeText}</p>
           {bank.has_promo && depositType === "savings" && (
             <span className="font-mono text-[9px] text-[#d94444]">up to {bank.promo_rate}%*</span>
