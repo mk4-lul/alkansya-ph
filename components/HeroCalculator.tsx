@@ -33,11 +33,18 @@ function AnimatedNumber({ value, prefix = "", suffix = "" }: { value: number; pr
   );
 }
 
-export default function HeroCalculator({ banks }: { banks: BankWithRates[] }) {
+export default function HeroCalculator({
+  banks,
+  amount,
+  onAmountChange,
+}: {
+  banks: BankWithRates[];
+  amount: number;
+  onAmountChange: (amount: number) => void;
+}) {
   const tradBanks = banks.filter((b) => b.type === "traditional");
   const digiBanks = banks.filter((b) => b.type === "digital");
   const [fromBankId, setFromBankId] = useState(tradBanks[0]?.id || "bdo");
-  const [amount, setAmount] = useState(100000);
 
   const fromBank = banks.find((b) => b.id === fromBankId);
   const bestDigi = [...digiBanks].sort((a, b) =>
@@ -78,7 +85,7 @@ export default function HeroCalculator({ banks }: { banks: BankWithRates[] }) {
           </div>
           <div>
             <label className="block font-mono text-[10px] uppercase tracking-[2px] text-white/50 mb-1.5">Deposit Amount</label>
-            <select value={amount} onChange={(e) => setAmount(Number(e.target.value))}
+            <select value={amount} onChange={(e) => onAmountChange(Number(e.target.value))}
               className="w-full px-3 py-2.5 sm:py-3 rounded-xl border border-white/15 bg-white/10 text-white font-display text-sm cursor-pointer">
               {AMOUNT_BRACKETS.map((a) => (
                 <option key={a.value} value={a.value} style={{ background: "#243447" }}>{a.label}</option>
