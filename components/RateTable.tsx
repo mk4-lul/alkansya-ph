@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { BankWithRates, flagRate } from "@/lib/supabase";
 import {
   formatPeso,
@@ -24,8 +24,21 @@ function FlagButton({ bankId }: { bankId: string }) {
   );
 }
 
-function BankRow({ bank, depositType, amount }: { bank: BankWithRates; depositType: "savings" | "time_deposit"; amount: number }) {
+function BankRow({ bank, depositType, amount, highlight }: {
+  bank: BankWithRates;
+  depositType: "savings" | "time_deposit";
+  amount: number;
+  highlight: boolean;
+}) {
   const [expanded, setExpanded] = useState(false);
+  const rowRef = useRef<HTMLDivElement>(null);
+
+  // Auto-expand when highlighted
+  useEffect(() => {
+    if (highlight) {
+      setExpanded(true);
+    }
+  }, [highlight]);
 
   const displayRate = depositType === "savings"
     ? getRateForAmount(bank.savings_tiers, amount)
@@ -43,7 +56,7 @@ function BankRow({ bank, depositType, amount }: { bank: BankWithRates; depositTy
     : displayRate >= 0.5 ? "linear-gradient(90deg, #c8940a, #b38308)" : "rgba(0,0,0,0.08)";
 
   return (
-    <div className="border-b border-[#e5e0d8]">
+    <div id={`bank-${bank.id}`} ref={rowRef} className={`border-b border-[#e5e0d8] ${highlight ? "animate-bank-highlight" : ""}`}>
       {/* Desktop row */}
       <div onClick={() => setExpanded(!expanded)}
         className="hidden sm:grid items-center px-4 py-3.5 cursor-pointer hover:bg-[#f0ece6] transition-colors"
@@ -195,10 +208,23 @@ function BankRow({ bank, depositType, amount }: { bank: BankWithRates; depositTy
   );
 }
 
-export default function RateTable({ banks, amount }: { banks: BankWithRates[]; amount: number }) {
+export default function RateTable({ banks, amount, highlightBankId, onHighlightDone }: {
+  banks: BankWithRates[];
+  amount: number;
+  highlightBankId: string | null;
+  onHighlightDone: () => void;
+}) {
   const [depositType, setDepositType] = useState<"savings" | "time_deposit">("savings");
   const [bankType, setBankType] = useState<"all" | "traditional" | "digital">("all");
   const [showTdInfo, setShowTdInfo] = useState(false);
+
+  // Clear highlight after animation
+  useEffect(() => {
+    if (highlightBankId) {
+      const timer = setTimeout(() => onHighlightDone(), 2200);
+      return () => clearTimeout(timer);
+    }
+  }, [highlightBankId, onHighlightDone]);
 
   const filtered = useMemo(() => {
     let list = [...banks];
@@ -245,7 +271,15 @@ export default function RateTable({ banks, amount }: { banks: BankWithRates[]; a
       </div>
 
       <div className="bg-white rounded-2xl sm:rounded-b-2xl sm:rounded-t-none border border-[#e5e0d8] sm:border-t-0 overflow-hidden shadow-sm">
-        {filtered.map((bank) => <BankRow key={bank.id} bank={bank} depositType={depositType} amount={amount} />)}
+        {filtered.map((bank) => (
+          <BankRow
+            key={bank.id}
+            bank={bank}
+            depositType={depositType}
+            amount={amount}
+            highlight={highlightBankId === bank.id}
+          />
+        ))}
         {filtered.length === 0 && <p className="text-center py-8 font-mono text-sm text-[#9a9490]">No banks match your filters</p>}
       </div>
 
