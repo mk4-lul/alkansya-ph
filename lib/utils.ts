@@ -1,4 +1,4 @@
-import { SavingsTier } from "@/lib/supabase";
+import { SavingsTier, TimeDepositRate } from "@/lib/supabase";
 
 export function formatPeso(amount: number): string {
   return "₱" + amount.toLocaleString("en-PH", {
@@ -37,7 +37,6 @@ export function timeAgo(dateStr: string): string {
 /** Get the savings rate for a specific deposit amount from tiers */
 export function getRateForAmount(tiers: SavingsTier[], amount: number): number {
   if (tiers.length === 0) return 0;
-  // Find the tier that matches the amount
   for (let i = tiers.length - 1; i >= 0; i--) {
     if (amount >= tiers[i].min_deposit) {
       if (tiers[i].max_deposit === null || amount <= tiers[i].max_deposit) {
@@ -45,8 +44,34 @@ export function getRateForAmount(tiers: SavingsTier[], amount: number): number {
       }
     }
   }
-  // Fallback to first tier
   return tiers[0].rate;
+}
+
+/** Get the TD rate for a specific term and deposit amount */
+export function getTdRateForAmount(rates: TimeDepositRate[], termDays: number, amount: number): number {
+  const termRates = rates.filter((r) => r.term_days === termDays);
+  if (termRates.length === 0) return 0;
+  // Find tier matching the amount (sorted by min_deposit ascending)
+  for (let i = termRates.length - 1; i >= 0; i--) {
+    if (amount >= termRates[i].min_deposit) {
+      if (termRates[i].max_deposit === null || amount <= termRates[i].max_deposit) {
+        return termRates[i].rate;
+      }
+    }
+  }
+  return termRates[0].rate;
+}
+
+/** Get unique term_days from TD rates, sorted ascending */
+export function getUniqueTdTerms(rates: TimeDepositRate[]): number[] {
+  return [...new Set(rates.map((r) => r.term_days))].sort((a, b) => a - b);
+}
+
+/** Get the best (longest term, highest tier) TD rate for sorting */
+export function getBestTdRate(rates: TimeDepositRate[], amount: number): number {
+  if (rates.length === 0) return 0;
+  const longestTerm = Math.max(...rates.map((r) => r.term_days));
+  return getTdRateForAmount(rates, longestTerm, amount);
 }
 
 /** Format a rate range like "0.0625% – 0.125%" or just "3.5%" if single tier */
