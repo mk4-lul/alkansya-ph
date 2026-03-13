@@ -1,4 +1,16 @@
-import { SavingsTier, TimeDepositRate } from "@/lib/supabase";
+// Types used locally — avoids cross-module import issues
+interface DepositTier {
+  rate: number;
+  min_deposit: number;
+  max_deposit: number | null;
+}
+
+interface TdRate {
+  term_days: number;
+  rate: number;
+  min_deposit: number;
+  max_deposit: number | null;
+}
 
 export function formatPeso(amount: number): string {
   return "₱" + amount.toLocaleString("en-PH", {
@@ -35,7 +47,7 @@ export function timeAgo(dateStr: string): string {
 }
 
 /** Get the savings rate for a specific deposit amount from tiers */
-export function getRateForAmount(tiers: SavingsTier[], amount: number): number {
+export function getRateForAmount(tiers: DepositTier[], amount: number): number {
   if (tiers.length === 0) return 0;
   for (let i = tiers.length - 1; i >= 0; i--) {
     if (amount >= tiers[i].min_deposit) {
@@ -48,10 +60,9 @@ export function getRateForAmount(tiers: SavingsTier[], amount: number): number {
 }
 
 /** Get the TD rate for a specific term and deposit amount */
-export function getTdRateForAmount(rates: TimeDepositRate[], termDays: number, amount: number): number {
+export function getTdRateForAmount(rates: TdRate[], termDays: number, amount: number): number {
   const termRates = rates.filter((r) => r.term_days === termDays);
   if (termRates.length === 0) return 0;
-  // Find tier matching the amount (sorted by min_deposit ascending)
   for (let i = termRates.length - 1; i >= 0; i--) {
     if (amount >= termRates[i].min_deposit) {
       if (termRates[i].max_deposit === null || amount <= termRates[i].max_deposit) {
@@ -63,12 +74,12 @@ export function getTdRateForAmount(rates: TimeDepositRate[], termDays: number, a
 }
 
 /** Get unique term_days from TD rates, sorted ascending */
-export function getUniqueTdTerms(rates: TimeDepositRate[]): number[] {
+export function getUniqueTdTerms(rates: TdRate[]): number[] {
   return [...new Set(rates.map((r) => r.term_days))].sort((a, b) => a - b);
 }
 
 /** Get the best (longest term, highest tier) TD rate for sorting */
-export function getBestTdRate(rates: TimeDepositRate[], amount: number): number {
+export function getBestTdRate(rates: TdRate[], amount: number): number {
   if (rates.length === 0) return 0;
   const longestTerm = Math.max(...rates.map((r) => r.term_days));
   return getTdRateForAmount(rates, longestTerm, amount);
