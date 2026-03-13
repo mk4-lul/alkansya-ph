@@ -9,7 +9,6 @@ import {
   timeAgo,
   getRateForAmount,
   formatRateRange,
-  AMOUNT_BRACKETS,
   TERM_LABELS,
 } from "@/lib/utils";
 
@@ -119,7 +118,6 @@ function BankRow({ bank, depositType, amount }: { bank: BankWithRates; depositTy
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
                 {bank.savings_products.map((product, pi) => (
                   <div key={pi} className="bg-[#f6f4f0] rounded-lg sm:rounded-xl border border-[#e5e0d8] overflow-hidden">
-                    {/* Product header */}
                     <div className="px-3 py-2 border-b border-[#e5e0d8] flex items-center justify-between">
                       <p className="font-display text-[13px] font-semibold text-[#1a1a1a]">{product.name}</p>
                       <p className={`font-display text-sm font-bold ${
@@ -128,7 +126,6 @@ function BankRow({ bank, depositType, amount }: { bank: BankWithRates; depositTy
                         {product.min_rate === product.best_rate ? `${product.best_rate}%` : `${product.min_rate}%–${product.best_rate}%`}
                       </p>
                     </div>
-                    {/* Product tiers */}
                     <div className="px-3 py-2">
                       {product.tiers.map((tier, ti) => {
                         const tierLabel = tier.max_deposit
@@ -198,11 +195,9 @@ function BankRow({ bank, depositType, amount }: { bank: BankWithRates; depositTy
   );
 }
 
-export default function RateTable({ banks }: { banks: BankWithRates[] }) {
+export default function RateTable({ banks, amount }: { banks: BankWithRates[]; amount: number }) {
   const [depositType, setDepositType] = useState<"savings" | "time_deposit">("savings");
   const [bankType, setBankType] = useState<"all" | "traditional" | "digital">("all");
-  const [amount, setAmount] = useState(100000);
-  const [sortBy, setSortBy] = useState("rate_desc");
   const [showTdInfo, setShowTdInfo] = useState(false);
 
   const filtered = useMemo(() => {
@@ -213,13 +208,10 @@ export default function RateTable({ banks }: { banks: BankWithRates[] }) {
         : a.time_deposit_rates.find((r) => r.term_days === 360)?.rate || a.savings_rate;
       const rateB = depositType === "savings" ? getRateForAmount(b.savings_tiers, amount)
         : b.time_deposit_rates.find((r) => r.term_days === 360)?.rate || b.savings_rate;
-      if (sortBy === "rate_desc") return rateB - rateA;
-      if (sortBy === "rate_asc") return rateA - rateB;
-      if (sortBy === "name") return a.name.localeCompare(b.name);
       return rateB - rateA;
     });
     return list;
-  }, [banks, depositType, bankType, sortBy, amount]);
+  }, [banks, depositType, bankType, amount]);
 
   const toggleBtn = (isActive: boolean) =>
     `px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border-none cursor-pointer font-display text-[12px] sm:text-[13px] font-semibold transition-all ${
@@ -242,18 +234,6 @@ export default function RateTable({ banks }: { banks: BankWithRates[] }) {
           {([["all", "All"], ["traditional", "Trad."], ["digital", "Digital"]] as const).map(([val, label]) => (
             <button key={val} onClick={() => setBankType(val as any)} className={toggleBtn(bankType === val)}>{label}</button>
           ))}
-        </div>
-        <div className="flex gap-2 sm:gap-3 flex-1 sm:flex-none">
-          <select value={amount} onChange={(e) => setAmount(Number(e.target.value))}
-            className="flex-1 sm:flex-none px-3 py-1.5 sm:py-2 rounded-xl border border-[#e5e0d8] bg-white text-[#3d3835] font-display text-[12px] sm:text-[13px] cursor-pointer">
-            {AMOUNT_BRACKETS.map((a) => <option key={a.value} value={a.value}>{a.label}</option>)}
-          </select>
-          <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}
-            className="flex-1 sm:flex-none px-3 py-1.5 sm:py-2 rounded-xl border border-[#e5e0d8] bg-white text-[#3d3835] font-display text-[12px] sm:text-[13px] cursor-pointer sm:ml-auto">
-            <option value="rate_desc">Highest Rate</option>
-            <option value="rate_asc">Lowest Rate</option>
-            <option value="name">Bank Name</option>
-          </select>
         </div>
       </div>
 
