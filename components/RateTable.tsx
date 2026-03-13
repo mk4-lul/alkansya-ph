@@ -31,13 +31,9 @@ function BankRow({ bank, depositType, amount, highlight }: {
   highlight: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
-  const rowRef = useRef<HTMLDivElement>(null);
 
-  // Auto-expand when highlighted
   useEffect(() => {
-    if (highlight) {
-      setExpanded(true);
-    }
+    if (highlight) setExpanded(true);
   }, [highlight]);
 
   const displayRate = depositType === "savings"
@@ -56,7 +52,7 @@ function BankRow({ bank, depositType, amount, highlight }: {
     : displayRate >= 0.5 ? "linear-gradient(90deg, #c8940a, #b38308)" : "rgba(0,0,0,0.08)";
 
   return (
-    <div id={`bank-${bank.id}`} ref={rowRef} className={`border-b border-[#e5e0d8] ${highlight ? "animate-bank-highlight" : ""}`}>
+    <div id={`bank-${bank.id}`} className={`border-b border-[#e5e0d8] ${highlight ? "animate-bank-highlight" : ""}`}>
       {/* Desktop row */}
       <div onClick={() => setExpanded(!expanded)}
         className="hidden sm:grid items-center px-4 py-3.5 cursor-pointer hover:bg-[#f0ece6] transition-colors"
@@ -125,21 +121,23 @@ function BankRow({ bank, depositType, amount, highlight }: {
           {/* Savings products */}
           {depositType === "savings" && bank.savings_products.length > 0 && (
             <div className="mb-3">
-              <p className="font-mono text-[9px] uppercase tracking-[1.5px] text-[#9a9490] mb-2">
+              <p className="font-mono text-[10px] uppercase tracking-[1.5px] text-[#9a9490] mb-2.5">
                 {bank.savings_products.length > 1 ? "Savings Products" : "Savings Rate"}
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3">
                 {bank.savings_products.map((product, pi) => (
-                  <div key={pi} className="bg-[#f6f4f0] rounded-lg sm:rounded-xl border border-[#e5e0d8] overflow-hidden">
-                    <div className="px-3 py-2 border-b border-[#e5e0d8] flex items-center justify-between">
-                      <p className="font-display text-[13px] font-semibold text-[#1a1a1a]">{product.name}</p>
-                      <p className={`font-display text-sm font-bold ${
+                  <div key={pi} className="bg-[#f6f4f0] rounded-xl border border-[#e5e0d8] overflow-hidden">
+                    {/* Product header */}
+                    <div className="px-4 py-2.5 border-b border-[#e5e0d8] flex items-center justify-between">
+                      <p className="font-display text-sm font-semibold text-[#1a1a1a]">{product.name}</p>
+                      <p className={`font-display text-[15px] font-bold ${
                         product.best_rate >= 2 ? "text-[#0a8f65]" : product.best_rate >= 0.5 ? "text-[#c8940a]" : "text-[#9a9490]"
                       }`}>
                         {product.min_rate === product.best_rate ? `${product.best_rate}%` : `${product.min_rate}%–${product.best_rate}%`}
                       </p>
                     </div>
-                    <div className="px-3 py-2">
+                    {/* Product tiers */}
+                    <div className="px-4 py-2.5">
                       {product.tiers.map((tier, ti) => {
                         const tierLabel = tier.max_deposit
                           ? `${formatPesoShort(tier.min_deposit)} – ${formatPesoShort(tier.max_deposit)}`
@@ -148,18 +146,18 @@ function BankRow({ bank, depositType, amount, highlight }: {
                         const isActive = amount >= tier.min_deposit && (tier.max_deposit === null || amount <= tier.max_deposit);
 
                         return (
-                          <div key={ti} className={`flex items-center justify-between py-1.5 ${
+                          <div key={ti} className={`flex items-center justify-between py-2 ${
                             ti > 0 ? "border-t border-[#e5e0d8]/50" : ""
                           } ${isActive ? "text-[#1a1a1a]" : "text-[#9a9490]"}`}>
                             <div className="flex items-center gap-2">
-                              {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#c8940a]" />}
-                              <span className="font-mono text-[10px]">{tierLabel}</span>
+                              {isActive && <span className="w-2 h-2 rounded-full bg-[#c8940a]" />}
+                              <span className="font-mono text-[11px]">{tierLabel}</span>
                             </div>
                             <div className="flex items-center gap-3">
-                              <span className={`font-display text-sm font-bold ${
+                              <span className={`font-display text-base font-bold ${
                                 tier.rate >= 2 ? "text-[#0a8f65]" : tier.rate >= 0.5 ? "text-[#c8940a]" : "text-[#9a9490]"
                               }`}>{tier.rate}%</span>
-                              <span className="font-mono text-[9px] text-[#9a9490] w-20 text-right">{formatPeso(tierEarnings)}/yr</span>
+                              <span className="font-mono text-[10px] text-[#9a9490] w-[5.5rem] text-right">{formatPeso(tierEarnings)}/yr</span>
                             </div>
                           </div>
                         );
@@ -218,7 +216,6 @@ export default function RateTable({ banks, amount, highlightBankId, onHighlightD
   const [bankType, setBankType] = useState<"all" | "traditional" | "digital">("all");
   const [showTdInfo, setShowTdInfo] = useState(false);
 
-  // Clear highlight after animation
   useEffect(() => {
     if (highlightBankId) {
       const timer = setTimeout(() => onHighlightDone(), 2200);
