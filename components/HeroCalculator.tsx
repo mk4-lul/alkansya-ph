@@ -54,12 +54,12 @@ export default function HeroCalculator({
 
   const medals = ["🥇", "🥈", "🥉"];
   const rateColors = ["text-amber-400", "text-white/80", "text-white/60"];
-  const earningsColors = ["text-emerald-400", "text-emerald-400/80", "text-emerald-400/60"];
+  const earningsColors = ["text-emerald-300", "text-emerald-300/80", "text-emerald-300/60"];
   const cardAnimations = ["animate-card-pop-1", "animate-card-pop-2", "animate-card-pop-3"];
 
   return (
     <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-10"
-      style={{ background: "linear-gradient(135deg, #1a2332 0%, #243447 40%, #2d4a5e 100%)" }}>
+      style={{ background: "linear-gradient(135deg, #0f2419 0%, #14332a 40%, #1a4035 100%)" }}>
       <div className="absolute -top-16 -right-16 w-52 h-52 rounded-full"
         style={{ background: "radial-gradient(circle, rgba(200,148,10,0.15) 0%, transparent 70%)" }} />
 
@@ -73,15 +73,15 @@ export default function HeroCalculator({
           <label className="block font-mono text-[10px] uppercase tracking-[2px] text-white/50 mb-1.5">Deposit Amount</label>
           <select value={amount} onChange={(e) => onAmountChange(Number(e.target.value))}
             className={`w-full px-3 py-2.5 sm:py-3 rounded-xl border border-white/15 bg-white/10 font-display text-sm cursor-pointer ${hasAmount ? "text-white" : "text-white/50"}`}>
-            {!hasAmount && <option value={0} style={{ background: "#243447" }}>Select deposit amount</option>}
+            {!hasAmount && <option value={0} style={{ background: "#14332a" }}>Select deposit amount</option>}
             {AMOUNT_BRACKETS.map((a) => (
-              <option key={a.value} value={a.value} style={{ background: "#243447" }}>{a.label}</option>
+              <option key={a.value} value={a.value} style={{ background: "#14332a" }}>{a.label}</option>
             ))}
           </select>
         </div>
 
         {/* Top 3 banks or prompt */}
-        <div className="rounded-xl sm:rounded-2xl p-4 sm:p-6 border" style={{ background: "rgba(0,0,0,0.2)", borderColor: "rgba(255,195,0,0.15)" }}>
+        <div className="rounded-xl sm:rounded-2xl p-4 sm:p-6 border" style={{ background: "rgba(0,0,0,0.2)", borderColor: "rgba(200,148,10,0.15)" }}>
           {hasAmount && top3.length > 0 ? (
             <>
               <p className="font-mono text-[9px] uppercase tracking-[2px] text-white/40 mb-4">Best rates for your amount</p>
