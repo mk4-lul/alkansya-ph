@@ -48,9 +48,7 @@ function BankRow({ bank, depositType, amount }: { bank: BankWithRates; depositTy
       {/* Desktop row */}
       <div onClick={() => setExpanded(!expanded)}
         className="hidden sm:grid items-center px-4 py-3.5 cursor-pointer hover:bg-[#f0ece6] transition-colors"
-        style={{ gridTemplateColumns: "minmax(140px, 1.2fr) auto 1fr 120px 40px" }}>
-        <div className="flex items-center gap-2.5">
-          <span className="text-xl">{bank.logo}</span>
+        style={{ gridTemplateColumns: "minmax(140px, 1.2fr) 180px 1fr 120px 40px" }}>
           <div>
             <p className="font-display text-sm font-semibold text-[#1a1a1a]">{bank.name}</p>
             <span className={`inline-block font-mono text-[9px] uppercase tracking-[1.5px] px-1.5 py-0.5 rounded mt-0.5 ${
@@ -258,7 +256,7 @@ export default function RateTable({ banks }: { banks: BankWithRates[] }) {
       </div>
 
       <div className="hidden sm:grid px-4 py-2.5 border-b border-[#e5e0d8]"
-        style={{ gridTemplateColumns: "minmax(140px, 1.2fr) auto 1fr 120px 40px" }}>
+        style={{ gridTemplateColumns: "minmax(140px, 1.2fr) 180px 1fr 120px 40px" }}>
         {["Bank", "Rate", "", "Earn / yr", ""].map((h, i) => (
           <p key={i} className={`m-0 font-mono text-[9px] uppercase tracking-[2px] text-[#9a9490] ${i === 1 || i === 3 ? "text-right" : ""}`}>{h}</p>
         ))}
