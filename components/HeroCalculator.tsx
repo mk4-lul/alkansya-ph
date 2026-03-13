@@ -37,16 +37,20 @@ export default function HeroCalculator({
   banks,
   amount,
   onAmountChange,
+  onBankClick,
 }: {
   banks: BankWithRates[];
   amount: number;
   onAmountChange: (amount: number) => void;
+  onBankClick: (bankId: string) => void;
 }) {
-  const top3 = [...banks]
-    .sort((a, b) => getRateForAmount(b.savings_tiers, amount) - getRateForAmount(a.savings_tiers, amount))
-    .slice(0, 3);
+  const hasAmount = amount > 0;
 
-  if (top3.length === 0) return null;
+  const top3 = hasAmount
+    ? [...banks]
+        .sort((a, b) => getRateForAmount(b.savings_tiers, amount) - getRateForAmount(a.savings_tiers, amount))
+        .slice(0, 3)
+    : [];
 
   const medals = ["🥇", "🥈", "🥉"];
   const rateColors = ["text-amber-400", "text-white/80", "text-white/60"];
@@ -68,40 +72,52 @@ export default function HeroCalculator({
           <label className="block font-mono text-[10px] uppercase tracking-[2px] text-white/50 mb-1.5">Deposit Amount</label>
           <select value={amount} onChange={(e) => onAmountChange(Number(e.target.value))}
             className="w-full px-3 py-2.5 sm:py-3 rounded-xl border border-white/15 bg-white/10 text-white font-display text-sm cursor-pointer">
+            <option value={0} style={{ background: "#243447" }}>Select deposit amount</option>
             {AMOUNT_BRACKETS.map((a) => (
               <option key={a.value} value={a.value} style={{ background: "#243447" }}>{a.label}</option>
             ))}
           </select>
         </div>
 
-        {/* Top 3 banks */}
+        {/* Top 3 banks or prompt */}
         <div className="rounded-xl sm:rounded-2xl p-4 sm:p-6 border" style={{ background: "rgba(0,0,0,0.2)", borderColor: "rgba(255,195,0,0.15)" }}>
-          <p className="font-mono text-[9px] uppercase tracking-[2px] text-white/40 mb-4">Best rates for your amount</p>
+          {hasAmount ? (
+            <>
+              <p className="font-mono text-[9px] uppercase tracking-[2px] text-white/40 mb-4">Best rates for your amount</p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                {top3.map((bank, i) => {
+                  const rate = getRateForAmount(bank.savings_tiers, amount);
+                  const earnings = calcInterest(amount, rate);
+                  const isFirst = i === 0;
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-            {top3.map((bank, i) => {
-              const rate = getRateForAmount(bank.savings_tiers, amount);
-              const earnings = calcInterest(amount, rate);
-              const isFirst = i === 0;
-
-              return (
-                <div key={bank.id} className={`rounded-xl px-4 py-3.5 sm:py-4 border ${
-                  isFirst
-                    ? "border-amber-400/30 bg-amber-400/[0.08]"
-                    : "border-white/10 bg-white/[0.03]"
-                }`}>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-base">{medals[i]}</span>
-                    <p className="font-display text-sm font-semibold text-white">{bank.name}</p>
-                  </div>
-                  <p className={`font-display text-2xl sm:text-3xl font-extrabold ${rateColors[i]}`}>{rate}%</p>
-                  <p className={`font-display text-sm font-bold mt-1 ${earningsColors[i]}`}>
-                    <AnimatedNumber value={earnings} prefix="₱" suffix="/yr" />
-                  </p>
-                </div>
-              );
-            })}
-          </div>
+                  return (
+                    <div key={bank.id}
+                      onClick={() => onBankClick(bank.id)}
+                      className={`rounded-xl px-4 py-3.5 sm:py-4 border cursor-pointer transition-all duration-200 hover:scale-[1.02] ${
+                        isFirst
+                          ? "border-amber-400/30 bg-amber-400/[0.08] hover:border-amber-400/50"
+                          : "border-white/10 bg-white/[0.03] hover:border-white/25"
+                      }`}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-base">{medals[i]}</span>
+                        <p className="font-display text-sm font-semibold text-white">{bank.name}</p>
+                      </div>
+                      <p className={`font-display text-2xl sm:text-3xl font-extrabold ${rateColors[i]}`}>{rate}%</p>
+                      <p className={`font-display text-sm font-bold mt-1 ${earningsColors[i]}`}>
+                        <AnimatedNumber value={earnings} prefix="₱" suffix="/yr" />
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-4 sm:py-6">
+              <p className="font-display text-base sm:text-lg text-white/40">
+                Select a deposit amount to see the best rates
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
