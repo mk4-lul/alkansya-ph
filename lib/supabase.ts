@@ -43,13 +43,20 @@ export interface SavingsProduct {
   min_rate: number;
 }
 
+export interface TimeDepositRate {
+  term_days: number;
+  rate: number;
+  min_deposit: number;
+  max_deposit: number | null;
+}
+
 export interface BankWithRates extends Bank {
   savings_rate: number;       // best rate across all products (for sorting)
   savings_min_rate: number;   // lowest rate across all products (for range)
   savings_products: SavingsProduct[];
   // Flattened tiers across all products (for calculator)
   savings_tiers: SavingsTier[];
-  time_deposit_rates: { term_days: number; rate: number }[];
+  time_deposit_rates: TimeDepositRate[];
   last_verified: string;
 }
 
@@ -129,6 +136,8 @@ export async function getBanksWithRates(): Promise<BankWithRates[]> {
       bank.time_deposit_rates.push({
         term_days: row.term_days,
         rate: Number(row.rate),
+        min_deposit: Number(row.min_deposit) || 0,
+        max_deposit: row.max_deposit ? Number(row.max_deposit) : null,
       });
     }
 
@@ -138,7 +147,7 @@ export async function getBanksWithRates(): Promise<BankWithRates[]> {
   }
 
   for (const bank of bankMap.values()) {
-    bank.time_deposit_rates.sort((a, b) => a.term_days - b.term_days);
+    bank.time_deposit_rates.sort((a, b) => a.term_days - b.term_days || a.min_deposit - b.min_deposit);
     bank.savings_tiers.sort((a, b) => a.min_deposit - b.min_deposit);
     bank.savings_products.sort((a, b) => b.best_rate - a.best_rate);
     for (const p of bank.savings_products) {
