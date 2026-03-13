@@ -45,6 +45,17 @@ export default function HeroCalculator({
   onBankClick: (bankId: string) => void;
 }) {
   const hasAmount = amount > 0;
+  const [showCards, setShowCards] = useState(false);
+
+  useEffect(() => {
+    if (hasAmount) {
+      setShowCards(false);
+      const timer = setTimeout(() => setShowCards(true), 50);
+      return () => clearTimeout(timer);
+    } else {
+      setShowCards(false);
+    }
+  }, [hasAmount, amount]);
 
   const top3 = hasAmount
     ? [...banks]
@@ -72,7 +83,7 @@ export default function HeroCalculator({
           <label className="block font-mono text-[10px] uppercase tracking-[2px] text-white/50 mb-1.5">Deposit Amount</label>
           <select value={amount} onChange={(e) => onAmountChange(Number(e.target.value))}
             className="w-full px-3 py-2.5 sm:py-3 rounded-xl border border-white/15 bg-white/10 text-white font-display text-sm cursor-pointer">
-            <option value={0} style={{ background: "#243447" }}>Select deposit amount</option>
+            <option value={0} disabled hidden>Select deposit amount</option>
             {AMOUNT_BRACKETS.map((a) => (
               <option key={a.value} value={a.value} style={{ background: "#243447" }}>{a.label}</option>
             ))}
@@ -81,7 +92,7 @@ export default function HeroCalculator({
 
         {/* Top 3 banks or prompt */}
         <div className="rounded-xl sm:rounded-2xl p-4 sm:p-6 border" style={{ background: "rgba(0,0,0,0.2)", borderColor: "rgba(255,195,0,0.15)" }}>
-          {hasAmount ? (
+          {hasAmount && top3.length > 0 ? (
             <>
               <p className="font-mono text-[9px] uppercase tracking-[2px] text-white/40 mb-4">Best rates for your amount</p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
@@ -97,7 +108,12 @@ export default function HeroCalculator({
                         isFirst
                           ? "border-amber-400/30 bg-amber-400/[0.08] hover:border-amber-400/50"
                           : "border-white/10 bg-white/[0.03] hover:border-white/25"
-                      }`}>
+                      }`}
+                      style={{
+                        opacity: showCards ? 1 : 0,
+                        transform: showCards ? "translateY(0)" : "translateY(12px)",
+                        transition: `opacity 0.4s ease ${i * 0.12}s, transform 0.4s ease ${i * 0.12}s`,
+                      }}>
                       <div className="flex items-center gap-2 mb-2">
                         <span className="text-base">{medals[i]}</span>
                         <p className="font-display text-sm font-semibold text-white">{bank.name}</p>
