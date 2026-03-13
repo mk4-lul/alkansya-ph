@@ -11,7 +11,20 @@ export default function Dashboard({ banks, avgTraditional, avgDigital, multiplie
   avgDigital: number;
   multiplier: number;
 }) {
-  const [amount, setAmount] = useState(100000);
+  const [amount, setAmount] = useState<number>(0);
+  const [highlightBankId, setHighlightBankId] = useState<string | null>(null);
+
+  const handleBankClick = (bankId: string) => {
+    setHighlightBankId(null);
+    // Small delay so React clears the old highlight before setting the new one
+    setTimeout(() => {
+      setHighlightBankId(bankId);
+      const el = document.getElementById(`bank-${bankId}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }, 50);
+  };
 
   return (
     <>
@@ -24,7 +37,7 @@ export default function Dashboard({ banks, avgTraditional, avgDigital, multiplie
           <br />
           ang <span className="text-[#c8940a]">pera</span> mo?
         </h1>
-        <HeroCalculator banks={banks} amount={amount} onAmountChange={setAmount} />
+        <HeroCalculator banks={banks} amount={amount} onAmountChange={setAmount} onBankClick={handleBankClick} />
       </div>
 
       <div className="grid grid-cols-3 gap-px bg-[#e5e0d8] rounded-xl sm:rounded-2xl overflow-hidden mb-8 sm:mb-10 shadow-sm">
@@ -40,7 +53,7 @@ export default function Dashboard({ banks, avgTraditional, avgDigital, multiplie
         ))}
       </div>
 
-      <RateTable banks={banks} amount={amount} />
+      <RateTable banks={banks} amount={amount} highlightBankId={highlightBankId} onHighlightDone={() => setHighlightBankId(null)} />
     </>
   );
 }
