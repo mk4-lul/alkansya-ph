@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { BankWithRates, flagRate } from "@/lib/supabase";
 import {
   formatPeso,
@@ -8,6 +8,9 @@ import {
   calcInterest,
   timeAgo,
   getRateForAmount,
+  getTdRateForAmount,
+  getUniqueTdTerms,
+  getBestTdRate,
   formatRateRange,
   TERM_LABELS,
 } from "@/lib/utils";
@@ -38,7 +41,7 @@ function BankRow({ bank, depositType, amount, highlight }: {
 
   const displayRate = depositType === "savings"
     ? getRateForAmount(bank.savings_tiers, amount)
-    : bank.time_deposit_rates.find((r) => r.term_days === 360)?.rate || bank.savings_rate;
+    : getBestTdRate(bank.time_deposit_rates, amount);
 
   const earnings = calcInterest(amount, displayRate);
   const isDigital = bank.type === "digital";
@@ -50,6 +53,8 @@ function BankRow({ bank, depositType, amount, highlight }: {
   const rateColor = displayRate >= 2 ? "text-[#0a8f65]" : displayRate >= 0.5 ? "text-[#c8940a]" : "text-[#9a9490]";
   const barBg = displayRate >= 2 ? "linear-gradient(90deg, #0a8f65, #0b7a57)"
     : displayRate >= 0.5 ? "linear-gradient(90deg, #c8940a, #b38308)" : "rgba(0,0,0,0.08)";
+
+  const tdTerms = getUniqueTdTerms(bank.time_deposit_rates);
 
   return (
     <div id={`bank-${bank.id}`} className={`border-b border-[#e5e0d8] ${highlight ? "animate-bank-highlight" : ""}`}>
@@ -127,7 +132,6 @@ function BankRow({ bank, depositType, amount, highlight }: {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3">
                 {bank.savings_products.map((product, pi) => (
                   <div key={pi} className="bg-[#f6f4f0] rounded-xl border border-[#e5e0d8] overflow-hidden">
-                    {/* Product header */}
                     <div className="px-4 py-2.5 border-b border-[#e5e0d8] flex items-center justify-between">
                       <p className="font-display text-sm font-semibold text-[#1a1a1a]">{product.name}</p>
                       <p className={`font-display text-[15px] font-bold ${
@@ -136,7 +140,6 @@ function BankRow({ bank, depositType, amount, highlight }: {
                         {product.min_rate === product.best_rate ? `${product.best_rate}%` : `${product.min_rate}%–${product.best_rate}%`}
                       </p>
                     </div>
-                    {/* Product tiers */}
                     <div className="px-4 py-2.5">
                       {product.tiers.map((tier, ti) => {
                         const tierLabel = tier.max_deposit
@@ -170,19 +173,22 @@ function BankRow({ bank, depositType, amount, highlight }: {
           )}
 
           {/* Time deposit */}
-          {depositType === "time_deposit" && bank.time_deposit_rates.length > 0 && (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-3">
-              {bank.time_deposit_rates.map((td) => (
-                <div key={td.term_days} className="bg-[#f6f4f0] rounded-lg sm:rounded-xl p-2.5 sm:p-3 border border-[#e5e0d8]">
-                  <p className="font-mono text-[8px] sm:text-[9px] uppercase tracking-[1.5px] text-[#9a9490]">{TERM_LABELS[td.term_days] || `${td.term_days}d`}</p>
-                  <p className={`font-display text-base sm:text-lg font-bold mt-0.5 ${td.rate >= 2 ? "text-[#0a8f65]" : "text-[#c8940a]"}`}>{td.rate}%</p>
-                  <p className="font-mono text-[9px] sm:text-[10px] text-[#6b6560]">{formatPeso(calcInterest(amount, td.rate, td.term_days))}</p>
-                </div>
-              ))}
+          {depositType === "time_deposit" && tdTerms.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 mb-3">
+              {tdTerms.map((term) => {
+                const rate = getTdRateForAmount(bank.time_deposit_rates, term, amount);
+                return (
+                  <div key={term} className="bg-[#f6f4f0] rounded-lg sm:rounded-xl p-2.5 sm:p-3 border border-[#e5e0d8]">
+                    <p className="font-mono text-[8px] sm:text-[9px] uppercase tracking-[1.5px] text-[#9a9490]">{TERM_LABELS[term] || `${term}d`}</p>
+                    <p className={`font-display text-base sm:text-lg font-bold mt-0.5 ${rate >= 2 ? "text-[#0a8f65]" : "text-[#c8940a]"}`}>{rate}%</p>
+                    <p className="font-mono text-[9px] sm:text-[10px] text-[#6b6560]">{formatPeso(calcInterest(amount, rate, term))}</p>
+                  </div>
+                );
+              })}
             </div>
           )}
 
-          {depositType === "time_deposit" && bank.time_deposit_rates.length === 0 && (
+          {depositType === "time_deposit" && tdTerms.length === 0 && (
             <p className="font-mono text-[11px] text-[#9a9490] mb-3">No time deposit products available</p>
           )}
 
@@ -227,10 +233,12 @@ export default function RateTable({ banks, amount, highlightBankId, onHighlightD
     let list = [...banks];
     if (bankType !== "all") list = list.filter((b) => b.type === bankType);
     list.sort((a, b) => {
-      const rateA = depositType === "savings" ? getRateForAmount(a.savings_tiers, amount)
-        : a.time_deposit_rates.find((r) => r.term_days === 360)?.rate || a.savings_rate;
-      const rateB = depositType === "savings" ? getRateForAmount(b.savings_tiers, amount)
-        : b.time_deposit_rates.find((r) => r.term_days === 360)?.rate || b.savings_rate;
+      const rateA = depositType === "savings"
+        ? getRateForAmount(a.savings_tiers, amount)
+        : getBestTdRate(a.time_deposit_rates, amount);
+      const rateB = depositType === "savings"
+        ? getRateForAmount(b.savings_tiers, amount)
+        : getBestTdRate(b.time_deposit_rates, amount);
       return rateB - rateA;
     });
     return list;
