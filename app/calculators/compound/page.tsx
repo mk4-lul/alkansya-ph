@@ -57,7 +57,7 @@ function MiniChart({ data, height = 300 }: { data: { month: number; balance: num
   if (data.length < 2) return null;
 
   const width = 600;
-  const padding = { top: 20, right: 20, bottom: 30, left: 20 };
+  const padding = { top: 20, right: 20, bottom: 36, left: 20 };
   const chartW = width - padding.left - padding.right;
   const chartH = height - padding.top - padding.bottom;
 
@@ -75,13 +75,19 @@ function MiniChart({ data, height = 300 }: { data: { month: number; balance: num
 
   const years = maxMonth / 12;
   const yearLabels: number[] = [];
-  if (years <= 5) {
+  if (years <= 3) {
     for (let y = 0; y <= years; y++) yearLabels.push(y);
+  } else if (years <= 5) {
+    for (let y = 0; y <= years; y += 1) yearLabels.push(y);
+    if (!yearLabels.includes(2.5)) yearLabels.push(2.5);
+  } else if (years <= 10) {
+    [0, 2.5, 5, 7.5, years].forEach(y => { if (!yearLabels.includes(y)) yearLabels.push(y); });
+  } else if (years <= 20) {
+    [0, 2.5, 5, 7.5, 10, 15, years].forEach(y => { if (!yearLabels.includes(y)) yearLabels.push(y); });
   } else {
-    const step = years <= 15 ? 5 : 10;
-    for (let y = 0; y <= years; y += step) yearLabels.push(y);
-    if (!yearLabels.includes(years)) yearLabels.push(years);
+    [0, 5, 10, 15, 20, years].forEach(y => { if (!yearLabels.includes(y)) yearLabels.push(y); });
   }
+  yearLabels.sort((a, b) => a - b);
 
   const findClosest = (mouseX: number) => {
     const relX = Math.max(0, Math.min(1, (mouseX - padding.left) / chartW));
@@ -113,7 +119,7 @@ function MiniChart({ data, height = 300 }: { data: { month: number; balance: num
   const hoverX = hoverData ? scaleX(hoverData.month) : 0;
   const hoverYearLabel = hoverData ? (hoverData.month / 12) : 0;
   const hoverInterest = hoverData ? hoverData.balance - hoverData.deposits : 0;
-  const tooltipFlip = hoverX > width * 0.7;
+  const tooltipFlip = hoverX > width * 0.68;
 
   return (
     <svg
@@ -141,13 +147,13 @@ function MiniChart({ data, height = 300 }: { data: { month: number; balance: num
       <path d={balanceArea} fill="url(#greenGrad)" />
       <path d={balancePath} fill="none" stroke="#00c853" strokeWidth="2.5" strokeLinejoin="round" />
       {yearLabels.map((y) => (
-        <text key={y} x={scaleX(y * 12)} y={height - 6} textAnchor="middle" fontSize="11" fill="#888" fontFamily="Plus Jakarta Sans, sans-serif">
-          {y}yr
+        <text key={y} x={scaleX(y * 12)} y={height - 4} textAnchor="middle" fontSize="13" fontWeight="600" fill="#888" fontFamily="Plus Jakarta Sans, sans-serif">
+          {y % 1 === 0 ? y : y.toFixed(1)}yr
         </text>
       ))}
       {/* End value label — hide when hovering */}
       {hoverIndex === null && (
-        <text x={scaleX(maxMonth) - 4} y={scaleY(maxBalance) - 8} textAnchor="end" fontSize="13" fontWeight="700" fill="#00c853" fontFamily="Plus Jakarta Sans, sans-serif">
+        <text x={scaleX(maxMonth) - 4} y={scaleY(maxBalance) - 10} textAnchor="end" fontSize="15" fontWeight="800" fill="#00c853" fontFamily="Plus Jakarta Sans, sans-serif">
           {formatPeso(maxBalance)}
         </text>
       )}
@@ -157,18 +163,18 @@ function MiniChart({ data, height = 300 }: { data: { month: number; balance: num
           <line x1={hoverX} y1={padding.top} x2={hoverX} y2={padding.top + chartH} stroke="#1a1a1a" strokeWidth="1" strokeDasharray="4 3" opacity="0.3" />
           <circle cx={hoverX} cy={scaleY(hoverData.balance)} r="5" fill="#00c853" stroke="white" strokeWidth="2" />
           <circle cx={hoverX} cy={scaleY(hoverData.deposits)} r="4" fill="#ccc" stroke="white" strokeWidth="2" />
-          <g transform={`translate(${tooltipFlip ? hoverX - 155 : hoverX + 10}, ${Math.max(padding.top, scaleY(hoverData.balance) - 45)})`}>
-            <rect width="145" height="82" rx="10" fill="#1a1a1a" opacity="0.92" />
-            <text x="12" y="18" fontSize="10" fill="#888" fontFamily="Plus Jakarta Sans, sans-serif" fontWeight="600">
+          <g transform={`translate(${tooltipFlip ? hoverX - 170 : hoverX + 10}, ${Math.max(padding.top, scaleY(hoverData.balance) - 50)})`}>
+            <rect width="160" height="90" rx="10" fill="#1a1a1a" opacity="0.92" />
+            <text x="12" y="20" fontSize="12" fill="#888" fontFamily="Plus Jakarta Sans, sans-serif" fontWeight="600">
               Year {hoverYearLabel % 1 === 0 ? hoverYearLabel.toFixed(0) : hoverYearLabel.toFixed(1)}
             </text>
-            <text x="12" y="36" fontSize="13" fill="white" fontFamily="Plus Jakarta Sans, sans-serif" fontWeight="800">
+            <text x="12" y="40" fontSize="15" fill="white" fontFamily="Plus Jakarta Sans, sans-serif" fontWeight="800">
               {formatPeso(hoverData.balance)}
             </text>
-            <text x="12" y="54" fontSize="10" fill="#888" fontFamily="Plus Jakarta Sans, sans-serif">
+            <text x="12" y="58" fontSize="11" fill="#888" fontFamily="Plus Jakarta Sans, sans-serif" fontWeight="500">
               Deposited: {formatPeso(hoverData.deposits)}
             </text>
-            <text x="12" y="70" fontSize="10" fill="#00c853" fontFamily="Plus Jakarta Sans, sans-serif" fontWeight="600">
+            <text x="12" y="76" fontSize="11" fill="#00c853" fontFamily="Plus Jakarta Sans, sans-serif" fontWeight="700">
               Interest: {formatPeso(hoverInterest)}
             </text>
           </g>
