@@ -92,7 +92,7 @@ export default function HeroCalculator({
           <div className="text-center">
             <p className="font-display text-sm sm:text-base text-white/70 mb-3">How much are you saving?</p>
             <select value={amount} onChange={(e) => onAmountChange(Number(e.target.value))}
-              className="px-5 py-3 sm:py-3.5 rounded-xl border-2 border-amber-400/30 bg-white/10 font-display text-base sm:text-lg font-semibold cursor-pointer hover:border-amber-400/50 transition-colors text-white min-w-[240px]">
+              className="px-5 pr-10 py-3 sm:py-3.5 rounded-xl border-2 border-amber-400/30 bg-white/10 font-display text-base sm:text-lg font-medium cursor-pointer hover:border-amber-400/50 transition-colors text-white min-w-[240px]">
               <option value={0} style={{ background: "#14332a" }}>Select deposit amount</option>
               {AMOUNT_BRACKETS.map((a) => (
                 <option key={a.value} value={a.value} style={{ background: "#14332a" }}>{a.label}</option>
@@ -106,7 +106,7 @@ export default function HeroCalculator({
           <>
             <div className="mb-5 sm:mb-6 max-w-xs">
               <select value={amount} onChange={(e) => onAmountChange(Number(e.target.value))}
-                className="w-full px-4 py-3 sm:py-3.5 rounded-xl border-2 border-amber-400/30 bg-white/10 font-display text-base sm:text-lg font-semibold cursor-pointer hover:border-amber-400/50 transition-colors text-white">
+                className="w-full px-4 pr-10 py-3 sm:py-3.5 rounded-xl border-2 border-amber-400/30 bg-white/10 font-display text-base sm:text-lg font-medium cursor-pointer hover:border-amber-400/50 transition-colors text-white">
                 {AMOUNT_BRACKETS.map((a) => (
                   <option key={a.value} value={a.value} style={{ background: "#14332a" }}>{a.label}</option>
                 ))}
