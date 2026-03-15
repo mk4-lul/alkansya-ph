@@ -324,21 +324,21 @@ export default function CalculatorPage() {
             ))}
           </div>
           <div className="relative text-center">
-            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#1a1a1a]/60 mb-2">
+            <p className="text-[13px] font-bold uppercase tracking-[1px] text-[#1a1a1a]/60 mb-2">
               Your money after {years} {years === 1 ? "year" : "years"}
             </p>
-            <p className="text-4xl sm:text-5xl font-extrabold tracking-tight text-[#1a1a1a]">
+            <p className="text-5xl sm:text-6xl font-extrabold tracking-tight text-[#1a1a1a]">
               {formatPeso(result.finalBalance)}
             </p>
             <div className="flex justify-center mt-4">
               <div className="bg-black/10 backdrop-blur-md rounded-2xl px-6 py-4 flex gap-8">
                 <div className="text-center">
-                  <p className="text-[11px] text-[#1a1a1a]/50 uppercase tracking-[0.5px]">Deposited</p>
-                  <p className="text-lg font-bold text-[#1a1a1a]">{formatPeso(result.totalDeposits)}</p>
+                  <p className="text-[12px] font-semibold text-[#1a1a1a]/50 uppercase tracking-[0.5px]">Deposited</p>
+                  <p className="text-xl font-extrabold text-[#1a1a1a]">{formatPeso(result.totalDeposits)}</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-[11px] text-[#1a1a1a]/50 uppercase tracking-[0.5px]">Interest earned</p>
-                  <p className="text-lg font-bold text-[#1a1a1a]">{formatPeso(result.totalInterest)}</p>
+                  <p className="text-[12px] font-semibold text-[#1a1a1a]/50 uppercase tracking-[0.5px]">Interest earned</p>
+                  <p className="text-xl font-extrabold text-[#1a1a1a]">{formatPeso(result.totalInterest)}</p>
                 </div>
               </div>
             </div>
@@ -347,7 +347,7 @@ export default function CalculatorPage() {
               <div className="h-2 rounded-full bg-black/10 overflow-hidden">
                 <div className="h-full rounded-full bg-[#1a1a1a] transition-all duration-500" style={{ width: `${interestPct}%` }} />
               </div>
-              <p className="text-[11px] text-[#1a1a1a]/60 mt-1">{interestPct}% of your final balance is interest</p>
+              <p className="text-[12px] font-semibold text-[#1a1a1a]/60 mt-1">{interestPct}% of your final balance is interest</p>
             </div>
           </div>
         </div>
