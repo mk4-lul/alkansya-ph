@@ -65,18 +65,24 @@ export default function HeroCalculator({
 
       {/* Amount pills */}
       <div className="flex flex-wrap justify-center gap-2 mb-2">
-        {AMOUNT_BRACKETS.map((a) => (
-          <button
-            key={a.value}
-            onClick={() => onAmountChange(a.value)}
-            className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
-              amount === a.value
-                ? "bg-white text-[#00c853]"
-                : "bg-white/20 text-white hover:bg-white/30"
-            }`}>
-            {a.label}
-          </button>
-        ))}
+        {AMOUNT_BRACKETS.map((a) => {
+          const isGold = a.value >= 1000000;
+          const isActive = amount === a.value;
+          return (
+            <button
+              key={a.value}
+              onClick={() => onAmountChange(a.value)}
+              className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+                isActive
+                  ? "bg-white text-[#00c853]"
+                  : isGold
+                    ? "bg-[#c8940a]/80 text-white hover:bg-[#c8940a]"
+                    : "bg-white/20 text-white hover:bg-white/30"
+              }`}>
+              {a.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Top 3 banks */}
