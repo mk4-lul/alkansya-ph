@@ -24,6 +24,7 @@ export interface Bank {
   type: "traditional" | "digital";
   logo: string;
   source_url: string | null;
+  td_source_url: string | null;
   notes: string | null;
   has_promo: boolean;
   promo_rate: number | null;
@@ -51,10 +52,9 @@ export interface TimeDepositRate {
 }
 
 export interface BankWithRates extends Bank {
-  savings_rate: number;       // best rate across all products (for sorting)
-  savings_min_rate: number;   // lowest rate across all products (for range)
+  savings_rate: number;
+  savings_min_rate: number;
   savings_products: SavingsProduct[];
-  // Flattened tiers across all products (for calculator)
   savings_tiers: SavingsTier[];
   time_deposit_rates: TimeDepositRate[];
   last_verified: string;
@@ -88,6 +88,7 @@ export async function getBanksWithRates(): Promise<BankWithRates[]> {
         type: row.bank_type,
         logo: row.logo,
         source_url: row.source_url,
+        td_source_url: row.td_source_url || null,
         notes: row.notes,
         has_promo: row.has_promo,
         promo_rate: row.promo_rate,
@@ -107,18 +108,15 @@ export async function getBanksWithRates(): Promise<BankWithRates[]> {
       const rate = Number(row.rate);
       const productName = row.product_name || "Savings";
 
-      // Track overall min/max
       if (rate > bank.savings_rate) bank.savings_rate = rate;
       if (rate < bank.savings_min_rate) bank.savings_min_rate = rate;
 
-      // Add to flat tiers
       bank.savings_tiers.push({
         rate,
         min_deposit: Number(row.min_deposit) || 0,
         max_deposit: row.max_deposit ? Number(row.max_deposit) : null,
       });
 
-      // Group into products
       let product = bank.savings_products.find((p) => p.name === productName);
       if (!product) {
         product = { name: productName, tiers: [], best_rate: 0, min_rate: Infinity };
