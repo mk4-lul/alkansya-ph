@@ -29,7 +29,7 @@ export default function Dashboard({ banks, avgTraditional, avgDigital, multiplie
   return (
     <>
       <div className="mb-8 sm:mb-12 animate-slide-up">
-        <p className="font-mono text-[10px] sm:text-[11px] uppercase tracking-[3px] text-[#c8940a] mb-2">
+        <p className="font-display text-[10px] sm:text-[11px] uppercase tracking-[3px] text-[#c8940a] mb-2">
           Compare PH Bank Rates
         </p>
         <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-extrabold leading-[1.1] mb-6 sm:mb-8 tracking-tight text-[#1a1a1a]">
@@ -47,7 +47,7 @@ export default function Dashboard({ banks, avgTraditional, avgDigital, multiplie
           { label: "Difference", value: `${multiplier}×`, color: "text-[#c8940a]" },
         ].map((stat, i) => (
           <div key={i} className="bg-white py-3 sm:py-5 px-2 sm:px-6 text-center">
-            <p className="font-mono text-[7px] sm:text-[9px] uppercase tracking-[1px] sm:tracking-[2px] text-[#9a9490] mb-1">{stat.label}</p>
+            <p className="font-display text-[7px] sm:text-[9px] uppercase tracking-[1px] sm:tracking-[2px] text-[#9a9490] mb-1">{stat.label}</p>
             <p className={`font-display text-lg sm:text-2xl md:text-3xl font-extrabold ${stat.color}`}>{stat.value}</p>
           </div>
         ))}
