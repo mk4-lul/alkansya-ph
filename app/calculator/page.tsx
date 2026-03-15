@@ -4,15 +4,6 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { formatPeso } from "@/lib/utils";
 
-const BANK_PRESETS = [
-  { label: "Maya 6%", rate: 6.0 },
-  { label: "Tonik 4.5%", rate: 4.5 },
-  { label: "UNOBank 3.5%", rate: 3.5 },
-  { label: "GoTyme 3%", rate: 3.0 },
-  { label: "CIMB 2.5%", rate: 2.5 },
-  { label: "BPI 0.09%", rate: 0.0925 },
-];
-
 const YEAR_OPTIONS = [1, 2, 3, 5, 10, 15, 20, 30];
 
 const INITIAL_PRESETS = [
@@ -50,7 +41,6 @@ function computeGrowth(initial: number, monthly: number, annualRate: number, yea
     totalDeposits += monthly;
     totalInterest += interestThisMonth;
 
-    // Store data points — every month for short periods, quarterly for long
     if (years <= 5 || m % 3 === 0 || m === months) {
       data.push({ month: m, balance, deposits: totalDeposits, interest: totalInterest });
     }
@@ -73,15 +63,12 @@ function MiniChart({ data, height = 200 }: { data: { month: number; balance: num
   const scaleX = (month: number) => padding.left + (month / maxMonth) * chartW;
   const scaleY = (val: number) => padding.top + chartH - (val / maxBalance) * chartH;
 
-  // Balance line (green area)
   const balancePath = data.map((d, i) => `${i === 0 ? "M" : "L"}${scaleX(d.month)},${scaleY(d.balance)}`).join(" ");
   const balanceArea = `${balancePath} L${scaleX(maxMonth)},${scaleY(0)} L${scaleX(0)},${scaleY(0)} Z`;
 
-  // Deposits line (gray area)
   const depositsPath = data.map((d, i) => `${i === 0 ? "M" : "L"}${scaleX(d.month)},${scaleY(d.deposits)}`).join(" ");
   const depositsArea = `${depositsPath} L${scaleX(maxMonth)},${scaleY(0)} L${scaleX(0)},${scaleY(0)} Z`;
 
-  // Year labels
   const years = maxMonth / 12;
   const yearLabels: number[] = [];
   if (years <= 5) {
@@ -104,19 +91,15 @@ function MiniChart({ data, height = 200 }: { data: { month: number; balance: num
           <stop offset="100%" stopColor="#888" stopOpacity="0.05" />
         </linearGradient>
       </defs>
-      {/* Deposit area */}
       <path d={depositsArea} fill="url(#grayGrad)" />
       <path d={depositsPath} fill="none" stroke="#ccc" strokeWidth="1.5" />
-      {/* Balance area */}
       <path d={balanceArea} fill="url(#greenGrad)" />
       <path d={balancePath} fill="none" stroke="#00c853" strokeWidth="2.5" strokeLinejoin="round" />
-      {/* Year labels */}
       {yearLabels.map((y) => (
         <text key={y} x={scaleX(y * 12)} y={height - 6} textAnchor="middle" fontSize="11" fill="#888" fontFamily="Plus Jakarta Sans, sans-serif">
           {y}yr
         </text>
       ))}
-      {/* End value label */}
       <text x={scaleX(maxMonth) - 4} y={scaleY(maxBalance) - 8} textAnchor="end" fontSize="13" fontWeight="700" fill="#00c853" fontFamily="Plus Jakarta Sans, sans-serif">
         {formatPeso(maxBalance)}
       </text>
@@ -129,7 +112,6 @@ export default function CalculatorPage() {
   const [monthly, setMonthly] = useState(5000);
   const [rate, setRate] = useState(6.0);
   const [years, setYears] = useState(10);
-  const [customRate, setCustomRate] = useState("");
 
   const result = useMemo(() => computeGrowth(initial, monthly, rate, years), [initial, monthly, rate, years]);
 
@@ -148,46 +130,44 @@ export default function CalculatorPage() {
       </nav>
 
       <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">
-        {/* Hero */}
+        {/* Hero result card — green bg with blurred emojis */}
         <div className="bg-[#00c853] rounded-[20px] p-6 sm:p-8 mb-3 relative overflow-hidden">
-          <div className="absolute inset-0 pointer-events-none select-none" aria-hidden="true">
+          {/* Blurred emoji background */}
+          <div className="absolute inset-0 pointer-events-none select-none" style={{ filter: "blur(3px)" }} aria-hidden="true">
             {['📈','💰','🪙','💸','📊','💎','🤑','📈','💰','🪙','💸','📊','💎','🤑','📈','💰','🪙','💸','📊','💎','🤑','📈','💰','🪙','💸','📊','💎','🤑','📈','💰'].map((e, i) => (
               <span key={i} className="absolute text-[22px] sm:text-[28px]" style={{
                 left: `${(i * 17.3 + i * i * 3.7) % 100}%`,
                 top: `${(i * 13.1 + i * i * 2.3) % 100}%`,
-                opacity: 0.75,
+                opacity: 0.5,
                 transform: `rotate(${(i * 37) % 360}deg)`,
               }}>{e}</span>
             ))}
           </div>
           <div className="relative text-center">
-            <p className="text-lg font-bold text-white/80 mb-1">Compound interest calculator</p>
-            <p className="text-[13px] text-white/50">See how your money grows over time</p>
-          </div>
-        </div>
-
-        {/* Result card — BIG number */}
-        <div className="bg-white rounded-[20px] p-6 sm:p-8 mb-3 text-center">
-          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-2">Your money after {years} {years === 1 ? "year" : "years"}</p>
-          <p className="text-4xl sm:text-5xl font-extrabold tracking-tight text-[#1a1a1a]">
-            {formatPeso(result.finalBalance)}
-          </p>
-          <div className="flex justify-center gap-6 mt-4">
-            <div>
-              <p className="text-[11px] text-[#888] uppercase tracking-[0.5px]">Deposited</p>
-              <p className="text-lg font-bold text-[#1a1a1a]">{formatPeso(result.totalDeposits)}</p>
+            <p className="text-sm font-semibold text-white/60 mb-1">Compound interest calculator</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/40 mb-2">
+              Your money after {years} {years === 1 ? "year" : "years"}
+            </p>
+            <p className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white">
+              {formatPeso(result.finalBalance)}
+            </p>
+            <div className="flex justify-center gap-6 mt-4">
+              <div>
+                <p className="text-[11px] text-white/50 uppercase tracking-[0.5px]">Deposited</p>
+                <p className="text-lg font-bold text-white/90">{formatPeso(result.totalDeposits)}</p>
+              </div>
+              <div>
+                <p className="text-[11px] text-[#FFD600] uppercase tracking-[0.5px]">Interest earned</p>
+                <p className="text-lg font-bold text-[#FFD600]">{formatPeso(result.totalInterest)}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-[11px] text-[#00c853] uppercase tracking-[0.5px]">Interest earned</p>
-              <p className="text-lg font-bold text-[#00c853]">{formatPeso(result.totalInterest)}</p>
+            {/* Interest percentage bar */}
+            <div className="mt-4 max-w-[300px] mx-auto">
+              <div className="h-2 rounded-full bg-white/20 overflow-hidden">
+                <div className="h-full rounded-full bg-white transition-all duration-500" style={{ width: `${interestPct}%` }} />
+              </div>
+              <p className="text-[11px] text-white/50 mt-1">{interestPct}% of your final balance is interest</p>
             </div>
-          </div>
-          {/* Interest percentage bar */}
-          <div className="mt-4 max-w-[300px] mx-auto">
-            <div className="h-2 rounded-full bg-[#f5f5f5] overflow-hidden">
-              <div className="h-full rounded-full bg-[#00c853] transition-all duration-500" style={{ width: `${interestPct}%` }} />
-            </div>
-            <p className="text-[11px] text-[#888] mt-1">{interestPct}% of your final balance is interest</p>
           </div>
         </div>
 
@@ -255,30 +235,27 @@ export default function CalculatorPage() {
             </div>
           </div>
 
-          {/* Interest rate */}
+          {/* Interest rate — SLIDER */}
           <div className="bg-white rounded-[20px] p-5 sm:p-6">
-            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Interest rate (per year)</p>
-            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-              {BANK_PRESETS.map((p) => (
-                <button key={p.rate} onClick={() => { setRate(p.rate); setCustomRate(""); }}
-                  className={`py-2.5 rounded-xl text-[12px] font-bold transition-all ${
-                    rate === p.rate && !customRate
-                      ? "bg-[#00c853] text-white"
-                      : "bg-[#f5f5f5] text-[#1a1a1a] hover:bg-[#e8e8e8]"
-                  }`}>{p.label}</button>
-              ))}
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888]">Interest rate (per year)</p>
+              <p className="text-2xl font-extrabold text-[#00c853]">{rate.toFixed(1)}%</p>
             </div>
-            <div className="mt-3 flex items-center gap-2">
-              <span className="text-sm text-[#888]">Custom:</span>
-              <input
-                type="number"
-                step="0.1"
-                value={customRate}
-                onChange={(e) => { setCustomRate(e.target.value); setRate(Number(e.target.value) || 0); }}
-                className="flex-1 bg-[#f5f5f5] rounded-xl px-3 py-2 text-sm font-bold text-[#1a1a1a] outline-none focus:ring-2 focus:ring-[#00c853]"
-                placeholder="e.g. 5.5"
-              />
-              <span className="text-sm font-bold text-[#888]">%</span>
+            <input
+              type="range"
+              min="0"
+              max="15"
+              step="0.1"
+              value={rate}
+              onChange={(e) => setRate(Number(e.target.value))}
+              className="w-full h-2 rounded-full appearance-none cursor-pointer"
+              style={{
+                background: `linear-gradient(to right, #00c853 0%, #00c853 ${(rate / 15) * 100}%, #e8e8e8 ${(rate / 15) * 100}%, #e8e8e8 100%)`,
+              }}
+            />
+            <div className="flex justify-between mt-1">
+              <span className="text-[10px] text-[#aaa]">0%</span>
+              <span className="text-[10px] text-[#aaa]">15%</span>
             </div>
           </div>
 
@@ -313,6 +290,30 @@ export default function CalculatorPage() {
           </p>
         </footer>
       </main>
+
+      {/* Slider thumb styling */}
+      <style jsx>{`
+        input[type="range"]::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          background: #00c853;
+          cursor: pointer;
+          border: 3px solid white;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+        input[type="range"]::-moz-range-thumb {
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          background: #00c853;
+          cursor: pointer;
+          border: 3px solid white;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+      `}</style>
     </div>
   );
 }
