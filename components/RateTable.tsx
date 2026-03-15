@@ -103,16 +103,23 @@ function BankRow({
       {/* Expanded */}
       {expanded && (
         <div className="px-5 pb-5 animate-fade-in">
-          {/* App rating — text only, no stars */}
+          {/* App rating */}
           {bank.avg_app_rating && (
-            <div className="flex items-center gap-4 mb-4 bg-[#f5f5f5] rounded-xl px-4 py-3">
-              <div>
-                <span className="text-sm font-bold text-[#1a1a1a]">{bank.avg_app_rating}</span>
-                <span className="text-[11px] text-[#888] ml-1">App rating</span>
-              </div>
-              <div className="ml-auto flex gap-3 text-[10px] text-[#888]">
-                <span>Play Store {bank.play_store_rating}</span>
-                <span>App Store {bank.app_store_rating}</span>
+            <div className="mb-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-2">App rating</p>
+              <div className="flex gap-2">
+                <div className="flex-1 bg-[#f5f5f5] rounded-xl px-4 py-3 flex items-center justify-between">
+                  <span className="text-[12px] text-[#888]">Play Store</span>
+                  <span className="text-lg font-extrabold text-[#1a1a1a]">{bank.play_store_rating}</span>
+                </div>
+                <div className="flex-1 bg-[#f5f5f5] rounded-xl px-4 py-3 flex items-center justify-between">
+                  <span className="text-[12px] text-[#888]">App Store</span>
+                  <span className="text-lg font-extrabold text-[#1a1a1a]">{bank.app_store_rating}</span>
+                </div>
+                <div className="bg-[#1a1a1a] rounded-xl px-4 py-3 flex items-center justify-between min-w-[100px]">
+                  <span className="text-[12px] text-white/60">Avg</span>
+                  <span className="text-lg font-extrabold text-white">{bank.avg_app_rating}</span>
+                </div>
               </div>
             </div>
           )}
