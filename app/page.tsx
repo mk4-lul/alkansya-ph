@@ -30,10 +30,6 @@ function fb(
   };
 }
 
-function td(term_days: number, rate: number): TimeDepositRate {
-  return { term_days, rate, min_deposit: 0, max_deposit: null };
-}
-
 const FALLBACK_BANKS: BankWithRates[] = [
   fb("bpi", "BPI", "traditional", "🏛️",
     "https://www.bpi.com.ph/personal/bank/deposits/deposit-rates-savings-and-checking",
@@ -48,126 +44,113 @@ const FALLBACK_BANKS: BankWithRates[] = [
     ],
     [
       { term_days: 35, rate: 0.250, min_deposit: 50000, max_deposit: 499999 },
-      { term_days: 35, rate: 0.375, min_deposit: 500000, max_deposit: 999999 },
-      { term_days: 35, rate: 0.375, min_deposit: 1000000, max_deposit: 4999999 },
       { term_days: 35, rate: 0.500, min_deposit: 5000000, max_deposit: null },
-      { term_days: 63, rate: 0.250, min_deposit: 50000, max_deposit: 499999 },
-      { term_days: 63, rate: 0.500, min_deposit: 500000, max_deposit: 999999 },
-      { term_days: 63, rate: 0.500, min_deposit: 1000000, max_deposit: 4999999 },
-      { term_days: 63, rate: 0.625, min_deposit: 5000000, max_deposit: null },
-      { term_days: 91, rate: 0.375, min_deposit: 50000, max_deposit: 499999 },
-      { term_days: 91, rate: 0.500, min_deposit: 500000, max_deposit: 999999 },
-      { term_days: 91, rate: 0.500, min_deposit: 1000000, max_deposit: 4999999 },
-      { term_days: 91, rate: 0.625, min_deposit: 5000000, max_deposit: null },
-      { term_days: 182, rate: 0.375, min_deposit: 50000, max_deposit: 499999 },
-      { term_days: 182, rate: 0.500, min_deposit: 500000, max_deposit: 999999 },
-      { term_days: 182, rate: 0.500, min_deposit: 1000000, max_deposit: 4999999 },
-      { term_days: 182, rate: 0.750, min_deposit: 5000000, max_deposit: null },
-      { term_days: 365, rate: 0.500, min_deposit: 50000, max_deposit: 499999 },
-      { term_days: 365, rate: 0.500, min_deposit: 500000, max_deposit: 999999 },
-      { term_days: 365, rate: 0.500, min_deposit: 1000000, max_deposit: 4999999 },
       { term_days: 365, rate: 0.750, min_deposit: 5000000, max_deposit: null },
     ],
     "2026-03-14T00:00:00Z"),
 
   fb("bdo", "BDO", "traditional", "🏛️",
-    "https://www.bdo.com.ph/personal/accounts/savings/peso-savings", null,
+    "https://www.bdo.com.ph/personal/accounts/savings/peso-savings",
+    "https://www.bdo.com.ph/personal/accounts/time-deposit/peso-time-deposit",
     "Multiple savings products", false, null, null,
     [
       { name: "Passbook Savings", tiers: [{ rate: 0.0625, min_deposit: 0, max_deposit: null }] },
-      { name: "ATM Savings", tiers: [{ rate: 0.0625, min_deposit: 0, max_deposit: null }] },
       { name: "Optimum Savings", tiers: [{ rate: 0.25, min_deposit: 30000, max_deposit: 99999 }, { rate: 0.375, min_deposit: 100000, max_deposit: null }] },
-      { name: "Junior Savers", tiers: [{ rate: 0.0625, min_deposit: 0, max_deposit: null }] },
-      { name: "Kabayan Savings", tiers: [{ rate: 0.0625, min_deposit: 0, max_deposit: null }] },
     ],
-    [td(30, 0.25), td(90, 0.375), td(180, 0.625), td(360, 0.875)],
-    "2026-03-10T00:00:00Z"),
+    [{ term_days: 30, rate: 0.625, min_deposit: 50000, max_deposit: 299999 }, { term_days: 360, rate: 1.250, min_deposit: 10000000, max_deposit: null }],
+    "2026-03-15T00:00:00Z"),
 
   fb("metrobank", "Metrobank", "traditional", "🏛️",
     "https://www.metrobank.com.ph/articles/deposit-rates-and-fees",
     "https://www.metrobank.com.ph/articles/time-deposit-rates-and-fees",
     "Online Time Deposit rates", false, null, null,
     [{ name: "Regular Savings", tiers: [{ rate: 0.0625, min_deposit: 0, max_deposit: null }] }],
-    [
-      { term_days: 30, rate: 4.125, min_deposit: 10000, max_deposit: 49999 },
-      { term_days: 30, rate: 4.125, min_deposit: 50000, max_deposit: 199999 },
-      { term_days: 30, rate: 4.125, min_deposit: 200000, max_deposit: 499999 },
-      { term_days: 30, rate: 4.125, min_deposit: 500000, max_deposit: 999999 },
-      { term_days: 30, rate: 4.250, min_deposit: 1000000, max_deposit: 4999999 },
-      { term_days: 30, rate: 4.250, min_deposit: 5000000, max_deposit: 9999999 },
-      { term_days: 30, rate: 4.250, min_deposit: 10000000, max_deposit: 19999999 },
-      { term_days: 30, rate: 4.250, min_deposit: 20000000, max_deposit: null },
-      { term_days: 60, rate: 4.125, min_deposit: 10000, max_deposit: 49999 },
-      { term_days: 60, rate: 4.125, min_deposit: 50000, max_deposit: 199999 },
-      { term_days: 60, rate: 4.125, min_deposit: 200000, max_deposit: 499999 },
-      { term_days: 60, rate: 4.125, min_deposit: 500000, max_deposit: 999999 },
-      { term_days: 60, rate: 4.250, min_deposit: 1000000, max_deposit: 4999999 },
-      { term_days: 60, rate: 4.250, min_deposit: 5000000, max_deposit: 9999999 },
-      { term_days: 60, rate: 4.250, min_deposit: 10000000, max_deposit: 19999999 },
-      { term_days: 60, rate: 4.250, min_deposit: 20000000, max_deposit: null },
-      { term_days: 180, rate: 4.125, min_deposit: 10000, max_deposit: 49999 },
-      { term_days: 180, rate: 4.250, min_deposit: 50000, max_deposit: 199999 },
-      { term_days: 180, rate: 4.250, min_deposit: 200000, max_deposit: 499999 },
-      { term_days: 180, rate: 4.375, min_deposit: 500000, max_deposit: 999999 },
-      { term_days: 180, rate: 4.375, min_deposit: 1000000, max_deposit: 4999999 },
-      { term_days: 180, rate: 4.500, min_deposit: 5000000, max_deposit: 9999999 },
-      { term_days: 180, rate: 4.500, min_deposit: 10000000, max_deposit: 19999999 },
-      { term_days: 180, rate: 4.500, min_deposit: 20000000, max_deposit: null },
-    ],
+    [{ term_days: 30, rate: 4.125, min_deposit: 10000, max_deposit: 49999 }, { term_days: 180, rate: 4.500, min_deposit: 5000000, max_deposit: null }],
     "2026-03-14T00:00:00Z"),
 
   fb("unionbank", "UnionBank", "traditional", "🏛️",
-    "https://www.unionbankph.com/accounts", null,
+    "https://www.unionbankph.com/accounts",
+    "https://www.unionbankph.com/accounts",
     "Regular savings", false, null, null,
     [{ name: "Regular Savings", tiers: [{ rate: 0.1, min_deposit: 0, max_deposit: null }] }],
-    [td(30, 0.375), td(90, 0.5), td(180, 0.75), td(360, 1.0)],
-    "2026-03-08T00:00:00Z"),
+    [{ term_days: 30, rate: 0.625, min_deposit: 50000, max_deposit: 299999 }, { term_days: 360, rate: 1.250, min_deposit: 10000000, max_deposit: null }],
+    "2026-03-15T00:00:00Z"),
 
   fb("securitybank", "Security Bank", "traditional", "🏛️",
-    "https://www.securitybank.com/personal/accounts/fees-charges/", null,
-    "Build Up savings", false, null, null,
-    [{ name: "Build Up Savings", tiers: [{ rate: 0.1, min_deposit: 0, max_deposit: null }] }],
-    [td(30, 0.25), td(90, 0.5), td(180, 0.75), td(360, 1.0)],
-    "2026-03-08T00:00:00Z"),
+    "https://www.securitybank.com/personal/accounts/high-interest/",
+    "https://www.securitybank.com/personal/accounts/time-deposit/time-deposit-rates/",
+    "Easy Savings 0.05%, GoalSetter up to 3%", false, null, null,
+    [
+      { name: "Easy Savings", tiers: [{ rate: 0.05, min_deposit: 0, max_deposit: null }] },
+      { name: "GoalSetter", tiers: [
+        { rate: 0.50, min_deposit: 5000, max_deposit: 49999 },
+        { rate: 1.00, min_deposit: 50000, max_deposit: 499999 },
+        { rate: 1.50, min_deposit: 500000, max_deposit: 999999 },
+        { rate: 2.00, min_deposit: 1000000, max_deposit: 4999999 },
+        { rate: 3.00, min_deposit: 5000000, max_deposit: null },
+      ]},
+    ],
+    [{ term_days: 30, rate: 0.54, min_deposit: 100000, max_deposit: 299999 }, { term_days: 365, rate: 2.47, min_deposit: 5000000, max_deposit: null }],
+    "2026-03-15T00:00:00Z"),
 
   fb("rcbc", "RCBC", "traditional", "🏛️",
-    "https://www.rcbc.com/personal/deposits", null,
-    "Regular savings", false, null, null,
-    [{ name: "Regular Savings", tiers: [{ rate: 0.1, min_deposit: 0, max_deposit: null }] }],
-    [td(30, 0.375), td(90, 0.5), td(180, 0.875), td(360, 1.125)],
-    "2026-03-07T00:00:00Z"),
+    "https://www.rcbc.com/regular-atm",
+    "https://www.rcbc.com/rcbc-time-deposit",
+    "Regular ATM Savings", false, null, null,
+    [{ name: "Regular Savings", tiers: [{ rate: 0.15, min_deposit: 0, max_deposit: null }] }],
+    [{ term_days: 30, rate: 0.500, min_deposit: 5000, max_deposit: 39999 }, { term_days: 365, rate: 1.375, min_deposit: 10000000, max_deposit: null }],
+    "2026-03-15T00:00:00Z"),
 
   fb("pnb", "PNB", "traditional", "🏛️",
-    "https://www.pnb.com.ph/index.php/savings", null,
+    "https://www.pnb.com.ph/product-comparison/",
+    "https://www.pnb.com.ph/product-comparison/",
     "Top Saver: higher rate at ₱50k+", false, null, null,
     [
       { name: "Regular Savings", tiers: [{ rate: 0.1, min_deposit: 0, max_deposit: null }] },
       { name: "Top Saver", tiers: [{ rate: 0.5, min_deposit: 50000, max_deposit: null }] },
     ],
-    [td(30, 0.5), td(90, 0.75), td(180, 1.0), td(360, 1.25)],
-    "2026-03-08T00:00:00Z"),
+    [{ term_days: 30, rate: 0.125, min_deposit: 25000, max_deposit: 249999 }, { term_days: 360, rate: 0.375, min_deposit: 1000000, max_deposit: null }],
+    "2026-03-15T00:00:00Z"),
 
   fb("landbank", "Landbank", "traditional", "🏛️",
-    "https://www.landbank.com/savings-account", null,
-    "Regular savings", false, null, null,
-    [{ name: "Regular Savings", tiers: [{ rate: 0.1, min_deposit: 0, max_deposit: null }] }],
-    [td(30, 0.25), td(90, 0.375), td(180, 0.625), td(360, 0.875)],
-    "2026-03-07T00:00:00Z"),
+    "https://www.landbank.com/personal-savings-account-with-atm",
+    "https://www.landbank.com/personal-greengrowth-deposit",
+    "OptiSaver Plus: 1%–4% for ₱500k+ (contact branch)", false, null, null,
+    [
+      { name: "Savings Account with ATM", tiers: [{ rate: 0.05, min_deposit: 0, max_deposit: null }] },
+      { name: "OptiSaver Plus", tiers: [{ rate: 0.05, min_deposit: 50000, max_deposit: 499999 }] },
+    ],
+    [
+      { term_days: 365, rate: 2.25, min_deposit: 50000, max_deposit: 499999 },
+      { term_days: 365, rate: 3.25, min_deposit: 500000, max_deposit: 4999999 },
+      { term_days: 365, rate: 4.25, min_deposit: 5000000, max_deposit: null },
+    ],
+    "2026-03-15T00:00:00Z"),
 
   fb("maya", "Maya Bank", "digital", "💚",
     "https://www.mayabank.ph/savings/",
     "https://www.mayabank.ph/time-deposit-plus/",
     "Base 3.50%; up to 6% with goals", false, null, null,
     [{ name: "Maya Savings", tiers: [{ rate: 3.5, min_deposit: 0, max_deposit: 100000 }, { rate: 6.0, min_deposit: 100001, max_deposit: null }] }],
-    [td(90, 5.0), td(180, 6.0), td(365, 5.5)],
+    [
+      { term_days: 90, rate: 5.0, min_deposit: 0, max_deposit: 1000000 },
+      { term_days: 180, rate: 6.0, min_deposit: 0, max_deposit: 1000000 },
+      { term_days: 365, rate: 5.5, min_deposit: 0, max_deposit: 1000000 },
+    ],
     "2026-03-14T00:00:00Z"),
 
   fb("cimb", "CIMB", "digital", "🔴",
-    "https://www.cimb.com.ph/en/personal/banking/accounts/upsave.html", null,
-    "UpSave account", true, 8.0, "New depositors, limited period, max ₱200k",
+    "https://www.cimb.com.ph/en/personal/banking/accounts/upsave.html",
+    "https://www.cimbbank.com.ph/en/products/save/maxsave.html",
+    "UpSave 2.5%. MaxSave TD updated Jan 2026.", true, 8.0, "New depositors, limited period, max ₱200k",
     [{ name: "UpSave", tiers: [{ rate: 2.5, min_deposit: 0, max_deposit: null }] }],
-    [td(30, 3.5), td(90, 4.0), td(180, 4.5), td(360, 5.0)],
-    "2026-03-11T00:00:00Z"),
+    [
+      { term_days: 90, rate: 4.75, min_deposit: 5000, max_deposit: 1000000 },
+      { term_days: 180, rate: 5.25, min_deposit: 5000, max_deposit: 1000000 },
+      { term_days: 365, rate: 4.75, min_deposit: 5000, max_deposit: 1000000 },
+      { term_days: 730, rate: 4.50, min_deposit: 5000, max_deposit: 1000000 },
+    ],
+    "2026-03-15T00:00:00Z"),
 
   fb("tonik", "Tonik", "digital", "🟡",
     "https://tonikbank.com/deposit-interest-rates",
@@ -224,41 +207,37 @@ export default async function HomePage() {
   const multiplier = Math.round(avgDigital / avgTraditional);
 
   return (
-    <div className="min-h-screen bg-[#f6f4f0]">
-      <nav className="flex justify-between items-center px-4 sm:px-6 py-3 sm:py-4 max-w-[960px] mx-auto border-b border-[#e5e0d8]">
+    <div className="min-h-screen bg-[#f5f5f5]">
+      {/* Nav */}
+      <nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[720px] mx-auto">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-sm sm:text-base font-bold text-white"
-            style={{ background: "linear-gradient(135deg, #c8940a, #a87a08)" }}>₱</div>
-          <span className="font-display text-lg sm:text-[22px] font-extrabold tracking-tight text-[#1a1a1a]">
-            alkansya<span className="text-[#c8940a]">.ph</span>
+          <span className="text-xl font-extrabold tracking-tight text-[#1a1a1a]">
+            alkansya<span className="text-[#00c853]">.ph</span>
           </span>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="font-display text-[10px] sm:text-[11px] uppercase tracking-[2px] text-[#6b6560] hidden sm:inline">Updated weekly</span>
-          <div className="w-2 h-2 rounded-full bg-[#0a8f65] animate-pulse-dot" />
+        <div className="flex items-center gap-2">
+          <div className="w-[6px] h-[6px] rounded-full bg-[#00c853] animate-pulse-dot" />
+          <span className="text-[11px] text-[#888] hidden sm:inline">Updated weekly</span>
         </div>
       </nav>
 
-      <main className="max-w-[960px] mx-auto px-4 sm:px-6 py-6 sm:py-8">
+      {/* Main */}
+      <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">
         <Dashboard banks={banks} avgTraditional={avgTraditional} avgDigital={avgDigital} multiplier={multiplier} />
 
-        <div className="mt-5 sm:mt-6 p-3 sm:p-5 rounded-xl bg-white border border-[#e5e0d8] flex gap-2 sm:gap-3 shadow-sm">
-          <span className="text-base sm:text-lg">🛡️</span>
-          <div>
-            <p className="font-display text-xs sm:text-[13px] font-semibold text-[#1a1a1a] mb-1">PDIC Insured up to ₱500,000</p>
-            <p className="font-display text-[10px] sm:text-[11px] text-[#6b6560] leading-relaxed">
-              All banks listed are BSP-licensed and PDIC-insured. Your deposits are protected up to ₱500,000 per depositor per bank. Digital banks carry the same protection as traditional banks.
-            </p>
-          </div>
+        {/* PDIC */}
+        <div className="mt-3 bg-white rounded-2xl px-5 py-4 flex gap-3 items-start">
+          <span className="text-xl">🛡️</span>
+          <p className="text-[12px] text-[#888] leading-relaxed">
+            <span className="font-bold text-[#1a1a1a]">PDIC insured up to ₱500,000.</span> All banks listed are BSP-licensed. Digital banks carry the same protection as traditional banks.
+          </p>
         </div>
 
-        <footer className="mt-8 sm:mt-12 pt-4 sm:pt-6 border-t border-[#e5e0d8] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-3">
-          <div>
-            <p className="font-display text-sm font-bold text-[#6b6560]">alkansya<span className="text-[#c8940a]">.ph</span></p>
-            <p className="font-display text-[10px] sm:text-[11px] text-[#9a9490] mt-1">Aggregating Philippine financial rates so you don&apos;t have to.</p>
-          </div>
-          <p className="font-display text-[9px] sm:text-[10px] text-[#b0aaa4] max-w-md sm:text-right">
-            Rates are indicative and may not reflect real-time changes. Always verify directly with your bank before making financial decisions. Alkansya.ph is an independent informational tool — not a financial advisor, broker, or bank. We are not liable for any losses, damages, or issues arising from the use of this site or any third-party platform listed herein.
+        {/* Footer */}
+        <footer className="mt-8 pt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+          <span className="text-sm font-bold text-[#888]">alkansya<span className="text-[#00c853]">.ph</span></span>
+          <p className="text-[10px] text-[#aaa] max-w-md sm:text-right leading-relaxed">
+            Rates are indicative and may not reflect real-time changes. Always verify directly with your bank. Alkansya.ph is an independent informational tool — not a financial advisor, broker, or bank.
           </p>
         </footer>
       </main>
