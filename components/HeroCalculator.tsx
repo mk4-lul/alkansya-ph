@@ -79,12 +79,12 @@ export default function HeroCalculator({
             <button
               key={a.value}
               onClick={() => onAmountChange(a.value)}
-              className={`py-3 rounded-xl text-sm font-bold transition-all ${
+              className={`py-3 rounded-xl text-sm font-bold transition-all backdrop-blur-sm ${
                 isActive
                   ? "bg-white text-[#1a1a1a] ring-2 ring-[#1a1a1a]"
                   : isGold
-                    ? "bg-[#FFD600]/30 text-white hover:bg-[#FFD600]/50"
-                    : "bg-white/15 text-white hover:bg-white/25"
+                    ? "bg-[#FFD600]/75 text-white hover:bg-[#FFD600]/90"
+                    : "bg-white/75 text-[#1a1a1a] hover:bg-white/90"
               }`}>
               {a.label}
             </button>
