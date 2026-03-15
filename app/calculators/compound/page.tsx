@@ -122,7 +122,7 @@ export default function CalculatorPage() {
     <div className="min-h-screen bg-[#f5f5f5]">
       {/* Nav */}
       <nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[720px] mx-auto">
-        <Link href="/" className="flex items-center gap-2 text-xl font-extrabold tracking-tight text-[#1a1a1a] no-underline">
+        <Link href="/" className="text-xl font-extrabold tracking-tight text-[#1a1a1a] no-underline">
           alkansya<span className="text-[#00c853]">.ph</span>
         </Link>
         <NavMenu />
