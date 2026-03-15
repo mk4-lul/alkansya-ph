@@ -291,11 +291,13 @@ export default function RateTable({
         ))}
         {filtered.length === 0 && <p className="text-center py-8 text-sm text-[#888]">No results match your filters</p>}
         {!showAll && filtered.length > 10 && (
-          <button
-            onClick={() => setShowAll(true)}
-            className="w-full py-3 rounded-2xl bg-white text-[13px] font-bold text-[#888] hover:text-[#1a1a1a] transition-colors">
-            Show more
-          </button>
+          <div className="flex justify-center">
+            <button
+              onClick={() => setShowAll(true)}
+              className="px-6 py-2.5 rounded-full bg-white text-[13px] font-bold text-[#888] hover:text-[#1a1a1a] transition-colors">
+              Show more
+            </button>
+          </div>
         )}
       </div>
 
