@@ -92,12 +92,14 @@ export function formatRateRange(minRate: number, maxRate: number): string {
 }
 
 export const AMOUNT_BRACKETS = [
-  { label: "₱10,000", value: 10000 },
-  { label: "₱50,000", value: 50000 },
-  { label: "₱100,000", value: 100000 },
-  { label: "₱250,000", value: 250000 },
-  { label: "₱500,000", value: 500000 },
-  { label: "₱1,000,000", value: 1000000 },
+  { label: "₱10k", value: 10000 },
+  { label: "₱50k", value: 50000 },
+  { label: "₱100k", value: 100000 },
+  { label: "₱250k", value: 250000 },
+  { label: "₱500k", value: 500000 },
+  { label: "₱1M", value: 1000000 },
+  { label: "₱2.5M", value: 2500000 },
+  { label: "₱5M", value: 5000000 },
 ];
 
 export const TERM_LABELS: Record<number, string> = {
