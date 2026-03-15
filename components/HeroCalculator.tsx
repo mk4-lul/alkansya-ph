@@ -61,7 +61,7 @@ export default function HeroCalculator({
         {'💵💰🪙💸₱💵💰🪙💸₱'.repeat(30)}
       </div>
       <div className="relative">
-      <p className="text-center text-sm text-white/70 mb-4">How much are you saving?</p>
+      <p className="text-center text-lg font-bold text-white/80 mb-4">How much are you saving?</p>
 
       {/* Amount pills */}
       <div className="flex flex-wrap justify-center gap-2 mb-2">
