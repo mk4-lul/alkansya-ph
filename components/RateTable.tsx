@@ -70,7 +70,7 @@ function BankRow({
         onClick={() => setExpanded(!expanded)}
         className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-[#fafafa] transition-colors">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[#f5f5f5] flex items-center justify-center text-lg shrink-0">{bank.logo}</div>
+          <img src={bank.logo} alt={bank.name} className="w-9 h-9 rounded-xl bg-[#f5f5f5] object-contain shrink-0" />
           <div>
             <p className="text-sm font-bold text-[#1a1a1a]">{bank.name}</p>
             <p className="text-[11px] text-[#888]">{bank.type === "digital" ? "Digital" : "Traditional"}</p>
