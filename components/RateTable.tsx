@@ -123,7 +123,7 @@ function BankRow({ bank, depositType, amount, highlight }: {
 
       {/* Expanded */}
       {expanded && (
-        <div className="px-4 pb-4 sm:pl-14 animate-fade-in">
+        <div className="px-4 pt-2 pb-4 sm:pl-14 animate-fade-in">
           {/* Savings products */}
           {depositType === "savings" && bank.savings_products.length > 0 && (
             <div className="mb-3">
