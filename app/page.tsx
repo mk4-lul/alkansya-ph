@@ -4,7 +4,8 @@ import Dashboard from "@/components/Dashboard";
 export const revalidate = 3600;
 
 function fb(
-  id: string, name: string, type: "traditional" | "digital", logo: string, url: string, notes: string,
+  id: string, name: string, type: "traditional" | "digital", logo: string,
+  url: string, tdUrl: string | null, notes: string,
   hasPromo: boolean, promoRate: number | null, promoTerms: string | null,
   products: { name: string; tiers: { rate: number; min_deposit: number; max_deposit: number | null }[] }[],
   td: TimeDepositRate[],
@@ -13,7 +14,8 @@ function fb(
   const allTiers = products.flatMap((p) => p.tiers);
   const rates = allTiers.map((t) => t.rate);
   return {
-    id, name, type, logo, source_url: url, notes, has_promo: hasPromo, promo_rate: promoRate, promo_terms: promoTerms,
+    id, name, type, logo, source_url: url, td_source_url: tdUrl, notes,
+    has_promo: hasPromo, promo_rate: promoRate, promo_terms: promoTerms,
     savings_rate: rates.length > 0 ? Math.max(...rates) : 0,
     savings_min_rate: rates.length > 0 ? Math.min(...rates) : 0,
     savings_tiers: allTiers,
@@ -28,13 +30,16 @@ function fb(
   };
 }
 
-// Helper for simple flat-rate TD entries (most banks)
+// Helper for simple flat-rate TD entries
 function td(term_days: number, rate: number): TimeDepositRate {
   return { term_days, rate, min_deposit: 0, max_deposit: null };
 }
 
 const FALLBACK_BANKS: BankWithRates[] = [
-  fb("bpi", "BPI", "traditional", "🏛️", "https://www.bpi.com.ph/personal/bank/deposits/deposit-rates-savings-and-checking", "Multiple savings products", false, null, null,
+  fb("bpi", "BPI", "traditional", "🏛️",
+    "https://www.bpi.com.ph/personal/bank/deposits/deposit-rates-savings-and-checking",
+    "https://www.bpi.com.ph/personal/bank/time-deposit-accounts/peso-auto-renew",
+    "Multiple savings products", false, null, null,
     [
       { name: "#SaveUp", tiers: [{ rate: 0.0925, min_deposit: 5000, max_deposit: null }] },
       { name: "#MySaveUp", tiers: [{ rate: 0.0925, min_deposit: 5000, max_deposit: null }] },
@@ -42,10 +47,38 @@ const FALLBACK_BANKS: BankWithRates[] = [
       { name: "Maxi-Saver", tiers: [{ rate: 0.125, min_deposit: 2000000, max_deposit: null }] },
       { name: "Saver-Plus", tiers: [{ rate: 0.0625, min_deposit: 50000, max_deposit: null }] },
     ],
-    [td(30, 0.25), td(90, 0.5), td(180, 0.75), td(360, 1.0)],
-    "2026-03-10T00:00:00Z"),
+    [
+      // Peso Auto Renew — 35 Days
+      { term_days: 35, rate: 0.250, min_deposit: 50000, max_deposit: 499999 },
+      { term_days: 35, rate: 0.375, min_deposit: 500000, max_deposit: 999999 },
+      { term_days: 35, rate: 0.375, min_deposit: 1000000, max_deposit: 4999999 },
+      { term_days: 35, rate: 0.500, min_deposit: 5000000, max_deposit: null },
+      // 63 Days
+      { term_days: 63, rate: 0.250, min_deposit: 50000, max_deposit: 499999 },
+      { term_days: 63, rate: 0.500, min_deposit: 500000, max_deposit: 999999 },
+      { term_days: 63, rate: 0.500, min_deposit: 1000000, max_deposit: 4999999 },
+      { term_days: 63, rate: 0.625, min_deposit: 5000000, max_deposit: null },
+      // 91 Days
+      { term_days: 91, rate: 0.375, min_deposit: 50000, max_deposit: 499999 },
+      { term_days: 91, rate: 0.500, min_deposit: 500000, max_deposit: 999999 },
+      { term_days: 91, rate: 0.500, min_deposit: 1000000, max_deposit: 4999999 },
+      { term_days: 91, rate: 0.625, min_deposit: 5000000, max_deposit: null },
+      // 182 Days
+      { term_days: 182, rate: 0.375, min_deposit: 50000, max_deposit: 499999 },
+      { term_days: 182, rate: 0.500, min_deposit: 500000, max_deposit: 999999 },
+      { term_days: 182, rate: 0.500, min_deposit: 1000000, max_deposit: 4999999 },
+      { term_days: 182, rate: 0.750, min_deposit: 5000000, max_deposit: null },
+      // 365 Days
+      { term_days: 365, rate: 0.500, min_deposit: 50000, max_deposit: 499999 },
+      { term_days: 365, rate: 0.500, min_deposit: 500000, max_deposit: 999999 },
+      { term_days: 365, rate: 0.500, min_deposit: 1000000, max_deposit: 4999999 },
+      { term_days: 365, rate: 0.750, min_deposit: 5000000, max_deposit: null },
+    ],
+    "2026-03-14T00:00:00Z"),
 
-  fb("bdo", "BDO", "traditional", "🏛️", "https://www.bdo.com.ph/personal/accounts/savings/peso-savings", "Multiple savings products", false, null, null,
+  fb("bdo", "BDO", "traditional", "🏛️",
+    "https://www.bdo.com.ph/personal/accounts/savings/peso-savings", null,
+    "Multiple savings products", false, null, null,
     [
       { name: "Passbook Savings", tiers: [{ rate: 0.0625, min_deposit: 0, max_deposit: null }] },
       { name: "ATM Savings", tiers: [{ rate: 0.0625, min_deposit: 0, max_deposit: null }] },
@@ -56,10 +89,13 @@ const FALLBACK_BANKS: BankWithRates[] = [
     [td(30, 0.25), td(90, 0.375), td(180, 0.625), td(360, 0.875)],
     "2026-03-10T00:00:00Z"),
 
-  fb("metrobank", "Metrobank", "traditional", "🏛️", "https://www.metrobank.com.ph/articles/time-deposit-rates-and-fees", "Online Time Deposit rates", false, null, null,
+  fb("metrobank", "Metrobank", "traditional", "🏛️",
+    "https://www.metrobank.com.ph/articles/deposit-rates-and-fees",
+    "https://www.metrobank.com.ph/articles/time-deposit-rates-and-fees",
+    "Online Time Deposit rates", false, null, null,
     [{ name: "Regular Savings", tiers: [{ rate: 0.0625, min_deposit: 0, max_deposit: null }] }],
     [
-      // Online Time Deposit — 30-59 Days
+      // Online Time Deposit — 30 Days
       { term_days: 30, rate: 4.125, min_deposit: 10000, max_deposit: 49999 },
       { term_days: 30, rate: 4.125, min_deposit: 50000, max_deposit: 199999 },
       { term_days: 30, rate: 4.125, min_deposit: 200000, max_deposit: 499999 },
@@ -68,7 +104,7 @@ const FALLBACK_BANKS: BankWithRates[] = [
       { term_days: 30, rate: 4.250, min_deposit: 5000000, max_deposit: 9999999 },
       { term_days: 30, rate: 4.250, min_deposit: 10000000, max_deposit: 19999999 },
       { term_days: 30, rate: 4.250, min_deposit: 20000000, max_deposit: null },
-      // Online Time Deposit — 60-179 Days
+      // 60 Days
       { term_days: 60, rate: 4.125, min_deposit: 10000, max_deposit: 49999 },
       { term_days: 60, rate: 4.125, min_deposit: 50000, max_deposit: 199999 },
       { term_days: 60, rate: 4.125, min_deposit: 200000, max_deposit: 499999 },
@@ -77,7 +113,7 @@ const FALLBACK_BANKS: BankWithRates[] = [
       { term_days: 60, rate: 4.250, min_deposit: 5000000, max_deposit: 9999999 },
       { term_days: 60, rate: 4.250, min_deposit: 10000000, max_deposit: 19999999 },
       { term_days: 60, rate: 4.250, min_deposit: 20000000, max_deposit: null },
-      // Online Time Deposit — 180-364 Days
+      // 180 Days
       { term_days: 180, rate: 4.125, min_deposit: 10000, max_deposit: 49999 },
       { term_days: 180, rate: 4.250, min_deposit: 50000, max_deposit: 199999 },
       { term_days: 180, rate: 4.250, min_deposit: 200000, max_deposit: 499999 },
@@ -89,22 +125,30 @@ const FALLBACK_BANKS: BankWithRates[] = [
     ],
     "2026-03-14T00:00:00Z"),
 
-  fb("unionbank", "UnionBank", "traditional", "🏛️", "https://www.unionbankph.com/accounts", "Regular savings", false, null, null,
+  fb("unionbank", "UnionBank", "traditional", "🏛️",
+    "https://www.unionbankph.com/accounts", null,
+    "Regular savings", false, null, null,
     [{ name: "Regular Savings", tiers: [{ rate: 0.1, min_deposit: 0, max_deposit: null }] }],
     [td(30, 0.375), td(90, 0.5), td(180, 0.75), td(360, 1.0)],
     "2026-03-08T00:00:00Z"),
 
-  fb("securitybank", "Security Bank", "traditional", "🏛️", "https://www.securitybank.com/personal/accounts/fees-charges/", "Build Up savings", false, null, null,
+  fb("securitybank", "Security Bank", "traditional", "🏛️",
+    "https://www.securitybank.com/personal/accounts/fees-charges/", null,
+    "Build Up savings", false, null, null,
     [{ name: "Build Up Savings", tiers: [{ rate: 0.1, min_deposit: 0, max_deposit: null }] }],
     [td(30, 0.25), td(90, 0.5), td(180, 0.75), td(360, 1.0)],
     "2026-03-08T00:00:00Z"),
 
-  fb("rcbc", "RCBC", "traditional", "🏛️", "https://www.rcbc.com/personal/deposits", "Regular savings", false, null, null,
+  fb("rcbc", "RCBC", "traditional", "🏛️",
+    "https://www.rcbc.com/personal/deposits", null,
+    "Regular savings", false, null, null,
     [{ name: "Regular Savings", tiers: [{ rate: 0.1, min_deposit: 0, max_deposit: null }] }],
     [td(30, 0.375), td(90, 0.5), td(180, 0.875), td(360, 1.125)],
     "2026-03-07T00:00:00Z"),
 
-  fb("pnb", "PNB", "traditional", "🏛️", "https://www.pnb.com.ph/index.php/savings", "Top Saver: higher rate at ₱50k+", false, null, null,
+  fb("pnb", "PNB", "traditional", "🏛️",
+    "https://www.pnb.com.ph/index.php/savings", null,
+    "Top Saver: higher rate at ₱50k+", false, null, null,
     [
       { name: "Regular Savings", tiers: [{ rate: 0.1, min_deposit: 0, max_deposit: null }] },
       { name: "Top Saver", tiers: [{ rate: 0.5, min_deposit: 50000, max_deposit: null }] },
@@ -112,37 +156,52 @@ const FALLBACK_BANKS: BankWithRates[] = [
     [td(30, 0.5), td(90, 0.75), td(180, 1.0), td(360, 1.25)],
     "2026-03-08T00:00:00Z"),
 
-  fb("landbank", "Landbank", "traditional", "🏛️", "https://www.landbank.com/savings-account", "Regular savings", false, null, null,
+  fb("landbank", "Landbank", "traditional", "🏛️",
+    "https://www.landbank.com/savings-account", null,
+    "Regular savings", false, null, null,
     [{ name: "Regular Savings", tiers: [{ rate: 0.1, min_deposit: 0, max_deposit: null }] }],
     [td(30, 0.25), td(90, 0.375), td(180, 0.625), td(360, 0.875)],
     "2026-03-07T00:00:00Z"),
 
-  fb("maya", "Maya Bank", "digital", "💚", "https://www.maya.ph/savings", "Base 3.50%; up to 6% with goals", false, null, null,
+  fb("maya", "Maya Bank", "digital", "💚",
+    "https://www.mayabank.ph/savings/",
+    "https://www.mayabank.ph/time-deposit-plus/",
+    "Base 3.50%; up to 6% with goals", false, null, null,
     [{ name: "Maya Savings", tiers: [{ rate: 3.5, min_deposit: 0, max_deposit: 100000 }, { rate: 6.0, min_deposit: 100001, max_deposit: null }] }],
-    [td(30, 4.0), td(90, 4.5), td(180, 5.0), td(360, 5.5)],
-    "2026-03-11T00:00:00Z"),
+    [td(90, 5.0), td(180, 6.0), td(365, 5.5)],
+    "2026-03-14T00:00:00Z"),
 
-  fb("cimb", "CIMB", "digital", "🔴", "https://www.cimb.com.ph/en/personal/banking/accounts/upsave.html", "UpSave account", true, 8.0, "New depositors, limited period, max ₱200k",
+  fb("cimb", "CIMB", "digital", "🔴",
+    "https://www.cimb.com.ph/en/personal/banking/accounts/upsave.html", null,
+    "UpSave account", true, 8.0, "New depositors, limited period, max ₱200k",
     [{ name: "UpSave", tiers: [{ rate: 2.5, min_deposit: 0, max_deposit: null }] }],
     [td(30, 3.5), td(90, 4.0), td(180, 4.5), td(360, 5.0)],
     "2026-03-11T00:00:00Z"),
 
-  fb("tonik", "Tonik", "digital", "🟡", "https://tonikbank.com/deposit-interest-rates", "4%–4.5% on Solo/Group Stash", false, null, null,
+  fb("tonik", "Tonik", "digital", "🟡",
+    "https://tonikbank.com/deposit-interest-rates", null,
+    "4%–4.5% on Solo/Group Stash", false, null, null,
     [{ name: "Stash", tiers: [{ rate: 4.0, min_deposit: 0, max_deposit: 50000 }, { rate: 4.5, min_deposit: 50001, max_deposit: null }] }],
     [td(30, 4.0), td(90, 4.5), td(180, 5.5), td(360, 6.0)],
     "2026-03-10T00:00:00Z"),
 
-  fb("gotyme", "GoTyme", "digital", "🟢", "https://www.gotyme.com.ph/savings", "Standard savings, no lock-in", false, null, null,
+  fb("gotyme", "GoTyme", "digital", "🟢",
+    "https://www.gotyme.com.ph/savings", null,
+    "Standard savings, no lock-in", false, null, null,
     [{ name: "Savings", tiers: [{ rate: 3.5, min_deposit: 0, max_deposit: null }] }],
     [td(30, 3.5), td(90, 4.0), td(180, 4.5), td(360, 5.0)],
     "2026-03-10T00:00:00Z"),
 
-  fb("seabank", "SeaBank", "digital", "🔵", "https://www.seabank.ph/", "Tiered rate by balance", false, null, null,
+  fb("seabank", "SeaBank", "digital", "🔵",
+    "https://www.seabank.ph/", null,
+    "Tiered rate by balance", false, null, null,
     [{ name: "Savings", tiers: [{ rate: 3.0, min_deposit: 0, max_deposit: 50000 }, { rate: 4.0, min_deposit: 50001, max_deposit: null }] }],
     [td(30, 3.5), td(90, 4.0), td(180, 4.5), td(360, 5.0)],
     "2026-03-09T00:00:00Z"),
 
-  fb("gcash_gsave", "GCash GSave", "digital", "💙", "https://www.gcash.com/gsave", "Powered by CIMB, via GCash app", false, null, null,
+  fb("gcash_gsave", "GCash GSave", "digital", "💙",
+    "https://www.gcash.com/gsave", null,
+    "Powered by CIMB, via GCash app", false, null, null,
     [{ name: "GSave", tiers: [{ rate: 2.6, min_deposit: 0, max_deposit: null }] }],
     [],
     "2026-03-10T00:00:00Z"),
