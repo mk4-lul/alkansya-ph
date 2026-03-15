@@ -454,7 +454,7 @@ export default function MP2CalculatorPage() {
         {/* CTA */}
         <div className="mt-3 bg-white rounded-[20px] p-5 sm:p-6 text-center">
           <p className="text-sm text-[#888] mb-3">Compare with savings accounts and time deposits</p>
-          <Link href="/"
+          <Link href="/rates"
             className="inline-block bg-[#00c853] text-white font-bold text-sm px-6 py-3 rounded-full hover:bg-[#00a844] transition-colors no-underline">
             Compare rates →
           </Link>
