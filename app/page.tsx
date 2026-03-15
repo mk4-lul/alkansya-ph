@@ -37,30 +37,36 @@ export default function HomePage() {
       </nav>
 
       <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">
-        {/* Compare Rates — main card */}
-        <Link href="/rates" className="block bg-[#00c853] rounded-[20px] p-6 sm:p-8 mb-3 relative overflow-hidden no-underline group hover:bg-[#00b84a] transition-colors">
-          <div className="absolute inset-0 pointer-events-none select-none" aria-hidden="true">
-            {['💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈'].map((e, i) => (
-              <span key={i} className="absolute text-[22px] sm:text-[28px]" style={{
-                left: `${(i * 17.3 + i * i * 3.7) % 100}%`,
-                top: `${(i * 13.1 + i * i * 2.3) % 100}%`,
-                opacity: 0.75,
-                transform: `rotate(${(i * 37) % 360}deg)`,
-              }}>{e}</span>
-            ))}
+        {/* Compare Rates — main hero card */}
+        <Link href="/rates" className="block bg-[#00c853] rounded-[20px] p-8 sm:p-10 mb-3 relative overflow-hidden no-underline group hover:bg-[#00b84a] transition-colors">
+          {/* Subtle floating ₱ symbols instead of emojis */}
+          <div className="absolute inset-0 pointer-events-none select-none overflow-hidden" aria-hidden="true">
+            <span className="absolute text-[120px] sm:text-[160px] font-extrabold text-white/[0.04] -top-4 -right-4 leading-none">₱</span>
+            <span className="absolute text-[80px] sm:text-[100px] font-extrabold text-white/[0.04] bottom-2 left-4 leading-none">₱</span>
+            <span className="absolute text-[60px] font-extrabold text-white/[0.04] top-8 left-[30%] leading-none rotate-12">₱</span>
           </div>
           <div className="relative">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <p className="text-lg font-bold text-white">Compare Rates</p>
-                  <span className="text-[10px] font-semibold text-white bg-white/20 px-2 py-0.5 rounded-full">17 banks</span>
-                </div>
-                <p className="text-[13px] text-white/70 leading-relaxed">
-                  Find the best savings and time deposit rates across Philippine banks
-                </p>
+            <p className="text-lg font-bold text-white mb-6">Compare Rates</p>
+            <div className="flex items-end gap-3 mb-6">
+              <p className="text-6xl sm:text-7xl font-extrabold tracking-tighter text-white leading-none">6.0%</p>
+              <p className="text-sm font-semibold text-white/60 pb-2">highest savings rate</p>
+            </div>
+            <div className="flex gap-3">
+              <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-2.5">
+                <p className="text-xl font-extrabold text-white">17</p>
+                <p className="text-[10px] text-white/60 font-semibold">banks</p>
               </div>
-              <span className="text-white/50 text-2xl group-hover:text-white transition-colors shrink-0 ml-4">→</span>
+              <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-2.5">
+                <p className="text-xl font-extrabold text-white">10</p>
+                <p className="text-[10px] text-white/60 font-semibold">traditional</p>
+              </div>
+              <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-2.5">
+                <p className="text-xl font-extrabold text-white">7</p>
+                <p className="text-[10px] text-white/60 font-semibold">digital</p>
+              </div>
+              <div className="flex-1 flex items-center justify-end">
+                <span className="text-white/40 text-3xl group-hover:text-white transition-colors">→</span>
+              </div>
             </div>
           </div>
         </Link>
