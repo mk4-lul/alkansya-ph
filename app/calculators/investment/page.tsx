@@ -292,60 +292,8 @@ export default function InvestmentCalculatorPage() {
       <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">
         <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1a1a1a] tracking-tight mb-4">What if you invested?</h1>
 
-        {/* Hero result card */}
-        <div className="bg-[#00c853] rounded-[20px] p-6 sm:p-8 mb-3 relative overflow-hidden">
-          <div className="absolute inset-0 pointer-events-none select-none" style={{ filter: "blur(2px)" }} aria-hidden="true">
-            {['💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈'].map((e, i) => (
-              <span key={i} className="absolute text-[22px] sm:text-[28px]" style={{
-                left: `${(i * 17.3 + i * i * 3.7) % 100}%`,
-                top: `${(i * 13.1 + i * i * 2.3) % 100}%`,
-                opacity: 0.75,
-                transform: `rotate(${(i * 37) % 360}deg)`,
-              }}>{e}</span>
-            ))}
-          </div>
-          <div className="relative text-center">
-            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/70 mb-2">
-              {formatPeso(amount)} in {asset.name} since Jan {startYear}
-            </p>
-            <p className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white">
-              {formatPeso(currentValue)}
-            </p>
-            <div className="flex justify-center mt-4">
-              <div className="bg-white/15 backdrop-blur-md rounded-2xl px-6 py-4 flex gap-8">
-                <div className="text-center">
-                  <p className="text-[11px] text-white/60 uppercase tracking-[0.5px]">Invested</p>
-                  <p className="text-lg font-bold text-white">{formatPeso(amount)}</p>
-                </div>
-                <div className="text-center">
-                  <p className={`text-[11px] ${isPositive ? "text-[#FFD600]/80" : "text-red-300"} uppercase tracking-[0.5px]`}>
-                    {isPositive ? "Gain" : "Loss"}
-                  </p>
-                  <p className={`text-lg font-bold ${isPositive ? "text-[#FFD600]" : "text-red-300"}`}>
-                    {formatPeso(Math.abs(gain))} ({formatPercent(gainPct)})
-                  </p>
-                </div>
-              </div>
-            </div>
-            <p className="text-[11px] text-white/60 mt-3">{multiplier.toFixed(2)}x return in {CURRENT_YEAR - startYear} {CURRENT_YEAR - startYear === 1 ? "year" : "years"}</p>
-          </div>
-        </div>
-
-        {/* Chart */}
-        <div className="bg-white rounded-[20px] p-5 sm:p-6 mb-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Value over time</p>
-          <GrowthChart asset={asset} startYear={startYear} amount={amount} />
-        </div>
-
-        {/* Comparison */}
-        <div className="bg-white rounded-[20px] p-5 sm:p-6 mb-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-1">All assets compared</p>
-          <p className="text-[10px] text-[#aaa] mb-4">{formatPeso(amount)} invested in Jan {startYear} → today</p>
-          <ComparisonBars startYear={startYear} amount={amount} />
-        </div>
-
         {/* Inputs */}
-        <div className="space-y-3">
+        <div className="space-y-3 mb-3">
           {/* Asset selector */}
           <div className="bg-white rounded-[20px] p-5 sm:p-6">
             <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Choose an asset</p>
@@ -400,6 +348,58 @@ export default function InvestmentCalculatorPage() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Hero result card */}
+        <div className="bg-[#FFD700] rounded-[20px] p-6 sm:p-8 mb-3 relative overflow-hidden">
+          <div className="absolute inset-0 pointer-events-none select-none" style={{ filter: "blur(2px)" }} aria-hidden="true">
+            {['⚜️','₿','🤑','💎','📈','⚜️','₿','🤑','💎','📈','⚜️','₿','🤑','💎','📈','⚜️','₿','🤑','💎','📈','⚜️','₿','🤑','💎','📈','⚜️','₿','🤑','💎','📈'].map((e, i) => (
+              <span key={i} className="absolute text-[22px] sm:text-[28px]" style={{
+                left: `${(i * 17.3 + i * i * 3.7) % 100}%`,
+                top: `${(i * 13.1 + i * i * 2.3) % 100}%`,
+                opacity: 0.75,
+                transform: `rotate(${(i * 37) % 360}deg)`,
+              }}>{e}</span>
+            ))}
+          </div>
+          <div className="relative text-center">
+            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#1a1a1a]/50 mb-2">
+              {formatPeso(amount)} in {asset.name} since Jan {startYear}
+            </p>
+            <p className="text-4xl sm:text-5xl font-extrabold tracking-tight text-[#1a1a1a]">
+              {formatPeso(currentValue)}
+            </p>
+            <div className="flex justify-center mt-4">
+              <div className="bg-black/10 backdrop-blur-md rounded-2xl px-6 py-4 flex gap-8">
+                <div className="text-center">
+                  <p className="text-[11px] text-[#1a1a1a]/50 uppercase tracking-[0.5px]">Invested</p>
+                  <p className="text-lg font-bold text-[#1a1a1a]">{formatPeso(amount)}</p>
+                </div>
+                <div className="text-center">
+                  <p className={`text-[11px] ${isPositive ? "text-[#1a1a1a]/50" : "text-red-700/70"} uppercase tracking-[0.5px]`}>
+                    {isPositive ? "Gain" : "Loss"}
+                  </p>
+                  <p className={`text-lg font-bold ${isPositive ? "text-[#1a1a1a]" : "text-red-700"}`}>
+                    {formatPeso(Math.abs(gain))} ({formatPercent(gainPct)})
+                  </p>
+                </div>
+              </div>
+            </div>
+            <p className="text-[11px] text-[#1a1a1a]/50 mt-3">{multiplier.toFixed(2)}x return in {CURRENT_YEAR - startYear} {CURRENT_YEAR - startYear === 1 ? "year" : "years"}</p>
+          </div>
+        </div>
+
+        {/* Chart */}
+        <div className="bg-white rounded-[20px] p-5 sm:p-6 mb-3">
+          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Value over time</p>
+          <GrowthChart asset={asset} startYear={startYear} amount={amount} />
+        </div>
+
+        {/* Comparison */}
+        <div className="bg-white rounded-[20px] p-5 sm:p-6 mb-3">
+          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-1">All assets compared</p>
+          <p className="text-[10px] text-[#aaa] mb-4">{formatPeso(amount)} invested in Jan {startYear} → today</p>
+          <ComparisonBars startYear={startYear} amount={amount} />
         </div>
 
         {/* CTA */}
