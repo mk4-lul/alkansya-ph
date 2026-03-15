@@ -72,11 +72,22 @@ function BankRow({
         <div className="flex items-center gap-3">
           <img src={bank.logo} alt={bank.name} className="w-9 h-9 rounded-xl bg-[#f5f5f5] object-contain shrink-0" />
           <div>
-            <p className="text-sm font-bold text-[#1a1a1a]">{bank.name}</p>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-bold text-[#1a1a1a]">{bank.name}</p>
+              {/* Desktop: gold stars next to name */}
+              {bank.avg_app_rating && (
+                <span className="hidden sm:inline-flex items-center gap-0.5 text-[11px] font-semibold text-[#c8940a]"
+                  title={`Play Store: ${bank.play_store_rating} · App Store: ${bank.app_store_rating}`}>
+                  <span className="text-[13px]">★</span> {bank.avg_app_rating}
+                </span>
+              )}
+            </div>
             <p className="text-[11px] text-[#888]">
               {bank.type === "digital" ? "Digital" : "Traditional"}
+              {/* Mobile: rating inline with type */}
               {bank.avg_app_rating && (
-                <span className="ml-1.5" title={`Play Store: ${bank.play_store_rating} · App Store: ${bank.app_store_rating}`}>
+                <span className="sm:hidden ml-1.5 text-[#c8940a] font-semibold"
+                  title={`Play Store: ${bank.play_store_rating} · App Store: ${bank.app_store_rating}`}>
                   ★ {bank.avg_app_rating}
                 </span>
               )}
@@ -92,6 +103,24 @@ function BankRow({
       {/* Expanded */}
       {expanded && (
         <div className="px-5 pb-5 animate-fade-in">
+          {/* App rating card */}
+          {bank.avg_app_rating && (
+            <div className="flex items-center gap-3 mb-4 bg-[#f5f5f5] rounded-xl px-4 py-3">
+              <div className="flex items-center gap-1 text-[#c8940a]">
+                {[1,2,3,4,5].map((s) => (
+                  <span key={s} className={`text-[14px] ${s <= Math.round(bank.avg_app_rating!) ? "text-[#c8940a]" : "text-[#ddd]"}`}>★</span>
+                ))}
+              </div>
+              <div>
+                <span className="text-sm font-bold text-[#1a1a1a]">{bank.avg_app_rating}</span>
+                <span className="text-[11px] text-[#888] ml-1.5">App rating</span>
+              </div>
+              <div className="ml-auto flex gap-3 text-[10px] text-[#888]">
+                <span>Play Store {bank.play_store_rating}</span>
+                <span>App Store {bank.app_store_rating}</span>
+              </div>
+            </div>
+          )}
           {/* Savings products */}
           {depositType === "savings" && bank.savings_products.length > 0 && (
             <div className="mb-4">
