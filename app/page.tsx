@@ -1,6 +1,7 @@
 import { getBanksWithRates, BankWithRates, TimeDepositRate } from "@/lib/supabase";
 import Dashboard from "@/components/Dashboard";
 import NavMenu from "@/components/NavMenu";
+import Link from "next/link";
 
 export const revalidate = 3600;
 
@@ -280,14 +281,10 @@ export default async function HomePage() {
     <div className="min-h-screen bg-[#f5f5f5]">
       {/* Nav */}
       <nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[720px] mx-auto">
-        <div className="flex items-center gap-2">
-          <span className="text-xl font-extrabold tracking-tight text-[#1a1a1a]">
-            alkansya<span className="text-[#00c853]">.ph</span>
-          </span>
-        </div>
-        <div className="flex items-center gap-4">
-          <NavMenu />
-        </div>
+        <Link href="/" className="text-xl font-extrabold tracking-tight text-[#1a1a1a] no-underline">
+          alkansya<span className="text-[#00c853]">.ph</span>
+        </Link>
+        <NavMenu />
       </nav>
 
       {/* Main */}
@@ -298,7 +295,7 @@ export default async function HomePage() {
         <div className="mt-3 bg-white rounded-2xl px-5 py-4 flex gap-3 items-start">
           <span className="text-xl">🛡️</span>
           <p className="text-[12px] text-[#888] leading-relaxed">
-            <span className="font-bold text-[#1a1a1a]">PDIC insured up to ₱500,000.</span> All banks listed are BSP-licensed. Digital banks carry the same protection as traditional banks.
+            <span className="font-bold text-[#1a1a1a]">PDIC insured up to ₱500,000.</span> All listed institutions are BSP-licensed. Digital and traditional deposits carry the same protection.
           </p>
         </div>
 
