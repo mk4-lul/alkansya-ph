@@ -58,7 +58,7 @@ export default function HeroCalculator({
     <div className="bg-[#00c853] rounded-[20px] p-6 sm:p-8 relative overflow-hidden">
       {/* Scattered money emojis */}
       <div className="absolute inset-0 pointer-events-none select-none" style={{ filter: "blur(2px)" }} aria-hidden="true">
-        {['💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎'].map((e, i) => (
+        {['💵','💰','💸','📈','🏦','💵','💰','💸','📈','🏦','💵','💰','💸','📈','🏦','💵','💰','💸','📈','🏦','💵','💰','💸','📈','🏦','💵','💰','💸','📈','🏦','💵','💰','💸','📈','🏦','💵','💰','💸','📈','🏦'].map((e, i) => (
           <span key={i} className="absolute text-[22px] sm:text-[28px]" style={{
             left: `${(i * 17.3 + i * i * 3.7) % 100}%`,
             top: `${(i * 13.1 + i * i * 2.3) % 100}%`,
@@ -71,7 +71,7 @@ export default function HeroCalculator({
       <p className="text-center text-[11px] font-semibold uppercase tracking-[1px] text-white/70 mb-4">Select an amount</p>
 
       {/* Amount grid */}
-      <div className="grid grid-cols-4 gap-2 max-w-[400px] mx-auto mb-2">
+      <div className="grid grid-cols-4 gap-2.5 max-w-[440px] mx-auto mb-2">
         {AMOUNT_BRACKETS.map((a) => {
           const isGold = a.value >= 1000000;
           const isActive = amount === a.value;
@@ -79,14 +79,14 @@ export default function HeroCalculator({
             <button
               key={a.value}
               onClick={() => onAmountChange(a.value)}
-              className={`py-3 rounded-xl text-sm font-bold transition-all backdrop-blur-sm ${
+              className={`py-4 rounded-xl text-base font-extrabold transition-all ${
                 isActive && isGold
                   ? "bg-[#FFD600] text-[#1a1a1a] ring-2 ring-[#1a1a1a]"
                   : isActive
                     ? "bg-white text-[#1a1a1a] ring-2 ring-[#1a1a1a]"
                     : isGold
-                      ? "bg-[#FFD600]/75 text-white hover:bg-[#FFD600]/90"
-                      : "bg-white/75 text-[#1a1a1a] hover:bg-white/90"
+                      ? "bg-[#FFD600] text-[#1a1a1a] hover:bg-[#FFD600]/90"
+                      : "bg-white text-[#1a1a1a] hover:bg-white/90"
               }`}>
               {a.label}
             </button>
