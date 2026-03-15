@@ -324,30 +324,30 @@ export default function CalculatorPage() {
             ))}
           </div>
           <div className="relative text-center">
-            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/70 mb-2">
+            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#1a1a1a]/60 mb-2">
               Your money after {years} {years === 1 ? "year" : "years"}
             </p>
-            <p className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white">
+            <p className="text-4xl sm:text-5xl font-extrabold tracking-tight text-[#1a1a1a]">
               {formatPeso(result.finalBalance)}
             </p>
             <div className="flex justify-center mt-4">
-              <div className="bg-white/15 backdrop-blur-md rounded-2xl px-6 py-4 flex gap-8">
+              <div className="bg-black/10 backdrop-blur-md rounded-2xl px-6 py-4 flex gap-8">
                 <div className="text-center">
-                  <p className="text-[11px] text-white/60 uppercase tracking-[0.5px]">Deposited</p>
-                  <p className="text-lg font-bold text-white">{formatPeso(result.totalDeposits)}</p>
+                  <p className="text-[11px] text-[#1a1a1a]/50 uppercase tracking-[0.5px]">Deposited</p>
+                  <p className="text-lg font-bold text-[#1a1a1a]">{formatPeso(result.totalDeposits)}</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-[11px] text-[#FFD600]/80 uppercase tracking-[0.5px]">Interest earned</p>
-                  <p className="text-lg font-bold text-[#FFD600]">{formatPeso(result.totalInterest)}</p>
+                  <p className="text-[11px] text-[#1a1a1a]/50 uppercase tracking-[0.5px]">Interest earned</p>
+                  <p className="text-lg font-bold text-[#1a1a1a]">{formatPeso(result.totalInterest)}</p>
                 </div>
               </div>
             </div>
             {/* Interest percentage bar */}
             <div className="mt-4 max-w-[300px] mx-auto">
-              <div className="h-2 rounded-full bg-white/20 overflow-hidden">
-                <div className="h-full rounded-full bg-white transition-all duration-500" style={{ width: `${interestPct}%` }} />
+              <div className="h-2 rounded-full bg-black/10 overflow-hidden">
+                <div className="h-full rounded-full bg-[#1a1a1a] transition-all duration-500" style={{ width: `${interestPct}%` }} />
               </div>
-              <p className="text-[11px] text-white/80 mt-1">{interestPct}% of your final balance is interest</p>
+              <p className="text-[11px] text-[#1a1a1a]/60 mt-1">{interestPct}% of your final balance is interest</p>
             </div>
           </div>
         </div>
