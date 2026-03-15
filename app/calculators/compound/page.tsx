@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import Link from "next/link";
 import { formatPeso } from "@/lib/utils";
 import NavMenu from "@/components/NavMenu";
@@ -50,7 +50,10 @@ function computeGrowth(initial: number, monthly: number, annualRate: number, yea
   return { finalBalance: balance, totalDeposits, totalInterest, data };
 }
 
-function MiniChart({ data, height = 200 }: { data: { month: number; balance: number; deposits: number }[]; height?: number }) {
+function MiniChart({ data, height = 300 }: { data: { month: number; balance: number; deposits: number }[]; height?: number }) {
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+
   if (data.length < 2) return null;
 
   const width = 600;
@@ -80,8 +83,49 @@ function MiniChart({ data, height = 200 }: { data: { month: number; balance: num
     if (!yearLabels.includes(years)) yearLabels.push(years);
   }
 
+  const findClosest = (mouseX: number) => {
+    const relX = Math.max(0, Math.min(1, (mouseX - padding.left) / chartW));
+    const targetMonth = relX * maxMonth;
+    let closest = 0;
+    let closestDist = Infinity;
+    data.forEach((d, i) => {
+      const dist = Math.abs(d.month - targetMonth);
+      if (dist < closestDist) { closestDist = dist; closest = i; }
+    });
+    return closest;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
+    if (!svgRef.current) return;
+    const rect = svgRef.current.getBoundingClientRect();
+    const mouseX = ((e.clientX - rect.left) / rect.width) * width;
+    setHoverIndex(findClosest(mouseX));
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<SVGSVGElement>) => {
+    if (!svgRef.current) return;
+    const rect = svgRef.current.getBoundingClientRect();
+    const mouseX = ((e.touches[0].clientX - rect.left) / rect.width) * width;
+    setHoverIndex(findClosest(mouseX));
+  };
+
+  const hoverData = hoverIndex !== null ? data[hoverIndex] : null;
+  const hoverX = hoverData ? scaleX(hoverData.month) : 0;
+  const hoverYearLabel = hoverData ? (hoverData.month / 12) : 0;
+  const hoverInterest = hoverData ? hoverData.balance - hoverData.deposits : 0;
+  const tooltipFlip = hoverX > width * 0.7;
+
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} className="w-full" style={{ maxHeight: height }}>
+    <svg
+      ref={svgRef}
+      viewBox={`0 0 ${width} ${height}`}
+      className="w-full cursor-crosshair"
+      style={{ maxHeight: height }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={() => setHoverIndex(null)}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={() => setHoverIndex(null)}
+    >
       <defs>
         <linearGradient id="greenGrad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#00c853" stopOpacity="0.4" />
@@ -101,9 +145,35 @@ function MiniChart({ data, height = 200 }: { data: { month: number; balance: num
           {y}yr
         </text>
       ))}
-      <text x={scaleX(maxMonth) - 4} y={scaleY(maxBalance) - 8} textAnchor="end" fontSize="13" fontWeight="700" fill="#00c853" fontFamily="Plus Jakarta Sans, sans-serif">
-        {formatPeso(maxBalance)}
-      </text>
+      {/* End value label — hide when hovering */}
+      {hoverIndex === null && (
+        <text x={scaleX(maxMonth) - 4} y={scaleY(maxBalance) - 8} textAnchor="end" fontSize="13" fontWeight="700" fill="#00c853" fontFamily="Plus Jakarta Sans, sans-serif">
+          {formatPeso(maxBalance)}
+        </text>
+      )}
+      {/* Hover elements */}
+      {hoverData && (
+        <>
+          <line x1={hoverX} y1={padding.top} x2={hoverX} y2={padding.top + chartH} stroke="#1a1a1a" strokeWidth="1" strokeDasharray="4 3" opacity="0.3" />
+          <circle cx={hoverX} cy={scaleY(hoverData.balance)} r="5" fill="#00c853" stroke="white" strokeWidth="2" />
+          <circle cx={hoverX} cy={scaleY(hoverData.deposits)} r="4" fill="#ccc" stroke="white" strokeWidth="2" />
+          <g transform={`translate(${tooltipFlip ? hoverX - 155 : hoverX + 10}, ${Math.max(padding.top, scaleY(hoverData.balance) - 45)})`}>
+            <rect width="145" height="82" rx="10" fill="#1a1a1a" opacity="0.92" />
+            <text x="12" y="18" fontSize="10" fill="#888" fontFamily="Plus Jakarta Sans, sans-serif" fontWeight="600">
+              Year {hoverYearLabel % 1 === 0 ? hoverYearLabel.toFixed(0) : hoverYearLabel.toFixed(1)}
+            </text>
+            <text x="12" y="36" fontSize="13" fill="white" fontFamily="Plus Jakarta Sans, sans-serif" fontWeight="800">
+              {formatPeso(hoverData.balance)}
+            </text>
+            <text x="12" y="54" fontSize="10" fill="#888" fontFamily="Plus Jakarta Sans, sans-serif">
+              Deposited: {formatPeso(hoverData.deposits)}
+            </text>
+            <text x="12" y="70" fontSize="10" fill="#00c853" fontFamily="Plus Jakarta Sans, sans-serif" fontWeight="600">
+              Interest: {formatPeso(hoverInterest)}
+            </text>
+          </g>
+        </>
+      )}
     </svg>
   );
 }
