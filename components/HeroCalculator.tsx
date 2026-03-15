@@ -85,44 +85,28 @@ export default function HeroCalculator({
       <div className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full"
         style={{ background: "radial-gradient(circle, rgba(10,143,101,0.1) 0%, transparent 70%)" }} />
 
-      <div className={`relative z-10 p-5 sm:p-8 md:p-10 ${!hasAmount ? "flex flex-col items-center justify-center min-h-[140px] sm:min-h-[160px]" : ""}`}>
+      <div className="relative z-10 p-5 sm:p-8 md:p-10 flex flex-col items-center">
 
-        {/* Centered state — no amount selected */}
-        {!hasAmount && (
-          <div className="text-center">
-            <p className="font-display text-sm sm:text-base text-white/70 mb-3">How much are you saving?</p>
-          <div className="relative min-w-[260px] inline-block">
-              <select value={amount} onChange={(e) => onAmountChange(Number(e.target.value))}
-                className="w-full appearance-none px-5 pr-12 py-3 sm:py-3.5 rounded-xl border-2 border-amber-400/30 bg-white/10 font-display text-base sm:text-lg font-medium cursor-pointer hover:border-amber-400/50 transition-colors text-white">
-                <option value={0} style={{ background: "#14332a" }}>Select deposit amount</option>
-                {AMOUNT_BRACKETS.map((a) => (
-                  <option key={a.value} value={a.value} style={{ background: "#14332a" }}>{a.label}</option>
-                ))}
-              </select>
-              <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-white/60">
-                <svg width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              </div>
+        {/* Always-centered dropdown */}
+        <div className={`text-center ${!hasAmount ? "min-h-[60px] flex flex-col items-center justify-center" : "mb-5 sm:mb-6"}`}>
+          {!hasAmount && <p className="font-display text-sm sm:text-base text-white/70 mb-3">How much are you saving?</p>}
+          <div className="relative inline-block min-w-[240px]">
+            <select value={amount} onChange={(e) => onAmountChange(Number(e.target.value))}
+              className="w-full appearance-none px-5 pr-12 py-3 sm:py-3.5 rounded-xl border-2 border-amber-400/30 bg-white/10 font-display text-base sm:text-lg font-medium cursor-pointer hover:border-amber-400/50 transition-colors text-white">
+              {!hasAmount && <option value={0} style={{ background: "#14332a" }}>Select amount</option>}
+              {AMOUNT_BRACKETS.map((a) => (
+                <option key={a.value} value={a.value} style={{ background: "#14332a" }}>{a.label}</option>
+              ))}
+            </select>
+            <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-white/60">
+              <svg width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </div>
           </div>
-        )}
+        </div>
 
-        {/* Active state — amount selected, show dropdown + results */}
-        {hasAmount && (
-          <>
-            <div className="mb-5 sm:mb-6 max-w-xs relative">
-              <select value={amount} onChange={(e) => onAmountChange(Number(e.target.value))}
-                className="w-full appearance-none px-4 pr-12 py-3 sm:py-3.5 rounded-xl border-2 border-amber-400/30 bg-white/10 font-display text-base sm:text-lg font-medium cursor-pointer hover:border-amber-400/50 transition-colors text-white">
-                {AMOUNT_BRACKETS.map((a) => (
-                  <option key={a.value} value={a.value} style={{ background: "#14332a" }}>{a.label}</option>
-                ))}
-              </select>
-              <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-white/60">
-                <svg width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              </div>
-            </div>
-
-            {top3.length > 0 && (
-              <div className="rounded-xl sm:rounded-2xl p-4 sm:p-6 border" style={{ background: "rgba(0,0,0,0.2)", borderColor: "rgba(200,148,10,0.15)" }}>
+        {/* Top 3 banks — only shown after amount selected */}
+        {hasAmount && top3.length > 0 && (
+          <div className="w-full rounded-xl sm:rounded-2xl p-4 sm:p-6 border" style={{ background: "rgba(0,0,0,0.2)", borderColor: "rgba(200,148,10,0.15)" }}>
                 <p className="font-display text-[11px] uppercase tracking-[2px] text-white/40 mb-4">Best rates for your amount</p>
                 <div key={amount} className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                   {top3.map((bank, i) => {
@@ -152,8 +136,6 @@ export default function HeroCalculator({
                 </div>
               </div>
             )}
-          </>
-        )}
       </div>
     </div>
   );
