@@ -6,6 +6,7 @@ import Link from "next/link";
 const PAGES = [
   { label: "Compare Rates", href: "/", description: "Find the best rate for your money" },
   { label: "Compound Calculator", href: "/calculators/compound", description: "See how your money grows over time" },
+  { label: "Pag-IBIG MP2 Calculator", href: "/calculators/mp2", description: "Tax-free government savings program" },
 ];
 
 export default function NavMenu() {
