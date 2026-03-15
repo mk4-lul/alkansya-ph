@@ -49,7 +49,7 @@ const ASSETS: AssetData[] = [
     prices: { 2015: 15.40, 2016: 33.83, 2017: 38.21, 2018: 59.25, 2019: 75.85, 2020: 92.50, 2021: 163.3, 2022: 166.7, 2023: 84.0, 2024: 152.0, 2025: 220.0, 2026: 205.0 },
   },
   {
-    id: "goog", name: "Google", emoji: "🔍",
+    id: "goog", name: "Google Stock", emoji: "🔍",
     prices: { 2015: 26.50, 2016: 38.75, 2017: 39.75, 2018: 52.58, 2019: 52.10, 2020: 67.20, 2021: 87.60, 2022: 144.7, 2023: 88.7, 2024: 140.3, 2025: 189.0, 2026: 170.0 },
   },
 ];
@@ -299,7 +299,7 @@ export default function InvestmentCalculatorPage() {
           {/* Asset selector */}
           <div className="bg-white rounded-[20px] p-5 sm:p-6">
             <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Choose an asset</p>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {ASSETS.map((a) => (
                 <div key={a.id} className="relative">
                   <button onClick={() => setAsset(a)}
