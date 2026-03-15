@@ -79,7 +79,7 @@ export default function HeroCalculator({
         {/* Top 3 banks — only shown after amount selected */}
         {hasAmount && top3.length > 0 && (
           <div className="rounded-xl sm:rounded-2xl p-4 sm:p-6 border" style={{ background: "rgba(0,0,0,0.2)", borderColor: "rgba(200,148,10,0.15)" }}>
-            <p className="font-mono text-[9px] uppercase tracking-[2px] text-white/40 mb-4">Best rates for your amount</p>
+            <p className="font-display text-[11px] uppercase tracking-[2px] text-white/40 mb-4">Best rates for your amount</p>
             {/* key={amount} forces remount on amount change, retriggering CSS animations */}
             <div key={amount} className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
               {top3.map((bank, i) => {
