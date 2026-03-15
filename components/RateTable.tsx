@@ -17,10 +17,10 @@ import {
 
 function FlagButton({ bankId }: { bankId: string }) {
   const [flagged, setFlagged] = useState(false);
-  if (flagged) return <span className="font-mono text-[10px] text-[#c8940a]">✓ Flagged</span>;
+  if (flagged) return <span className="font-display text-[10px] text-[#c8940a]">✓ Flagged</span>;
   return (
     <button onClick={(e) => { e.stopPropagation(); flagRate(bankId); setFlagged(true); }}
-      className="border border-[#e5e0d8] rounded-md px-2 py-0.5 font-mono text-[10px] text-[#9a9490] hover:text-[#1a1a1a] hover:border-[#9a9490] transition-colors"
+      className="border border-[#e5e0d8] rounded-md px-2 py-0.5 font-display text-[10px] text-[#9a9490] hover:text-[#1a1a1a] hover:border-[#9a9490] transition-colors"
       title="Flag this rate as outdated">
       ⚑ Flag
     </button>
@@ -67,7 +67,7 @@ function BankRow({ bank, depositType, amount, highlight }: {
           <span className="text-xl">{bank.logo}</span>
           <div>
             <p className="font-display text-sm font-semibold text-[#1a1a1a]">{bank.name}</p>
-            <span className={`inline-block font-mono text-[9px] uppercase tracking-[1.5px] px-1.5 py-0.5 rounded mt-0.5 ${
+            <span className={`inline-block font-display text-[11px] uppercase tracking-[1.5px] px-1.5 py-0.5 rounded mt-0.5 ${
               isDigital ? "bg-emerald-50 text-[#0a8f65]" : "bg-[#f0ece6] text-[#9a9490]"}`}>
               {isDigital ? "Digital" : "Traditional"}
             </span>
@@ -76,7 +76,7 @@ function BankRow({ bank, depositType, amount, highlight }: {
         <div className="text-right">
           <p className={`font-display text-lg font-extrabold whitespace-nowrap ${rateColor}`}>{rateRangeText}</p>
           {bank.has_promo && depositType === "savings" && (
-            <span className="font-mono text-[9px] text-[#d94444]">up to {bank.promo_rate}%*</span>
+            <span className="font-display text-[11px] text-[#d94444]">up to {bank.promo_rate}%*</span>
           )}
         </div>
         <div className="px-4">
@@ -85,8 +85,8 @@ function BankRow({ bank, depositType, amount, highlight }: {
           </div>
         </div>
         <div className="text-right">
-          <p className="font-mono text-[13px] text-[#3d3835]">{formatPeso(earnings)}</p>
-          <p className="font-mono text-[9px] text-[#9a9490]">/year</p>
+          <p className="font-display text-[13px] text-[#3d3835]">{formatPeso(earnings)}</p>
+          <p className="font-display text-[11px] text-[#9a9490]">/year</p>
         </div>
         <div className={`text-center text-xs text-[#9a9490] transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}>▼</div>
       </div>
@@ -99,7 +99,7 @@ function BankRow({ bank, depositType, amount, highlight }: {
             <span className="text-lg">{bank.logo}</span>
             <div>
               <p className="font-display text-sm font-semibold text-[#1a1a1a]">{bank.name}</p>
-              <span className={`inline-block font-mono text-[8px] uppercase tracking-[1.5px] px-1.5 py-0.5 rounded ${
+              <span className={`inline-block font-display text-[8px] uppercase tracking-[1.5px] px-1.5 py-0.5 rounded ${
                 isDigital ? "bg-emerald-50 text-[#0a8f65]" : "bg-[#f0ece6] text-[#9a9490]"}`}>
                 {isDigital ? "Digital" : "Traditional"}
               </span>
@@ -108,7 +108,7 @@ function BankRow({ bank, depositType, amount, highlight }: {
           <div className="text-right">
             <p className={`font-display text-lg font-extrabold whitespace-nowrap ${rateColor}`}>{rateRangeText}</p>
             {bank.has_promo && depositType === "savings" && (
-              <span className="font-mono text-[8px] text-[#d94444]">up to {bank.promo_rate}%*</span>
+              <span className="font-display text-[8px] text-[#d94444]">up to {bank.promo_rate}%*</span>
             )}
           </div>
         </div>
@@ -116,7 +116,7 @@ function BankRow({ bank, depositType, amount, highlight }: {
           <div className="flex-1 h-1.5 bg-black/[0.06] rounded-full overflow-hidden">
             <div className="h-full rounded-full rate-bar-fill" style={{ width: `${barWidth}%`, background: barBg }} />
           </div>
-          <p className="font-mono text-[11px] text-[#3d3835] whitespace-nowrap">{formatPeso(earnings)}<span className="text-[#9a9490]">/yr</span></p>
+          <p className="font-display text-[11px] text-[#3d3835] whitespace-nowrap">{formatPeso(earnings)}<span className="text-[#9a9490]">/yr</span></p>
           <span className={`text-[10px] text-[#9a9490] transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}>▼</span>
         </div>
       </div>
@@ -127,7 +127,7 @@ function BankRow({ bank, depositType, amount, highlight }: {
           {/* Savings products */}
           {depositType === "savings" && bank.savings_products.length > 0 && (
             <div className="mb-3">
-              <p className="font-mono text-[10px] uppercase tracking-[1.5px] text-[#9a9490] mb-2.5">
+              <p className="font-display text-[10px] uppercase tracking-[1.5px] text-[#9a9490] mb-2.5">
                 {bank.savings_products.length > 1 ? "Savings Products" : "Savings Rate"}
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3">
@@ -155,13 +155,13 @@ function BankRow({ bank, depositType, amount, highlight }: {
                           } ${isActive ? "text-[#1a1a1a]" : "text-[#9a9490]"}`}>
                             <div className="flex items-center gap-2">
                               {isActive && <span className="w-2 h-2 rounded-full bg-[#c8940a]" />}
-                              <span className="font-mono text-[11px]">{tierLabel}</span>
+                              <span className="font-display text-[11px]">{tierLabel}</span>
                             </div>
                             <div className="flex items-center gap-3">
                               <span className={`font-display text-base font-bold ${
                                 tier.rate >= 2 ? "text-[#0a8f65]" : tier.rate >= 0.5 ? "text-[#c8940a]" : "text-[#9a9490]"
                               }`}>{tier.rate}%</span>
-                              <span className="font-mono text-[10px] text-[#9a9490] w-[5.5rem] text-right">{formatPeso(tierEarnings)}/yr</span>
+                              <span className="font-display text-[10px] text-[#9a9490] w-[5.5rem] text-right">{formatPeso(tierEarnings)}/yr</span>
                             </div>
                           </div>
                         );
@@ -180,9 +180,9 @@ function BankRow({ bank, depositType, amount, highlight }: {
                 const rate = getTdRateForAmount(bank.time_deposit_rates, term, amount);
                 return (
                   <div key={term} className="bg-[#f6f4f0] rounded-lg sm:rounded-xl p-2.5 sm:p-3 border border-[#e5e0d8]">
-                    <p className="font-mono text-[8px] sm:text-[9px] uppercase tracking-[1.5px] text-[#9a9490]">{TERM_LABELS[term] || `${term}d`}</p>
+                    <p className="font-display text-[9px] sm:text-[10px] uppercase tracking-[1.5px] text-[#9a9490]">{TERM_LABELS[term] || `${term}d`}</p>
                     <p className={`font-display text-base sm:text-lg font-bold mt-0.5 ${rate >= 2 ? "text-[#0a8f65]" : "text-[#c8940a]"}`}>{rate}%</p>
-                    <p className="font-mono text-[9px] sm:text-[10px] text-[#6b6560]">{formatPeso(calcInterest(amount, rate, term))}</p>
+                    <p className="font-display text-[10px] sm:text-[11px] text-[#6b6560]">{formatPeso(calcInterest(amount, rate, term))}</p>
                   </div>
                 );
               })}
@@ -196,7 +196,7 @@ function BankRow({ bank, depositType, amount, highlight }: {
           )}
 
           <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
-            <span className="font-mono text-[9px] sm:text-[10px] text-[#9a9490]">
+            <span className="font-display text-[10px] sm:text-[11px] text-[#9a9490]">
               Verified {timeAgo(bank.last_verified)} ·{" "}
               {sourceUrl ? (
                 <a href={sourceUrl} target="_blank" rel="noopener noreferrer"
@@ -205,9 +205,9 @@ function BankRow({ bank, depositType, amount, highlight }: {
             </span>
             <FlagButton bankId={bank.id} />
             {bank.has_promo && bank.promo_terms && (
-              <span className="font-mono text-[9px] sm:text-[10px] px-2 py-0.5 bg-red-50 text-[#d94444] rounded-md">*{bank.promo_terms}</span>
+              <span className="font-display text-[10px] sm:text-[11px] px-2 py-0.5 bg-red-50 text-[#d94444] rounded-md">*{bank.promo_terms}</span>
             )}
-            {bank.notes && <span className="font-mono text-[9px] sm:text-[10px] text-[#b0aaa4]">{bank.notes}</span>}
+            {bank.notes && <span className="font-display text-[10px] sm:text-[11px] text-[#b0aaa4]">{bank.notes}</span>}
           </div>
         </div>
       )}
@@ -260,7 +260,7 @@ export default function RateTable({ banks, amount, highlightBankId, onHighlightD
           <button onClick={() => setDepositType("time_deposit")} className={toggleBtn(depositType === "time_deposit")}>
             Time Deposit
             <span onClick={(e) => { e.stopPropagation(); setShowTdInfo(true); }}
-              className="inline-flex items-center justify-center w-4 h-4 ml-1 rounded-full border border-current text-[9px] font-mono opacity-50 hover:opacity-100 transition-opacity"
+              className="inline-flex items-center justify-center w-4 h-4 ml-1 rounded-full border border-current text-[9px] font-display opacity-50 hover:opacity-100 transition-opacity"
               title="What is a time deposit?">i</span>
           </button>
         </div>
@@ -274,7 +274,7 @@ export default function RateTable({ banks, amount, highlightBankId, onHighlightD
       <div className="hidden sm:grid px-4 py-2.5 border-b border-[#e5e0d8]"
         style={{ gridTemplateColumns: "minmax(140px, 1.2fr) 180px 1fr 120px 40px" }}>
         {["Bank", "Rate", "", "Earn / yr", ""].map((h, i) => (
-          <p key={i} className={`m-0 font-mono text-[9px] uppercase tracking-[2px] text-[#9a9490] ${i === 1 || i === 3 ? "text-right" : ""}`}>{h}</p>
+          <p key={i} className={`m-0 font-display text-[11px] uppercase tracking-[2px] text-[#9a9490] ${i === 1 || i === 3 ? "text-right" : ""}`}>{h}</p>
         ))}
       </div>
 
@@ -288,7 +288,7 @@ export default function RateTable({ banks, amount, highlightBankId, onHighlightD
             highlight={highlightBankId === bank.id}
           />
         ))}
-        {filtered.length === 0 && <p className="text-center py-8 font-mono text-sm text-[#9a9490]">No banks match your filters</p>}
+        {filtered.length === 0 && <p className="text-center py-8 font-display text-sm text-[#9a9490]">No banks match your filters</p>}
       </div>
 
       {showTdInfo && (
