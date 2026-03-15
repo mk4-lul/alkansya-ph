@@ -108,9 +108,9 @@ function MiniChart({ data, height = 200 }: { data: { month: number; balance: num
 }
 
 export default function CalculatorPage() {
-  const [initial, setInitial] = useState(100000);
+  const [initial, setInitial] = useState(50000);
   const [monthly, setMonthly] = useState(5000);
-  const [rate, setRate] = useState(6.0);
+  const [rate, setRate] = useState(3.0);
   const [years, setYears] = useState(10);
 
   const result = useMemo(() => computeGrowth(initial, monthly, rate, years), [initial, monthly, rate, years]);
