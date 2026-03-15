@@ -73,7 +73,14 @@ function BankRow({
           <img src={bank.logo} alt={bank.name} className="w-9 h-9 rounded-xl bg-[#f5f5f5] object-contain shrink-0" />
           <div>
             <p className="text-sm font-bold text-[#1a1a1a]">{bank.name}</p>
-            <p className="text-[11px] text-[#888]">{bank.type === "digital" ? "Digital" : "Traditional"}</p>
+            <p className="text-[11px] text-[#888]">
+              {bank.type === "digital" ? "Digital" : "Traditional"}
+              {bank.avg_app_rating && (
+                <span className="ml-1.5" title={`Play Store: ${bank.play_store_rating} · App Store: ${bank.app_store_rating}`}>
+                  ★ {bank.avg_app_rating}
+                </span>
+              )}
+            </p>
           </div>
         </div>
         <div className="text-right">
