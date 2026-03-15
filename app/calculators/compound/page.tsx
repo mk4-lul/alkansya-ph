@@ -7,6 +7,15 @@ import NavMenu from "@/components/NavMenu";
 
 const YEAR_OPTIONS = [1, 2, 3, 5, 10, 15, 20, 30];
 
+function formatWithCommas(n: number): string {
+  if (!n) return "";
+  return n.toLocaleString("en-PH");
+}
+
+function parseFormatted(s: string): number {
+  return Number(s.replace(/[^0-9]/g, "")) || 0;
+}
+
 const INITIAL_PRESETS = [
   { label: "₱0", value: 0 },
   { label: "₱10k", value: 10000 },
@@ -279,13 +288,17 @@ export default function CalculatorPage() {
             </div>
             <div className="mt-3 flex items-center gap-2">
               <span className="text-sm text-[#888]">Custom:</span>
-              <input
-                type="number"
-                value={initial || ""}
-                onChange={(e) => setInitial(Number(e.target.value) || 0)}
-                className="flex-1 bg-[#f5f5f5] rounded-xl px-3 py-2 text-sm font-bold text-[#1a1a1a] outline-none focus:ring-2 focus:ring-[#00c853]"
-                placeholder="₱0"
-              />
+              <div className="flex-1 flex items-center bg-[#f5f5f5] rounded-xl px-3 py-2">
+                <span className="text-sm font-bold text-[#888] mr-1">₱</span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={formatWithCommas(initial)}
+                  onChange={(e) => setInitial(parseFormatted(e.target.value))}
+                  className="flex-1 bg-transparent text-sm font-bold text-[#1a1a1a] outline-none"
+                  placeholder="0"
+                />
+              </div>
             </div>
           </div>
 
@@ -302,13 +315,17 @@ export default function CalculatorPage() {
             </div>
             <div className="mt-3 flex items-center gap-2">
               <span className="text-sm text-[#888]">Custom:</span>
-              <input
-                type="number"
-                value={monthly || ""}
-                onChange={(e) => setMonthly(Number(e.target.value) || 0)}
-                className="flex-1 bg-[#f5f5f5] rounded-xl px-3 py-2 text-sm font-bold text-[#1a1a1a] outline-none focus:ring-2 focus:ring-[#00c853]"
-                placeholder="₱0"
-              />
+              <div className="flex-1 flex items-center bg-[#f5f5f5] rounded-xl px-3 py-2">
+                <span className="text-sm font-bold text-[#888] mr-1">₱</span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={formatWithCommas(monthly)}
+                  onChange={(e) => setMonthly(parseFormatted(e.target.value))}
+                  className="flex-1 bg-transparent text-sm font-bold text-[#1a1a1a] outline-none"
+                  placeholder="0"
+                />
+              </div>
             </div>
           </div>
 
