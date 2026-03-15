@@ -80,11 +80,13 @@ export default function HeroCalculator({
               key={a.value}
               onClick={() => onAmountChange(a.value)}
               className={`py-3 rounded-xl text-sm font-bold transition-all backdrop-blur-sm ${
-                isActive
-                  ? "bg-white text-[#1a1a1a] ring-2 ring-[#1a1a1a]"
-                  : isGold
-                    ? "bg-[#FFD600]/75 text-white hover:bg-[#FFD600]/90"
-                    : "bg-white/75 text-[#1a1a1a] hover:bg-white/90"
+                isActive && isGold
+                  ? "bg-[#FFD600] text-[#1a1a1a] ring-2 ring-[#1a1a1a]"
+                  : isActive
+                    ? "bg-white text-[#1a1a1a] ring-2 ring-[#1a1a1a]"
+                    : isGold
+                      ? "bg-[#FFD600]/75 text-white hover:bg-[#FFD600]/90"
+                      : "bg-white/75 text-[#1a1a1a] hover:bg-white/90"
               }`}>
               {a.label}
             </button>
@@ -109,7 +111,7 @@ export default function HeroCalculator({
                   className={`rounded-2xl px-5 py-4 cursor-pointer transition-all hover:scale-[1.02] ${cardAnimations[i]} ${
                     isFirst
                       ? "bg-white text-[#1a1a1a]"
-                      : "bg-white/15 text-white"
+                      : "bg-white/15 backdrop-blur-md text-white"
                   }`}>
                   <p className={`text-sm font-bold`}>{bank.name}</p>
                   <p className="text-3xl font-extrabold tracking-tight mt-1">{rate}%</p>
