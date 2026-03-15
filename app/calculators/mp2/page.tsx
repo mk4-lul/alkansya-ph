@@ -304,80 +304,11 @@ export default function MP2CalculatorPage() {
       </nav>
 
       <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">
-        {/* Hero result card */}
-        <div className="bg-[#2323FF] rounded-[20px] p-6 sm:p-8 mb-3 relative overflow-hidden">
-          {/* Scattered emojis */}
-          <div className="absolute inset-0 pointer-events-none select-none" style={{ filter: "blur(2px)" }} aria-hidden="true">
-            {['💵','🏠','🏡','🏦','🏛️','❤️','💵','🏠','🏡','🏦','🏛️','❤️','💵','🏠','🏡','🏦','🏛️','❤️','💵','🏠','🏡','🏦','🏛️','❤️','💵','🏠','🏡','🏦','🏛️','❤️'].map((e, i) => (
-              <span key={i} className="absolute text-[22px] sm:text-[28px]" style={{
-                left: `${(i * 17.3 + i * i * 3.7) % 100}%`,
-                top: `${(i * 13.1 + i * i * 2.3) % 100}%`,
-                opacity: 0.75,
-                transform: `rotate(${(i * 37) % 360}deg)`,
-              }}>{e}</span>
-            ))}
-          </div>
-          <div className="relative text-center">
-            <p className="text-lg font-bold text-white mb-2">Pag-IBIG MP2 Calculator</p>
-            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/70 mb-2">
-              Your savings after {years} {years === 1 ? "year" : "years"}
-            </p>
-            <p className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white">
-              {formatPeso(result.finalBalance)}
-            </p>
-            <div className="flex justify-center mt-4">
-              <div className="bg-white/15 backdrop-blur-md rounded-2xl px-6 py-4 flex gap-8">
-                <div className="text-center">
-                  <p className="text-[11px] text-white/60 uppercase tracking-[0.5px]">Contributed</p>
-                  <p className="text-lg font-bold text-white">{formatPeso(result.totalDeposits)}</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-[11px] text-[#FFD600]/80 uppercase tracking-[0.5px]">Dividends (tax-free)</p>
-                  <p className="text-lg font-bold text-[#FFD600]">{formatPeso(result.totalInterest)}</p>
-                </div>
-              </div>
-            </div>
-            {/* Progress bar */}
-            <div className="mt-4 max-w-[300px] mx-auto">
-              <div className="h-2 rounded-full bg-white/20 overflow-hidden">
-                <div className="h-full rounded-full bg-white transition-all duration-500" style={{ width: `${interestPct}%` }} />
-              </div>
-              <p className="text-[11px] text-white/80 mt-1">{interestPct}% of your total is from dividends</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Growth Chart */}
-        <div className="bg-white rounded-[20px] p-5 sm:p-6 mb-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Projected growth</p>
-          <GrowthChart data={result.data} />
-          <div className="flex justify-center gap-6 mt-2">
-            <div className="flex items-center gap-1.5">
-              <div className="w-3 h-[3px] rounded-full bg-[#00c853]" />
-              <span className="text-[10px] text-[#888]">Total value</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-3 h-[3px] rounded-full bg-[#ccc]" />
-              <span className="text-[10px] text-[#888]">Contributions only</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Historical Dividend Rates */}
-        <div className="bg-white rounded-[20px] p-5 sm:p-6 mb-3">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888]">MP2 dividend rate history</p>
-            <p className="text-[11px] text-[#888]">Avg: <span className="font-bold text-[#1a1a1a]">{AVG_ALL.toFixed(2)}%</span></p>
-          </div>
-          <HistoryChart />
-          <div className="flex justify-center gap-4 mt-3">
-            <span className="text-[10px] text-[#888]">5yr avg: <span className="font-bold text-[#1a1a1a]">{AVG_5YR.toFixed(2)}%</span></span>
-            <span className="text-[10px] text-[#888]">10yr avg: <span className="font-bold text-[#1a1a1a]">{AVG_10YR.toFixed(2)}%</span></span>
-          </div>
-        </div>
+        {/* Page title */}
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1a1a1a] tracking-tight mb-4">Pag-IBIG MP2 Calculator</h1>
 
         {/* Inputs */}
-        <div className="space-y-3">
+        <div className="space-y-3 mb-3">
           {/* Monthly contribution */}
           <div className="bg-white rounded-[20px] p-5 sm:p-6">
             <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Monthly contribution</p>
@@ -440,6 +371,78 @@ export default function MP2CalculatorPage() {
             <p className="text-[10px] text-[#aaa] mt-2">MP2 has a 5-year lock-in. You can renew for another 5 years.</p>
           </div>
         </div>
+
+        {/* Hero result card */}
+        <div className="bg-[#1565C0] rounded-[20px] p-6 sm:p-8 mb-3 relative overflow-hidden">
+          {/* Scattered emojis */}
+          <div className="absolute inset-0 pointer-events-none select-none" style={{ filter: "blur(2px)" }} aria-hidden="true">
+            {['💵','🏠','🏡','🏦','🏛️','❤️','💵','🏠','🏡','🏦','🏛️','❤️','💵','🏠','🏡','🏦','🏛️','❤️','💵','🏠','🏡','🏦','🏛️','❤️','💵','🏠','🏡','🏦','🏛️','❤️'].map((e, i) => (
+              <span key={i} className="absolute text-[22px] sm:text-[28px]" style={{
+                left: `${(i * 17.3 + i * i * 3.7) % 100}%`,
+                top: `${(i * 13.1 + i * i * 2.3) % 100}%`,
+                opacity: 0.75,
+                transform: `rotate(${(i * 37) % 360}deg)`,
+              }}>{e}</span>
+            ))}
+          </div>
+          <div className="relative text-center">
+            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/70 mb-2">
+              Your savings after {years} {years === 1 ? "year" : "years"}
+            </p>
+            <p className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white">
+              {formatPeso(result.finalBalance)}
+            </p>
+            <div className="flex justify-center mt-4">
+              <div className="bg-white/15 backdrop-blur-md rounded-2xl px-6 py-4 flex gap-8">
+                <div className="text-center">
+                  <p className="text-[11px] text-white/60 uppercase tracking-[0.5px]">Contributed</p>
+                  <p className="text-lg font-bold text-white">{formatPeso(result.totalDeposits)}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[11px] text-[#FFD600]/80 uppercase tracking-[0.5px]">Dividends (tax-free)</p>
+                  <p className="text-lg font-bold text-[#FFD600]">{formatPeso(result.totalInterest)}</p>
+                </div>
+              </div>
+            </div>
+            {/* Progress bar */}
+            <div className="mt-4 max-w-[300px] mx-auto">
+              <div className="h-2 rounded-full bg-white/20 overflow-hidden">
+                <div className="h-full rounded-full bg-white transition-all duration-500" style={{ width: `${interestPct}%` }} />
+              </div>
+              <p className="text-[11px] text-white/80 mt-1">{interestPct}% of your total is from dividends</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Growth Chart */}
+        <div className="bg-white rounded-[20px] p-5 sm:p-6 mb-3">
+          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Projected growth</p>
+          <GrowthChart data={result.data} />
+          <div className="flex justify-center gap-6 mt-2">
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-[3px] rounded-full bg-[#00c853]" />
+              <span className="text-[10px] text-[#888]">Total value</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-[3px] rounded-full bg-[#ccc]" />
+              <span className="text-[10px] text-[#888]">Contributions only</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Historical Dividend Rates */}
+        <div className="bg-white rounded-[20px] p-5 sm:p-6 mb-3">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888]">MP2 dividend rate history</p>
+            <p className="text-[11px] text-[#888]">Avg: <span className="font-bold text-[#1a1a1a]">{AVG_ALL.toFixed(2)}%</span></p>
+          </div>
+          <HistoryChart />
+          <div className="flex justify-center gap-4 mt-3">
+            <span className="text-[10px] text-[#888]">5yr avg: <span className="font-bold text-[#1a1a1a]">{AVG_5YR.toFixed(2)}%</span></span>
+            <span className="text-[10px] text-[#888]">10yr avg: <span className="font-bold text-[#1a1a1a]">{AVG_10YR.toFixed(2)}%</span></span>
+          </div>
+        </div>
+
 
         {/* Info card */}
         <div className="mt-3 bg-white rounded-[20px] p-5 sm:p-6">
