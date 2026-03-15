@@ -70,8 +70,8 @@ export default function HeroCalculator({
       <div className="relative">
       <p className="text-center text-lg font-bold text-white/80 mb-4">How much are you saving?</p>
 
-      {/* Amount pills */}
-      <div className="flex flex-wrap justify-center gap-2 mb-2">
+      {/* Amount grid */}
+      <div className="grid grid-cols-4 gap-2 max-w-[400px] mx-auto mb-2">
         {AMOUNT_BRACKETS.map((a) => {
           const isGold = a.value >= 1000000;
           const isActive = amount === a.value;
@@ -79,12 +79,12 @@ export default function HeroCalculator({
             <button
               key={a.value}
               onClick={() => onAmountChange(a.value)}
-              className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+              className={`py-3 rounded-xl text-sm font-bold transition-all ${
                 isActive
-                  ? "bg-white text-[#00c853]"
+                  ? "bg-white text-[#1a1a1a] ring-2 ring-[#1a1a1a]"
                   : isGold
-                    ? "bg-[#FFD600]/50 text-white hover:bg-[#FFD600]/70"
-                    : "bg-white/20 text-white hover:bg-white/30"
+                    ? "bg-[#FFD600]/30 text-white hover:bg-[#FFD600]/50"
+                    : "bg-white/15 text-white hover:bg-white/25"
               }`}>
               {a.label}
             </button>
