@@ -380,29 +380,29 @@ export default function InvestmentCalculatorPage() {
             ))}
           </div>
           <div className="relative text-center">
-            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/70 mb-2">
+            <p className="text-[13px] font-bold uppercase tracking-[1px] text-white/80 mb-2">
               {formatPeso(amount)} in {asset.name} since Jan {startYear}
             </p>
-            <p className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white">
+            <p className="text-5xl sm:text-6xl font-extrabold tracking-tight text-white">
               {formatPeso(currentValue)}
             </p>
             <div className="flex justify-center mt-4">
               <div className="bg-white/15 backdrop-blur-md rounded-2xl px-6 py-4 flex gap-8">
                 <div className="text-center">
-                  <p className="text-[11px] text-white/60 uppercase tracking-[0.5px]">Invested</p>
-                  <p className="text-lg font-bold text-white">{formatPeso(amount)}</p>
+                  <p className="text-[12px] font-semibold text-white/70 uppercase tracking-[0.5px]">Invested</p>
+                  <p className="text-xl font-extrabold text-white">{formatPeso(amount)}</p>
                 </div>
                 <div className="text-center">
-                  <p className={`text-[11px] ${isPositive ? "text-white/60" : "text-red-300"} uppercase tracking-[0.5px]`}>
+                  <p className={`text-[12px] font-semibold ${isPositive ? "text-white/70" : "text-red-300"} uppercase tracking-[0.5px]`}>
                     {isPositive ? "Gain" : "Loss"}
                   </p>
-                  <p className={`text-lg font-bold ${isPositive ? "text-white" : "text-red-300"}`}>
+                  <p className={`text-xl font-extrabold ${isPositive ? "text-white" : "text-red-300"}`}>
                     {formatPeso(Math.abs(gain))} ({formatPercent(gainPct)})
                   </p>
                 </div>
               </div>
             </div>
-            <p className="text-[11px] text-white/60 mt-3">{multiplier.toFixed(2)}x return in {CURRENT_YEAR - startYear} {CURRENT_YEAR - startYear === 1 ? "year" : "years"}</p>
+            <p className="text-[12px] font-semibold text-white/70 mt-3">{multiplier.toFixed(2)}x return in {CURRENT_YEAR - startYear} {CURRENT_YEAR - startYear === 1 ? "year" : "years"}</p>
           </div>
         </div>
 
