@@ -55,8 +55,13 @@ export default function HeroCalculator({
   const cardAnimations = ["animate-card-pop-1", "animate-card-pop-2", "animate-card-pop-3"];
 
   return (
-    <div className="bg-white rounded-[20px] p-6 sm:p-8">
-      <p className="text-center text-sm text-[#888] mb-4">How much are you saving?</p>
+    <div className="bg-[#00c853] rounded-[20px] p-6 sm:p-8 relative overflow-hidden">
+      {/* Money emoji background pattern */}
+      <div className="absolute inset-0 pointer-events-none select-none opacity-[0.08] text-[28px] leading-[36px] tracking-[8px] whitespace-pre-wrap break-all" aria-hidden="true">
+        {'💵💰🪙💸₱💵💰🪙💸₱'.repeat(30)}
+      </div>
+      <div className="relative">
+      <p className="text-center text-sm text-white/70 mb-4">How much are you saving?</p>
 
       {/* Amount pills */}
       <div className="flex flex-wrap justify-center gap-2 mb-2">
@@ -66,8 +71,8 @@ export default function HeroCalculator({
             onClick={() => onAmountChange(a.value)}
             className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
               amount === a.value
-                ? "bg-[#00c853] text-white"
-                : "bg-[#f5f5f5] text-[#1a1a1a] hover:bg-[#e8e8e8]"
+                ? "bg-white text-[#00c853]"
+                : "bg-white/20 text-white hover:bg-white/30"
             }`}>
             {a.label}
           </button>
@@ -77,7 +82,7 @@ export default function HeroCalculator({
       {/* Top 3 banks */}
       {hasAmount && top3.length > 0 && (
         <div className="mt-6">
-          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3 text-center">Best rates for you</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/60 mb-3 text-center">Best rates for you</p>
           <div key={amount} className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             {top3.map((bank, i) => {
               const rate = getRateForAmount(bank.savings_tiers, amount);
@@ -90,12 +95,12 @@ export default function HeroCalculator({
                   onClick={() => onBankClick(bank.id)}
                   className={`rounded-2xl px-5 py-4 cursor-pointer transition-all hover:scale-[1.02] ${cardAnimations[i]} ${
                     isFirst
-                      ? "bg-[#00c853] text-white"
-                      : "bg-[#f5f5f5] text-[#1a1a1a]"
+                      ? "bg-white text-[#1a1a1a]"
+                      : "bg-white/15 text-white"
                   }`}>
-                  <p className={`text-sm font-bold ${isFirst ? "" : ""}`}>{bank.name}</p>
+                  <p className={`text-sm font-bold`}>{bank.name}</p>
                   <p className="text-3xl font-extrabold tracking-tight mt-1">{rate}%</p>
-                  <p className={`text-sm font-semibold mt-1 ${isFirst ? "text-white/80" : "text-[#888]"}`}>
+                  <p className={`text-sm font-semibold mt-1 ${isFirst ? "text-[#888]" : "text-white/70"}`}>
                     <AnimatedNumber value={earnings} prefix="₱" suffix="/yr" />
                   </p>
                 </div>
@@ -104,6 +109,7 @@ export default function HeroCalculator({
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }
