@@ -110,6 +110,9 @@ export const TERM_LABELS: Record<number, string> = {
   120: "120 Days",
   180: "6 Months",
   182: "6 Months",
+  270: "9 Months",
   360: "1 Year",
   365: "1 Year",
+  540: "18 Months",
+  730: "2 Years",
 };
