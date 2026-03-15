@@ -232,6 +232,7 @@ export default function RateTable({
   const [depositType, setDepositType] = useState<"savings" | "time_deposit">("savings");
   const [bankType, setBankType] = useState<"all" | "traditional" | "digital">("all");
   const [showTdInfo, setShowTdInfo] = useState(false);
+  const [showAll, setShowAll] = useState(false);
 
   const filtered = useMemo(() => {
     let list = [...banks];
@@ -253,11 +254,11 @@ export default function RateTable({
       {/* Tabs + Filters */}
       <div className="flex flex-wrap items-center gap-2 mb-3">
         <div className="flex bg-white rounded-full p-1">
-          <button onClick={() => setDepositType("savings")}
+          <button onClick={() => { setDepositType("savings"); setShowAll(false); }}
             className={`px-4 py-2 rounded-full text-[12px] font-semibold transition-all ${
               depositType === "savings" ? "bg-[#1a1a1a] text-white" : "text-[#888] hover:text-[#1a1a1a]"
             }`}>Savings</button>
-          <button onClick={() => setDepositType("time_deposit")}
+          <button onClick={() => { setDepositType("time_deposit"); setShowAll(false); }}
             className={`px-4 py-2 rounded-full text-[12px] font-semibold transition-all ${
               depositType === "time_deposit" ? "bg-[#1a1a1a] text-white" : "text-[#888] hover:text-[#1a1a1a]"
             }`}>
@@ -269,7 +270,7 @@ export default function RateTable({
         </div>
         <div className="flex bg-white rounded-full p-1">
           {([["all", "All"], ["digital", "Digital"], ["traditional", "Trad."]] as const).map(([val, label]) => (
-            <button key={val} onClick={() => setBankType(val as "all" | "traditional" | "digital")}
+            <button key={val} onClick={() => { setBankType(val as "all" | "traditional" | "digital"); setShowAll(false); }}
               className={`px-3 py-2 rounded-full text-[12px] font-semibold transition-all ${
                 bankType === val ? "bg-[#1a1a1a] text-white" : "text-[#888] hover:text-[#1a1a1a]"
               }`}>{label}</button>
@@ -279,7 +280,7 @@ export default function RateTable({
 
       {/* Bank list */}
       <div className="space-y-2">
-        {filtered.map((bank) => (
+        {(showAll ? filtered : filtered.slice(0, 10)).map((bank) => (
           <BankRow
             key={bank.id}
             bank={bank}
@@ -288,7 +289,14 @@ export default function RateTable({
             isHighlighted={highlightBankId === bank.id}
           />
         ))}
-        {filtered.length === 0 && <p className="text-center py-8 text-sm text-[#888]">No banks match your filters</p>}
+        {filtered.length === 0 && <p className="text-center py-8 text-sm text-[#888]">No results match your filters</p>}
+        {!showAll && filtered.length > 10 && (
+          <button
+            onClick={() => setShowAll(true)}
+            className="w-full py-3 rounded-2xl bg-white text-[13px] font-bold text-[#888] hover:text-[#1a1a1a] transition-colors">
+            Show more
+          </button>
+        )}
       </div>
 
       {/* TD Info Modal */}
