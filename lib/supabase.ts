@@ -29,6 +29,9 @@ export interface Bank {
   has_promo: boolean;
   promo_rate: number | null;
   promo_terms: string | null;
+  avg_app_rating: number | null;
+  play_store_rating: number | null;
+  app_store_rating: number | null;
 }
 
 export interface SavingsTier {
@@ -93,6 +96,9 @@ export async function getBanksWithRates(): Promise<BankWithRates[]> {
         has_promo: row.has_promo,
         promo_rate: row.promo_rate,
         promo_terms: row.promo_terms,
+        avg_app_rating: row.avg_app_rating ? Number(row.avg_app_rating) : null,
+        play_store_rating: row.play_store_rating ? Number(row.play_store_rating) : null,
+        app_store_rating: row.app_store_rating ? Number(row.app_store_rating) : null,
         savings_rate: 0,
         savings_min_rate: Infinity,
         savings_products: [],
