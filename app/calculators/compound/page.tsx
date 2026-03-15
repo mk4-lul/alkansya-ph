@@ -143,8 +143,8 @@ export default function CalculatorPage() {
             ))}
           </div>
           <div className="relative text-center">
-            <p className="text-sm font-semibold text-white/60 mb-1">Compound interest calculator</p>
-            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/40 mb-2">
+            <p className="text-sm font-bold text-white/90 mb-1">Compound interest calculator</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/70 mb-2">
               Your money after {years} {years === 1 ? "year" : "years"}
             </p>
             <p className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white">
@@ -167,7 +167,7 @@ export default function CalculatorPage() {
               <div className="h-2 rounded-full bg-white/20 overflow-hidden">
                 <div className="h-full rounded-full bg-white transition-all duration-500" style={{ width: `${interestPct}%` }} />
               </div>
-              <p className="text-[11px] text-white/50 mt-1">{interestPct}% of your final balance is interest</p>
+              <p className="text-[11px] text-white/80 mt-1">{interestPct}% of your final balance is interest</p>
             </div>
           </div>
         </div>
