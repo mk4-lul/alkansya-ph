@@ -190,7 +190,9 @@ function BankRow({ bank, depositType, amount, highlight }: {
           )}
 
           {depositType === "time_deposit" && tdTerms.length === 0 && (
-            <p className="font-mono text-[11px] text-[#9a9490] mb-3">No time deposit products available</p>
+            <div className="bg-[#f6f4f0] rounded-xl border border-[#e5e0d8] px-4 py-3 mb-3">
+              <p className="font-display text-sm text-[#9a9490]">{bank.name} doesn&apos;t offer time deposit products.</p>
+            </div>
           )}
 
           <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
