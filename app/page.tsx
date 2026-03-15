@@ -46,11 +46,10 @@ export default function HomePage() {
             <span className="absolute text-[60px] font-extrabold text-white/[0.04] top-8 left-[30%] leading-none rotate-12">₱</span>
           </div>
           <div className="relative">
-            <p className="text-lg font-bold text-white mb-6">Compare Rates</p>
-            <div className="flex items-end gap-3 mb-6">
-              <p className="text-6xl sm:text-7xl font-extrabold tracking-tighter text-white leading-none">6.0%</p>
-              <p className="text-sm font-semibold text-white/60 pb-2">highest savings rate</p>
-            </div>
+            <p className="text-lg font-bold text-white mb-2">Compare Rates</p>
+            <p className="text-[13px] text-white/70 leading-relaxed mb-6 max-w-sm">
+              Find the best savings and time deposit rates across Philippine banks — traditional and digital.
+            </p>
             <div className="flex gap-3">
               <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-2.5">
                 <p className="text-xl font-extrabold text-white">17</p>
