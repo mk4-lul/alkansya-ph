@@ -62,7 +62,7 @@ export default function HeroCalculator({
           <span key={i} className="absolute text-[22px] sm:text-[28px]" style={{
             left: `${(i * 17.3 + i * i * 3.7) % 100}%`,
             top: `${(i * 13.1 + i * i * 2.3) % 100}%`,
-            opacity: 0.12,
+            opacity: 0.75,
             transform: `rotate(${(i * 37) % 360}deg)`,
           }}>{e}</span>
         ))}
@@ -83,7 +83,7 @@ export default function HeroCalculator({
                 isActive
                   ? "bg-white text-[#00c853]"
                   : isGold
-                    ? "bg-[#FFD600]/20 text-white hover:bg-[#FFD600]/30"
+                    ? "bg-[#FFD600]/50 text-white hover:bg-[#FFD600]/70"
                     : "bg-white/20 text-white hover:bg-white/30"
               }`}>
               {a.label}
