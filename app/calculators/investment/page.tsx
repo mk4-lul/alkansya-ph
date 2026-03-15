@@ -290,6 +290,8 @@ export default function InvestmentCalculatorPage() {
       </nav>
 
       <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1a1a1a] tracking-tight mb-4">What if you invested?</h1>
+
         {/* Hero result card */}
         <div className="bg-[#00c853] rounded-[20px] p-6 sm:p-8 mb-3 relative overflow-hidden">
           <div className="absolute inset-0 pointer-events-none select-none" style={{ filter: "blur(2px)" }} aria-hidden="true">
@@ -303,7 +305,6 @@ export default function InvestmentCalculatorPage() {
             ))}
           </div>
           <div className="relative text-center">
-            <p className="text-lg font-bold text-white mb-2">What if you invested?</p>
             <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/70 mb-2">
               {formatPeso(amount)} in {asset.name} since Jan {startYear}
             </p>
