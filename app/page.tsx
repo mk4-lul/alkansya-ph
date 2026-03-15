@@ -1,312 +1,322 @@
-import { getBanksWithRates, BankWithRates, TimeDepositRate } from "@/lib/supabase";
-import Dashboard from "@/components/Dashboard";
-import NavMenu from "@/components/NavMenu";
-import Link from "next/link";
+"use client";
 
-export const revalidate = 3600;
+import { useState, useMemo, useEffect } from "react";
+import { BankWithRates, flagRate } from "@/lib/supabase";
+import {
+  formatPeso,
+  formatPesoShort,
+  calcInterest,
+  timeAgo,
+  getRateForAmount,
+  getTdRateForAmount,
+  getUniqueTdTerms,
+  getBestTdRate,
+  formatRateRange,
+  TERM_LABELS,
+} from "@/lib/utils";
 
-function fb(
-  id: string, name: string, type: "traditional" | "digital", logo: string,
-  url: string, tdUrl: string | null, notes: string,
-  hasPromo: boolean, promoRate: number | null, promoTerms: string | null,
-  products: { name: string; tiers: { rate: number; min_deposit: number; max_deposit: number | null }[] }[],
-  td: TimeDepositRate[],
-  verified: string,
-  ratings: { avg: number; play: number; app: number }
-): BankWithRates {
-  const allTiers = products.flatMap((p) => p.tiers);
-  const rates = allTiers.map((t) => t.rate);
-  return {
-    id, name, type, logo, source_url: url, td_source_url: tdUrl, notes,
-    has_promo: hasPromo, promo_rate: promoRate, promo_terms: promoTerms,
-    avg_app_rating: ratings.avg, play_store_rating: ratings.play, app_store_rating: ratings.app,
-    savings_rate: rates.length > 0 ? Math.max(...rates) : 0,
-    savings_min_rate: rates.length > 0 ? Math.min(...rates) : 0,
-    savings_tiers: allTiers,
-    savings_products: products.map((p) => ({
-      name: p.name,
-      tiers: p.tiers,
-      best_rate: Math.max(...p.tiers.map((t) => t.rate)),
-      min_rate: Math.min(...p.tiers.map((t) => t.rate)),
-    })),
-    time_deposit_rates: td,
-    last_verified: verified,
-  };
+function FlagButton({ bankId }: { bankId: string }) {
+  const [flagged, setFlagged] = useState(false);
+  if (flagged) return <span className="text-[11px] text-[#00c853] font-medium">Flagged</span>;
+  return (
+    <button onClick={(e) => { e.stopPropagation(); flagRate(bankId); setFlagged(true); }}
+      className="text-[11px] text-[#888] hover:text-[#1a1a1a] transition-colors"
+      title="Flag this rate as outdated">
+      Flag
+    </button>
+  );
 }
 
-const FALLBACK_BANKS: BankWithRates[] = [
-  fb("bpi", "BPI", "traditional", "/logos/bpi.png",
-    "https://www.bpi.com.ph/personal/bank/deposits/deposit-rates-savings-and-checking",
-    "https://www.bpi.com.ph/personal/bank/time-deposit-accounts/peso-auto-renew",
-    "Multiple savings products", false, null, null,
-    [
-      { name: "#SaveUp", tiers: [{ rate: 0.0925, min_deposit: 5000, max_deposit: null }] },
-      { name: "#MySaveUp", tiers: [{ rate: 0.0925, min_deposit: 5000, max_deposit: null }] },
-      { name: "Jumpstart Savings", tiers: [{ rate: 0.0625, min_deposit: 2000, max_deposit: null }] },
-      { name: "Maxi-Saver", tiers: [{ rate: 0.125, min_deposit: 2000000, max_deposit: null }] },
-      { name: "Saver-Plus", tiers: [{ rate: 0.0625, min_deposit: 50000, max_deposit: null }] },
-    ],
-    [
-      { term_days: 35, rate: 0.250, min_deposit: 50000, max_deposit: 499999 },
-      { term_days: 35, rate: 0.500, min_deposit: 5000000, max_deposit: null },
-      { term_days: 365, rate: 0.750, min_deposit: 5000000, max_deposit: null },
-    ],
-    "2026-03-14T00:00:00Z",
-    { avg: 4.8, play: 4.8, app: 4.7 }),
+function BankRow({
+  bank,
+  depositType,
+  amount,
+  isHighlighted,
+}: {
+  bank: BankWithRates;
+  depositType: "savings" | "time_deposit";
+  amount: number;
+  isHighlighted: boolean;
+}) {
+  const [expanded, setExpanded] = useState(false);
 
-  fb("bdo", "BDO", "traditional", "/logos/bdo.png",
-    "https://www.bdo.com.ph/personal/accounts/savings/peso-savings",
-    "https://www.bdo.com.ph/personal/accounts/time-deposit/peso-time-deposit",
-    "Multiple savings products", false, null, null,
-    [
-      { name: "Passbook Savings", tiers: [{ rate: 0.0625, min_deposit: 0, max_deposit: null }] },
-      { name: "Optimum Savings", tiers: [{ rate: 0.25, min_deposit: 30000, max_deposit: 99999 }, { rate: 0.375, min_deposit: 100000, max_deposit: null }] },
-    ],
-    [{ term_days: 30, rate: 0.625, min_deposit: 50000, max_deposit: 299999 }, { term_days: 360, rate: 1.250, min_deposit: 10000000, max_deposit: null }],
-    "2026-03-15T00:00:00Z",
-    { avg: 2.9, play: 3.5, app: 2.3 }),
+  useEffect(() => {
+    if (isHighlighted) setExpanded(true);
+  }, [isHighlighted]);
 
-  fb("metrobank", "Metrobank", "traditional", "/logos/metrobank.png",
-    "https://www.metrobank.com.ph/articles/deposit-rates-and-fees",
-    "https://www.metrobank.com.ph/articles/time-deposit-rates-and-fees",
-    "Online Time Deposit rates", false, null, null,
-    [{ name: "Regular Savings", tiers: [{ rate: 0.0625, min_deposit: 0, max_deposit: null }] }],
-    [{ term_days: 30, rate: 4.125, min_deposit: 10000, max_deposit: 49999 }, { term_days: 180, rate: 4.500, min_deposit: 5000000, max_deposit: null }],
-    "2026-03-14T00:00:00Z",
-    { avg: 3.0, play: 2.1, app: 3.8 }),
+  const displayRate = depositType === "savings"
+    ? getRateForAmount(bank.savings_tiers, amount)
+    : amount > 0
+      ? getBestTdRate(bank.time_deposit_rates, amount)
+      : bank.time_deposit_rates.length > 0 ? Math.max(...bank.time_deposit_rates.map(r => r.rate)) : 0;
 
-  fb("unionbank", "UnionBank", "traditional", "/logos/unionbank.png",
-    "https://www.unionbankph.com/accounts",
-    "https://www.unionbankph.com/accounts",
-    "Regular savings", false, null, null,
-    [{ name: "Regular Savings", tiers: [{ rate: 0.1, min_deposit: 0, max_deposit: null }] }],
-    [{ term_days: 30, rate: 0.625, min_deposit: 50000, max_deposit: 299999 }, { term_days: 360, rate: 1.250, min_deposit: 10000000, max_deposit: null }],
-    "2026-03-15T00:00:00Z",
-    { avg: 4.8, play: 4.8, app: 4.7 }),
+  const earnings = calcInterest(amount, displayRate);
+  const hasRange = bank.savings_min_rate !== bank.savings_rate;
+  const rateText = depositType === "savings" && hasRange && amount === 0
+    ? formatRateRange(bank.savings_min_rate, bank.savings_rate) : `${displayRate}%`;
 
-  fb("securitybank", "Security Bank", "traditional", "/logos/securitybank.png",
-    "https://www.securitybank.com/personal/accounts/high-interest/",
-    "https://www.securitybank.com/personal/accounts/time-deposit/time-deposit-rates/",
-    "Easy Savings 0.05%, GoalSetter up to 3%", false, null, null,
-    [
-      { name: "Easy Savings", tiers: [{ rate: 0.05, min_deposit: 0, max_deposit: null }] },
-      { name: "GoalSetter", tiers: [
-        { rate: 0.50, min_deposit: 5000, max_deposit: 49999 },
-        { rate: 1.00, min_deposit: 50000, max_deposit: 499999 },
-        { rate: 1.50, min_deposit: 500000, max_deposit: 999999 },
-        { rate: 2.00, min_deposit: 1000000, max_deposit: 4999999 },
-        { rate: 3.00, min_deposit: 5000000, max_deposit: null },
-      ]},
-    ],
-    [{ term_days: 30, rate: 0.54, min_deposit: 100000, max_deposit: 299999 }, { term_days: 365, rate: 2.47, min_deposit: 5000000, max_deposit: null }],
-    "2026-03-15T00:00:00Z",
-    { avg: 3.5, play: 3.2, app: 3.8 }),
+  const isHigh = displayRate >= 2;
+  const isMid = displayRate >= 0.5;
+  const rateColor = isHigh ? "text-[#00c853]" : isMid ? "text-[#1a1a1a]" : "text-[#888]";
 
-  fb("rcbc", "RCBC", "traditional", "/logos/rcbc.png",
-    "https://www.rcbc.com/regular-atm",
-    "https://www.rcbc.com/rcbc-time-deposit",
-    "Regular ATM Savings", false, null, null,
-    [{ name: "Regular Savings", tiers: [{ rate: 0.15, min_deposit: 0, max_deposit: null }] }],
-    [{ term_days: 30, rate: 0.500, min_deposit: 5000, max_deposit: 39999 }, { term_days: 365, rate: 1.375, min_deposit: 10000000, max_deposit: null }],
-    "2026-03-15T00:00:00Z",
-    { avg: 2.9, play: 3.3, app: 2.4 }),
-
-  fb("pnb", "PNB", "traditional", "/logos/pnb.png",
-    "https://www.pnb.com.ph/product-comparison/",
-    "https://www.pnb.com.ph/product-comparison/",
-    "Top Saver: higher rate at ₱50k+", false, null, null,
-    [
-      { name: "Regular Savings", tiers: [{ rate: 0.1, min_deposit: 0, max_deposit: null }] },
-      { name: "Top Saver", tiers: [{ rate: 0.5, min_deposit: 50000, max_deposit: null }] },
-    ],
-    [{ term_days: 30, rate: 0.125, min_deposit: 25000, max_deposit: 249999 }, { term_days: 360, rate: 0.375, min_deposit: 1000000, max_deposit: null }],
-    "2026-03-15T00:00:00Z",
-    { avg: 2.8, play: 2.9, app: 2.6 }),
-
-  fb("landbank", "Landbank", "traditional", "/logos/landbank.png",
-    "https://www.landbank.com/personal-savings-account-with-atm",
-    "https://www.landbank.com/personal-greengrowth-deposit",
-    "OptiSaver Plus: 1%–4% for ₱500k+ (contact branch)", false, null, null,
-    [
-      { name: "Savings Account with ATM", tiers: [{ rate: 0.05, min_deposit: 0, max_deposit: null }] },
-      { name: "OptiSaver Plus", tiers: [{ rate: 0.05, min_deposit: 50000, max_deposit: 499999 }] },
-    ],
-    [
-      { term_days: 365, rate: 2.25, min_deposit: 50000, max_deposit: 499999 },
-      { term_days: 365, rate: 3.25, min_deposit: 500000, max_deposit: 4999999 },
-      { term_days: 365, rate: 4.25, min_deposit: 5000000, max_deposit: null },
-    ],
-    "2026-03-15T00:00:00Z",
-    { avg: 3.8, play: 4.4, app: 3.2 }),
-
-  fb("maya", "Maya Bank", "digital", "/logos/maya.png",
-    "https://www.mayabank.ph/savings/",
-    "https://www.mayabank.ph/time-deposit-plus/",
-    "Base 3.50%; up to 6% with goals", false, null, null,
-    [{ name: "Maya Savings", tiers: [{ rate: 3.5, min_deposit: 0, max_deposit: 100000 }, { rate: 6.0, min_deposit: 100001, max_deposit: null }] }],
-    [
-      { term_days: 90, rate: 5.0, min_deposit: 0, max_deposit: 1000000 },
-      { term_days: 180, rate: 6.0, min_deposit: 0, max_deposit: 1000000 },
-      { term_days: 365, rate: 5.5, min_deposit: 0, max_deposit: 1000000 },
-    ],
-    "2026-03-14T00:00:00Z",
-    { avg: 4.6, play: 4.6, app: 4.6 }),
-
-  fb("cimb", "CIMB", "digital", "/logos/cimb.png",
-    "https://www.cimb.com.ph/en/personal/banking/accounts/upsave.html",
-    "https://www.cimbbank.com.ph/en/products/save/maxsave.html",
-    "UpSave 2.5%. MaxSave TD updated Jan 2026.", true, 8.0, "New depositors, limited period, max ₱200k",
-    [{ name: "UpSave", tiers: [{ rate: 2.5, min_deposit: 0, max_deposit: null }] }],
-    [
-      { term_days: 90, rate: 4.75, min_deposit: 5000, max_deposit: 1000000 },
-      { term_days: 180, rate: 5.25, min_deposit: 5000, max_deposit: 1000000 },
-      { term_days: 365, rate: 4.75, min_deposit: 5000, max_deposit: 1000000 },
-      { term_days: 730, rate: 4.50, min_deposit: 5000, max_deposit: 1000000 },
-    ],
-    "2026-03-15T00:00:00Z",
-    { avg: 4.1, play: 4.0, app: 4.2 }),
-
-  fb("tonik", "Tonik", "digital", "/logos/tonik.png",
-    "https://tonikbank.com/deposit-interest-rates",
-    "https://tonikbank.com/savings-cards/time-deposit",
-    "4%–4.5% Stash savings. TD up to 8% p.a.", false, null, null,
-    [{ name: "Stash", tiers: [{ rate: 4.0, min_deposit: 0, max_deposit: 50000 }, { rate: 4.5, min_deposit: 50001, max_deposit: null }] }],
-    [
-      { term_days: 180, rate: 6.0, min_deposit: 5000, max_deposit: 250000 },
-      { term_days: 270, rate: 7.0, min_deposit: 5000, max_deposit: 250000 },
-      { term_days: 365, rate: 8.0, min_deposit: 5000, max_deposit: 250000 },
-      { term_days: 540, rate: 6.0, min_deposit: 5000, max_deposit: 250000 },
-      { term_days: 730, rate: 6.0, min_deposit: 5000, max_deposit: 250000 },
-    ],
-    "2026-03-15T00:00:00Z",
-    { avg: 4.7, play: 4.8, app: 4.6 }),
-
-  fb("gotyme", "GoTyme", "digital", "/logos/gotyme.png",
-    "https://www.gotyme.com.ph/save-and-invest/", null,
-    "Go Save: flat 3% p.a., no conditions", false, null, null,
-    [{ name: "Go Save", tiers: [{ rate: 3.0, min_deposit: 0, max_deposit: null }] }],
-    [],
-    "2026-03-15T00:00:00Z",
-    { avg: 4.5, play: 4.6, app: 4.3 }),
-
-  fb("maribank", "MariBank", "digital", "/logos/maribank.png",
-    "https://www.maribank.ph/product/savings", null,
-    "Formerly SeaBank. Daily interest crediting.", false, null, null,
-    [{ name: "MariBank Savings", tiers: [{ rate: 3.25, min_deposit: 0, max_deposit: 1000000 }, { rate: 3.75, min_deposit: 1000001, max_deposit: null }] }],
-    [],
-    "2026-03-15T00:00:00Z",
-    { avg: 4.9, play: 4.9, app: 4.9 }),
-
-  fb("gcash_gsave", "GCash GSave", "digital", "/logos/gcash.png",
-    "https://www.gcash.com/gsave", null,
-    "Powered by CIMB, via GCash app", false, null, null,
-    [{ name: "GSave", tiers: [{ rate: 2.6, min_deposit: 0, max_deposit: null }] }],
-    [],
-    "2026-03-10T00:00:00Z",
-    { avg: 3.6, play: 4.2, app: 3.0 }),
-
-  fb("maybank", "Maybank", "traditional", "/logos/maybank.png",
-    "https://www.maybank.com.ph/", null,
-    "ADDFLEX/ADDVANTAGE long-term TD available", false, null, null,
-    [{ name: "Peso Savings", tiers: [{ rate: 0.25, min_deposit: 0, max_deposit: null }] }],
-    [
-      { term_days: 30, rate: 1.500, min_deposit: 25000, max_deposit: null },
-      { term_days: 90, rate: 1.625, min_deposit: 25000, max_deposit: null },
-      { term_days: 360, rate: 1.750, min_deposit: 25000, max_deposit: null },
-      { term_days: 365, rate: 2.000, min_deposit: 0, max_deposit: null },
-      { term_days: 730, rate: 2.500, min_deposit: 0, max_deposit: null },
-      { term_days: 1825, rate: 2.000, min_deposit: 0, max_deposit: null },
-    ],
-    "2026-03-15T00:00:00Z",
-    { avg: 4.2, play: 3.3, app: 5.0 }),
-
-  fb("hsbc", "HSBC", "traditional", "/logos/hsbc.png",
-    "https://www.hsbc.com.ph/accounts/interest-rates/",
-    "https://www.hsbc.com.ph/accounts/interest-rates/",
-    "High Yield TD for Premier/Advance (min ₱100k)", false, null, null,
-    [{ name: "Peso Savings", tiers: [{ rate: 0.005, min_deposit: 0, max_deposit: null }] }],
-    [
-      { term_days: 30, rate: 0.125, min_deposit: 25000, max_deposit: 99999 },
-      { term_days: 30, rate: 2.425, min_deposit: 100000, max_deposit: 999999 },
-      { term_days: 30, rate: 2.925, min_deposit: 5000000, max_deposit: 10000000 },
-      { term_days: 90, rate: 2.550, min_deposit: 100000, max_deposit: 999999 },
-      { term_days: 90, rate: 3.050, min_deposit: 5000000, max_deposit: 10000000 },
-      { term_days: 180, rate: 2.800, min_deposit: 100000, max_deposit: 999999 },
-      { term_days: 180, rate: 3.300, min_deposit: 5000000, max_deposit: 10000000 },
-      { term_days: 365, rate: 3.000, min_deposit: 100000, max_deposit: 999999 },
-      { term_days: 365, rate: 3.500, min_deposit: 5000000, max_deposit: 10000000 },
-    ],
-    "2026-03-15T00:00:00Z",
-    { avg: 3.1, play: 4.5, app: 1.7 }),
-
-  fb("unobank", "UNOBank", "digital", "/logos/unobank.png",
-    "https://www.uno.bank/savings-account/",
-    "https://www.uno.bank/time-deposit/",
-    "Daily interest crediting. Free insurance at ₱10k ADB.", false, null, null,
-    [{ name: "#UNOready", tiers: [
-      { rate: 3.00, min_deposit: 0, max_deposit: 4999 },
-      { rate: 3.50, min_deposit: 5000, max_deposit: 4999999 },
-      { rate: 1.00, min_deposit: 5000000, max_deposit: null },
-    ]}],
-    [
-      { term_days: 90, rate: 4.00, min_deposit: 0, max_deposit: 500000 },
-      { term_days: 180, rate: 4.25, min_deposit: 0, max_deposit: 500000 },
-      { term_days: 300, rate: 4.50, min_deposit: 0, max_deposit: 500000 },
-      { term_days: 365, rate: 5.50, min_deposit: 0, max_deposit: 500000 },
-      { term_days: 730, rate: 5.00, min_deposit: 0, max_deposit: 500000 },
-    ],
-    "2026-03-15T00:00:00Z",
-    { avg: 4.4, play: 4.4, app: 4.4 }),
-];
-
-async function getData(): Promise<BankWithRates[]> {
-  try {
-    const banks = await getBanksWithRates();
-    if (banks.length > 0) return banks;
-  } catch (e) {
-    console.error("Supabase fetch failed, using fallback data:", e);
-  }
-  return FALLBACK_BANKS;
-}
-
-export default async function HomePage() {
-  const banks = await getData();
-  const tradBanks = banks.filter((b) => b.type === "traditional");
-  const digiBanks = banks.filter((b) => b.type === "digital");
-  const avgTraditional = tradBanks.reduce((s, b) => s + b.savings_rate, 0) / tradBanks.length;
-  const avgDigital = digiBanks.reduce((s, b) => s + b.savings_rate, 0) / digiBanks.length;
-  const multiplier = Math.round(avgDigital / avgTraditional);
+  const sourceUrl = depositType === "time_deposit" && bank.td_source_url ? bank.td_source_url : bank.source_url;
 
   return (
-    <div className="min-h-screen bg-[#f5f5f5]">
-      {/* Nav */}
-      <nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[720px] mx-auto">
-        <Link href="/" className="text-xl font-extrabold tracking-tight text-[#1a1a1a] no-underline">
-          alkansya<span className="text-[#00c853]">.ph</span>
-        </Link>
-        <NavMenu />
-      </nav>
-
-      {/* Main */}
-      <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">
-        <Dashboard banks={banks} avgTraditional={avgTraditional} avgDigital={avgDigital} multiplier={multiplier} />
-
-        {/* PDIC */}
-        <div className="mt-3 bg-white rounded-2xl px-5 py-4 flex gap-3 items-start">
-          <span className="text-xl">🛡️</span>
-          <p className="text-[12px] text-[#888] leading-relaxed">
-            <span className="font-bold text-[#1a1a1a]">PDIC insured up to ₱500,000.</span> All listed institutions are BSP-licensed. Digital and traditional deposits carry the same protection.
-          </p>
+    <div
+      id={`bank-${bank.id}`}
+      className={`bg-white rounded-2xl overflow-hidden transition-all ${isHighlighted ? "animate-bank-highlight ring-2 ring-[#00c853]" : ""}`}>
+      {/* Row */}
+      <div
+        onClick={() => setExpanded(!expanded)}
+        className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-[#fafafa] transition-colors">
+        <div className="flex items-center gap-3">
+          <img src={bank.logo} alt={bank.name} className="w-9 h-9 rounded-xl bg-[#f5f5f5] object-contain shrink-0" />
+          <div>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-bold text-[#1a1a1a]">{bank.name}</p>
+              {/* Desktop: gold stars next to name */}
+              {bank.avg_app_rating && (
+                <span className="hidden sm:inline-flex items-center gap-0.5 text-[11px] font-semibold text-[#c8940a]"
+                  title={`Play Store: ${bank.play_store_rating} · App Store: ${bank.app_store_rating}`}>
+                  <span className="text-[13px]">★</span> {bank.avg_app_rating}
+                </span>
+              )}
+            </div>
+            <p className="text-[11px] text-[#888]">
+              {bank.type === "digital" ? "Digital" : "Traditional"}
+              {/* Mobile: rating inline with type */}
+              {bank.avg_app_rating && (
+                <span className="sm:hidden ml-1.5 text-[#c8940a] font-semibold"
+                  title={`Play Store: ${bank.play_store_rating} · App Store: ${bank.app_store_rating}`}>
+                  ★ {bank.avg_app_rating}
+                </span>
+              )}
+            </p>
+          </div>
         </div>
+        <div className="text-right">
+          <p className={`text-xl sm:text-2xl font-extrabold tracking-tight ${rateColor}`}>{rateText}</p>
+          {amount > 0 && <p className="text-[11px] text-[#888] font-medium">{formatPeso(earnings)}/yr</p>}
+        </div>
+      </div>
 
-        {/* Footer */}
-        <footer className="mt-8 pt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-          <span className="text-sm font-bold text-[#888]">alkansya<span className="text-[#00c853]">.ph</span></span>
-          <p className="text-[10px] text-[#aaa] max-w-md sm:text-right leading-relaxed">
-            Rates are indicative and may not reflect real-time changes. Always verify directly with your bank. Alkansya.ph is an independent informational tool — not a financial advisor, broker, or bank.
-          </p>
-        </footer>
-      </main>
+      {/* Expanded */}
+      {expanded && (
+        <div className="px-5 pb-5 animate-fade-in">
+          {/* Savings products — FIRST */}
+          {depositType === "savings" && bank.savings_products.length > 0 && (
+            <div className="mb-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-2">
+                {bank.savings_products.length > 1 ? "Savings products" : "Savings rate"}
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {bank.savings_products.map((product, pi) => (
+                  <div key={pi} className="bg-[#f5f5f5] rounded-xl overflow-hidden">
+                    <div className="px-4 py-2.5 flex items-center justify-between">
+                      <p className="text-[13px] font-bold text-[#1a1a1a]">{product.name}</p>
+                      <p className={`text-sm font-extrabold ${
+                        product.best_rate >= 2 ? "text-[#00c853]" : product.best_rate >= 0.5 ? "text-[#1a1a1a]" : "text-[#888]"
+                      }`}>
+                        {product.min_rate === product.best_rate ? `${product.best_rate}%` : `${product.min_rate}%–${product.best_rate}%`}
+                      </p>
+                    </div>
+                    <div className="px-4 pb-2.5">
+                      {product.tiers.map((tier, ti) => {
+                        const tierLabel = tier.max_deposit
+                          ? `${formatPesoShort(tier.min_deposit)} – ${formatPesoShort(tier.max_deposit)}`
+                          : tier.min_deposit > 0 ? `${formatPesoShort(tier.min_deposit)}+` : "Any amount";
+                        const tierEarnings = calcInterest(Math.max(amount, tier.min_deposit), tier.rate);
+                        const isActive = amount > 0 && amount >= tier.min_deposit && (tier.max_deposit === null || amount <= tier.max_deposit);
+
+                        return (
+                          <div key={ti} className={`flex items-center justify-between py-1.5 ${
+                            ti > 0 ? "border-t border-black/5" : ""
+                          } ${isActive ? "text-[#1a1a1a]" : "text-[#888]"}`}>
+                            <div className="flex items-center gap-2">
+                              {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#00c853]" />}
+                              <span className="text-[11px]">{tierLabel}</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <span className={`text-sm font-bold ${
+                                tier.rate >= 2 ? "text-[#00c853]" : tier.rate >= 0.5 ? "text-[#1a1a1a]" : "text-[#888]"
+                              }`}>{tier.rate}%</span>
+                              {amount > 0 && <span className="text-[10px] text-[#888] w-[5rem] text-right">{formatPeso(tierEarnings)}/yr</span>}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* App rating — AFTER savings */}
+          {bank.avg_app_rating && (
+            <div className="mb-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-2">App rating</p>
+              <div className="flex gap-2">
+                <div className="rounded-xl px-3 py-2 flex items-center gap-2" style={{ background: 'linear-gradient(135deg, #4285F4 0%, #34A853 35%, #FBBC05 65%, #EA4335 100%)' }}>
+                  <span className="text-[11px] text-white/90 font-medium">Play Store</span>
+                  <span className="text-sm font-extrabold text-white">{bank.play_store_rating}</span>
+                </div>
+                <div className="rounded-xl px-3 py-2 flex items-center gap-2" style={{ background: 'linear-gradient(135deg, #00D2FF 0%, #1E90FF 50%, #007AFF 100%)' }}>
+                  <span className="text-[11px] text-white/90 font-medium">App Store</span>
+                  <span className="text-sm font-extrabold text-white">{bank.app_store_rating}</span>
+                </div>
+                <div className="bg-[#1a1a1a] rounded-xl px-3 py-2 flex items-center gap-2">
+                  <span className="text-[11px] text-white/60">Avg</span>
+                  <span className="text-sm font-extrabold text-white">{bank.avg_app_rating}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Time deposit terms */}
+          {depositType === "time_deposit" && bank.time_deposit_rates.length > 0 && (
+            <div className="mb-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-2">Time deposit terms</p>
+              <div className="flex flex-wrap gap-2">
+                {getUniqueTdTerms(bank.time_deposit_rates).map((term) => {
+                  const rate = amount > 0 ? getTdRateForAmount(bank.time_deposit_rates, term, amount) : bank.time_deposit_rates.find(r => r.term_days === term)?.rate || 0;
+                  return (
+                    <div key={term} className="bg-[#f5f5f5] rounded-xl px-4 py-3 text-center min-w-[80px]">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.5px] text-[#888]">{TERM_LABELS[term] || `${term}d`}</p>
+                      <p className={`text-lg font-extrabold mt-0.5 ${rate >= 2 ? "text-[#00c853]" : "text-[#1a1a1a]"}`}>{rate}%</p>
+                      {amount > 0 && <p className="text-[10px] text-[#888]">{formatPeso(calcInterest(amount, rate, term))}</p>}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {depositType === "time_deposit" && bank.time_deposit_rates.length === 0 && (
+            <div className="bg-[#f5f5f5] rounded-xl px-4 py-3 mb-4 max-w-sm">
+              <p className="text-sm text-[#888]">{bank.name} doesn&apos;t offer time deposit products.</p>
+            </div>
+          )}
+
+          {/* Footer: verified + source + flag */}
+          <div className="flex items-center gap-3 flex-wrap text-[11px] text-[#888]">
+            <span>
+              Verified {timeAgo(bank.last_verified)} · {sourceUrl ? (
+                <a href={sourceUrl} target="_blank" rel="noopener noreferrer"
+                  className="underline hover:text-[#1a1a1a]" onClick={(e) => e.stopPropagation()}>source</a>
+              ) : "manual"}
+            </span>
+            <FlagButton bankId={bank.id} />
+            {bank.has_promo && bank.promo_terms && (
+              <span className="px-2 py-0.5 bg-red-50 text-red-500 rounded-full text-[10px] font-medium">*{bank.promo_terms}</span>
+            )}
+            {bank.notes && <span className="text-[#aaa]">{bank.notes}</span>}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function RateTable({
+  banks,
+  amount,
+  highlightBankId,
+  onHighlightDone,
+}: {
+  banks: BankWithRates[];
+  amount: number;
+  highlightBankId: string | null;
+  onHighlightDone: () => void;
+}) {
+  const [depositType, setDepositType] = useState<"savings" | "time_deposit">("savings");
+  const [bankType, setBankType] = useState<"all" | "traditional" | "digital">("all");
+  const [showTdInfo, setShowTdInfo] = useState(false);
+  const [showAll, setShowAll] = useState(false);
+
+  const filtered = useMemo(() => {
+    let list = [...banks];
+    if (bankType !== "all") list = list.filter((b) => b.type === bankType);
+    list.sort((a, b) => {
+      const rateA = depositType === "savings"
+        ? getRateForAmount(a.savings_tiers, amount)
+        : getBestTdRate(a.time_deposit_rates, amount);
+      const rateB = depositType === "savings"
+        ? getRateForAmount(b.savings_tiers, amount)
+        : getBestTdRate(b.time_deposit_rates, amount);
+      return rateB - rateA;
+    });
+    return list;
+  }, [banks, depositType, bankType, amount]);
+
+  return (
+    <div>
+      {/* Tabs + Filters */}
+      <div className="flex flex-wrap items-center gap-2 mb-3">
+        <div className="flex bg-white rounded-full p-1">
+          <button onClick={() => { setDepositType("savings"); setShowAll(false); }}
+            className={`px-4 py-2 rounded-full text-[12px] font-semibold transition-all ${
+              depositType === "savings" ? "bg-[#1a1a1a] text-white" : "text-[#888] hover:text-[#1a1a1a]"
+            }`}>Savings</button>
+          <button onClick={() => { setDepositType("time_deposit"); setShowAll(false); }}
+            className={`px-4 py-2 rounded-full text-[12px] font-semibold transition-all ${
+              depositType === "time_deposit" ? "bg-[#1a1a1a] text-white" : "text-[#888] hover:text-[#1a1a1a]"
+            }`}>
+            Time deposit
+            <span onClick={(e) => { e.stopPropagation(); setShowTdInfo(true); }}
+              className="inline-flex items-center justify-center w-4 h-4 ml-1 rounded-full border border-current text-[9px] opacity-40 hover:opacity-100 transition-opacity"
+              title="What is a time deposit?">i</span>
+          </button>
+        </div>
+        <div className="flex bg-white rounded-full p-1">
+          {([["all", "All"], ["digital", "Digital"], ["traditional", "Trad."]] as const).map(([val, label]) => (
+            <button key={val} onClick={() => { setBankType(val as "all" | "traditional" | "digital"); setShowAll(false); }}
+              className={`px-3 py-2 rounded-full text-[12px] font-semibold transition-all ${
+                bankType === val ? "bg-[#1a1a1a] text-white" : "text-[#888] hover:text-[#1a1a1a]"
+              }`}>{label}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* Bank list */}
+      <div className="space-y-2">
+        {(showAll ? filtered : filtered.slice(0, 10)).map((bank) => (
+          <BankRow
+            key={bank.id}
+            bank={bank}
+            depositType={depositType}
+            amount={amount}
+            isHighlighted={highlightBankId === bank.id}
+          />
+        ))}
+        {filtered.length === 0 && <p className="text-center py-8 text-sm text-[#888]">No results match your filters</p>}
+        {!showAll && filtered.length > 10 && (
+          <div className="flex justify-center pb-4">
+            <button
+              onClick={() => setShowAll(true)}
+              className="px-6 py-2.5 rounded-full bg-white text-[13px] font-bold text-[#888] hover:text-[#1a1a1a] transition-colors">
+              Show more
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* TD Info Modal */}
+      {showTdInfo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4" onClick={() => setShowTdInfo(false)}>
+          <div className="absolute inset-0 bg-black/30" />
+          <div className="relative bg-white rounded-2xl p-6 max-w-sm w-full" onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => setShowTdInfo(false)}
+              className="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full hover:bg-[#f5f5f5] text-[#888] hover:text-[#1a1a1a] transition-colors text-lg">
+              &times;
+            </button>
+            <p className="text-base font-bold text-[#1a1a1a] mb-2">What is a time deposit?</p>
+            <p className="text-sm text-[#888] leading-relaxed">
+              A time deposit is a safe, fixed-term savings account where your money is locked in for a specific period in exchange for a higher interest rate than regular savings.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
