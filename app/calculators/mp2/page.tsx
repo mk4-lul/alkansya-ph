@@ -386,21 +386,21 @@ export default function MP2CalculatorPage() {
             ))}
           </div>
           <div className="relative text-center">
-            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/70 mb-2">
+            <p className="text-[13px] font-bold uppercase tracking-[1px] text-white/80 mb-2">
               Your savings after {years} {years === 1 ? "year" : "years"}
             </p>
-            <p className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white">
+            <p className="text-5xl sm:text-6xl font-extrabold tracking-tight text-white">
               {formatPeso(result.finalBalance)}
             </p>
             <div className="flex justify-center mt-4">
               <div className="bg-white/15 backdrop-blur-md rounded-2xl px-6 py-4 flex gap-8">
                 <div className="text-center">
-                  <p className="text-[11px] text-white/60 uppercase tracking-[0.5px]">Contributed</p>
-                  <p className="text-lg font-bold text-white">{formatPeso(result.totalDeposits)}</p>
+                  <p className="text-[12px] font-semibold text-white/70 uppercase tracking-[0.5px]">Contributed</p>
+                  <p className="text-xl font-extrabold text-white">{formatPeso(result.totalDeposits)}</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-[11px] text-[#FFD600]/80 uppercase tracking-[0.5px]">Dividends (tax-free)</p>
-                  <p className="text-lg font-bold text-[#FFD600]">{formatPeso(result.totalInterest)}</p>
+                  <p className="text-[12px] font-semibold text-[#FFD600]/80 uppercase tracking-[0.5px]">Dividends (tax-free)</p>
+                  <p className="text-xl font-extrabold text-[#FFD600]">{formatPeso(result.totalInterest)}</p>
                 </div>
               </div>
             </div>
@@ -409,7 +409,7 @@ export default function MP2CalculatorPage() {
               <div className="h-2 rounded-full bg-white/20 overflow-hidden">
                 <div className="h-full rounded-full bg-white transition-all duration-500" style={{ width: `${interestPct}%` }} />
               </div>
-              <p className="text-[11px] text-white/80 mt-1">{interestPct}% of your total is from dividends</p>
+              <p className="text-[12px] font-semibold text-white/80 mt-1">{interestPct}% of your total is from dividends</p>
             </div>
           </div>
         </div>
