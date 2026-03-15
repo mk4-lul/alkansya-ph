@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { formatPeso } from "@/lib/utils";
+import NavMenu from "@/components/NavMenu";
 
 const YEAR_OPTIONS = [1, 2, 3, 5, 10, 15, 20, 30];
 
@@ -124,9 +125,7 @@ export default function CalculatorPage() {
         <Link href="/" className="flex items-center gap-2 text-xl font-extrabold tracking-tight text-[#1a1a1a] no-underline">
           alkansya<span className="text-[#00c853]">.ph</span>
         </Link>
-        <Link href="/" className="text-[12px] font-semibold text-[#888] hover:text-[#1a1a1a] transition-colors no-underline">
-          ← Compare rates
-        </Link>
+        <NavMenu />
       </nav>
 
       <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">
