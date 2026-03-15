@@ -103,27 +103,7 @@ function BankRow({
       {/* Expanded */}
       {expanded && (
         <div className="px-5 pb-5 animate-fade-in">
-          {/* App rating */}
-          {bank.avg_app_rating && (
-            <div className="mb-4">
-              <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-2">App rating</p>
-              <div className="flex gap-2">
-                <div className="flex-1 bg-[#f5f5f5] rounded-xl px-4 py-3 flex items-center justify-between">
-                  <span className="text-[12px] text-[#888]">Play Store</span>
-                  <span className="text-lg font-extrabold text-[#1a1a1a]">{bank.play_store_rating}</span>
-                </div>
-                <div className="flex-1 bg-[#f5f5f5] rounded-xl px-4 py-3 flex items-center justify-between">
-                  <span className="text-[12px] text-[#888]">App Store</span>
-                  <span className="text-lg font-extrabold text-[#1a1a1a]">{bank.app_store_rating}</span>
-                </div>
-                <div className="bg-[#1a1a1a] rounded-xl px-4 py-3 flex items-center justify-between min-w-[100px]">
-                  <span className="text-[12px] text-white/60">Avg</span>
-                  <span className="text-lg font-extrabold text-white">{bank.avg_app_rating}</span>
-                </div>
-              </div>
-            </div>
-          )}
-          {/* Savings products */}
+          {/* Savings products — FIRST */}
           {depositType === "savings" && bank.savings_products.length > 0 && (
             <div className="mb-4">
               <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-2">
@@ -168,6 +148,29 @@ function BankRow({
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* App rating — AFTER savings */}
+          {bank.avg_app_rating && (
+            <div className="mb-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-2">App rating</p>
+              <div className="flex gap-2">
+                <div className="rounded-xl px-3 py-2 flex items-center gap-2" style={{ background: 'linear-gradient(135deg, #4285F4 0%, #34A853 35%, #FBBC05 65%, #EA4335 100%)' }}>
+                  <span className="text-white text-[12px]">▶</span>
+                  <span className="text-[11px] text-white/90 font-medium">Play Store</span>
+                  <span className="text-sm font-extrabold text-white">{bank.play_store_rating}</span>
+                </div>
+                <div className="rounded-xl px-3 py-2 flex items-center gap-2" style={{ background: 'linear-gradient(135deg, #00D2FF 0%, #1E90FF 50%, #007AFF 100%)' }}>
+                  <span className="text-white text-[12px] font-bold">A</span>
+                  <span className="text-[11px] text-white/90 font-medium">App Store</span>
+                  <span className="text-sm font-extrabold text-white">{bank.app_store_rating}</span>
+                </div>
+                <div className="bg-[#1a1a1a] rounded-xl px-3 py-2 flex items-center gap-2">
+                  <span className="text-[11px] text-white/60">Avg</span>
+                  <span className="text-sm font-extrabold text-white">{bank.avg_app_rating}</span>
+                </div>
               </div>
             </div>
           )}
