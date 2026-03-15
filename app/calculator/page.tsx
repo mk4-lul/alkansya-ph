@@ -151,14 +151,16 @@ export default function CalculatorPage() {
             <p className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white">
               {formatPeso(result.finalBalance)}
             </p>
-            <div className="flex justify-center gap-6 mt-4">
-              <div>
-                <p className="text-[11px] text-white/50 uppercase tracking-[0.5px]">Deposited</p>
-                <p className="text-lg font-bold text-white/90">{formatPeso(result.totalDeposits)}</p>
-              </div>
-              <div>
-                <p className="text-[11px] text-[#FFD600] uppercase tracking-[0.5px]">Interest earned</p>
-                <p className="text-lg font-bold text-[#FFD600]">{formatPeso(result.totalInterest)}</p>
+            <div className="flex justify-center mt-4">
+              <div className="bg-white/15 backdrop-blur-md rounded-2xl px-6 py-4 flex gap-8">
+                <div className="text-center">
+                  <p className="text-[11px] text-white/60 uppercase tracking-[0.5px]">Deposited</p>
+                  <p className="text-lg font-bold text-white">{formatPeso(result.totalDeposits)}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[11px] text-[#FFD600]/80 uppercase tracking-[0.5px]">Interest earned</p>
+                  <p className="text-lg font-bold text-[#FFD600]">{formatPeso(result.totalInterest)}</p>
+                </div>
               </div>
             </div>
             {/* Interest percentage bar */}
