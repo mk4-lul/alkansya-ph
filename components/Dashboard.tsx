@@ -28,6 +28,10 @@ export default function Dashboard({
           document.getElementById(`bank-${bankId}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
         }}
       />
+      <div className="flex items-center justify-end gap-2 px-1">
+        <div className="w-[6px] h-[6px] rounded-full bg-[#00c853] animate-pulse-dot" />
+        <span className="text-[11px] text-[#888]">Updated weekly</span>
+      </div>
       <RateTable banks={banks} amount={amount} highlightBankId={highlightBankId} onHighlightDone={() => setHighlightBankId(null)} />
     </div>
   );
