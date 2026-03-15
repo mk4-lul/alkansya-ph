@@ -67,9 +67,8 @@ export default function HeroCalculator({
 
         {/* Deposit amount input */}
         <div className="mb-5 sm:mb-6 max-w-sm">
-          <label className="block font-mono text-[11px] uppercase tracking-[2px] text-amber-400/70 mb-2">Deposit Amount</label>
           <select value={amount} onChange={(e) => onAmountChange(Number(e.target.value))}
-            className={`w-full px-4 py-3 sm:py-3.5 rounded-xl border-2 border-amber-400/30 bg-white/10 font-display text-base cursor-pointer hover:border-amber-400/50 transition-colors ${hasAmount ? "text-white" : "text-white/60"}`}>
+            className={`w-full px-4 py-3.5 sm:py-4 rounded-xl border-2 border-amber-400/30 bg-white/10 font-display text-base sm:text-lg font-semibold cursor-pointer hover:border-amber-400/50 transition-colors ${hasAmount ? "text-white" : "text-amber-400/70"}`}>
             {!hasAmount && <option value={0} style={{ background: "#14332a" }}>Select deposit amount</option>}
             {AMOUNT_BRACKETS.map((a) => (
               <option key={a.value} value={a.value} style={{ background: "#14332a" }}>{a.label}</option>
