@@ -2,82 +2,41 @@
 
 import { useState, useMemo, useRef } from "react";
 import Link from "next/link";
+import { formatPeso } from "@/lib/utils";
 import NavMenu from "@/components/NavMenu";
 
-// ─── Asset Price Data (approximate Jan 1 prices, USD) ────────────
-
-interface AssetData {
-  id: string;
-  name: string;
-  emoji: string;
-  prices: Record<number, number>; // year -> price on ~Jan 1
-  unit?: string;
-}
-
-const ASSETS: AssetData[] = [
-  {
-    id: "btc", name: "Bitcoin", emoji: "₿",
-    prices: { 2015: 314, 2016: 434, 2017: 998, 2018: 13850, 2019: 3747, 2020: 7200, 2021: 29000, 2022: 46300, 2023: 16540, 2024: 42280, 2025: 93400, 2026: 71500 },
-  },
-  {
-    id: "gold", name: "Gold", emoji: "🥇", unit: "/oz",
-    prices: { 2015: 1184, 2016: 1062, 2017: 1150, 2018: 1303, 2019: 1282, 2020: 1517, 2021: 1898, 2022: 1830, 2023: 1824, 2024: 2063, 2025: 2625, 2026: 5090 },
-  },
-  {
-    id: "silver", name: "Silver", emoji: "🥈", unit: "/oz",
-    prices: { 2015: 15.70, 2016: 13.80, 2017: 16.00, 2018: 17.00, 2019: 15.50, 2020: 17.80, 2021: 26.40, 2022: 23.30, 2023: 23.95, 2024: 23.80, 2025: 28.90, 2026: 84.44 },
-  },
-  {
-    id: "sp500", name: "S&P 500", emoji: "📈",
-    prices: { 2015: 2058, 2016: 2044, 2017: 2239, 2018: 2684, 2019: 2507, 2020: 3231, 2021: 3756, 2022: 4766, 2023: 3839, 2024: 4770, 2025: 5882, 2026: 6632 },
-  },
-  {
-    id: "psei", name: "PSEi Index", emoji: "🇵🇭",
-    prices: { 2015: 7231, 2016: 6952, 2017: 6841, 2018: 8558, 2019: 7466, 2020: 7815, 2021: 7023, 2022: 7362, 2023: 6566, 2024: 6572, 2025: 6580, 2026: 5900 },
-  },
-  {
-    id: "aapl", name: "Apple", emoji: "🍎",
-    prices: { 2015: 27.0, 2016: 26.3, 2017: 29.0, 2018: 43.1, 2019: 39.5, 2020: 73.4, 2021: 132.7, 2022: 182.0, 2023: 130.0, 2024: 185.6, 2025: 243.0, 2026: 228.0 },
-  },
-  {
-    id: "nvda", name: "Nvidia", emoji: "🟢",
-    prices: { 2015: 0.50, 2016: 0.82, 2017: 2.67, 2018: 5.88, 2019: 3.35, 2020: 5.90, 2021: 13.0, 2022: 29.4, 2023: 14.6, 2024: 49.5, 2025: 134.0, 2026: 114.0 },
-  },
-  {
-    id: "amzn", name: "Amazon", emoji: "📦",
-    prices: { 2015: 15.40, 2016: 33.83, 2017: 38.21, 2018: 59.25, 2019: 75.85, 2020: 92.50, 2021: 163.3, 2022: 166.7, 2023: 84.0, 2024: 152.0, 2025: 220.0, 2026: 205.0 },
-  },
-  {
-    id: "goog", name: "Google", emoji: "🔍",
-    prices: { 2015: 26.50, 2016: 38.75, 2017: 39.75, 2018: 52.58, 2019: 52.10, 2020: 67.20, 2021: 87.60, 2022: 144.7, 2023: 88.7, 2024: 140.3, 2025: 189.0, 2026: 170.0 },
-  },
+const MP2_HISTORY = [
+  { year: 2011, rate: 4.63 },
+  { year: 2012, rate: 4.67 },
+  { year: 2013, rate: 4.58 },
+  { year: 2014, rate: 4.69 },
+  { year: 2015, rate: 5.34 },
+  { year: 2016, rate: 7.43 },
+  { year: 2017, rate: 8.11 },
+  { year: 2018, rate: 7.41 },
+  { year: 2019, rate: 7.23 },
+  { year: 2020, rate: 6.12 },
+  { year: 2021, rate: 6.00 },
+  { year: 2022, rate: 7.03 },
+  { year: 2023, rate: 7.05 },
+  { year: 2024, rate: 7.10 },
+  { year: 2025, rate: 7.12 },
 ];
 
-const START_YEARS = [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025];
+const AVG_5YR = MP2_HISTORY.slice(-5).reduce((s, d) => s + d.rate, 0) / 5;
+const AVG_10YR = MP2_HISTORY.slice(-10).reduce((s, d) => s + d.rate, 0) / 10;
+const AVG_ALL = MP2_HISTORY.reduce((s, d) => s + d.rate, 0) / MP2_HISTORY.length;
 
-const AMOUNT_PRESETS = [
+const YEAR_OPTIONS = [5, 10, 15, 20];
+
+const MONTHLY_PRESETS = [
+  { label: "₱500", value: 500 },
+  { label: "₱1k", value: 1000 },
+  { label: "₱2.5k", value: 2500 },
+  { label: "₱5k", value: 5000 },
   { label: "₱10k", value: 10000 },
-  { label: "₱50k", value: 50000 },
-  { label: "₱100k", value: 100000 },
-  { label: "₱500k", value: 500000 },
-  { label: "₱1M", value: 1000000 },
-  { label: "₱5M", value: 5000000 },
+  { label: "₱25k", value: 25000 },
 ];
-
-const CURRENT_YEAR = 2026;
-
-function formatPeso(value: number): string {
-  if (value >= 1_000_000_000) return `₱${(value / 1_000_000_000).toFixed(2)}B`;
-  if (value >= 1_000_000) return `₱${(value / 1_000_000).toFixed(2)}M`;
-  if (value >= 1_000) return `₱${(value / 1_000).toFixed(value >= 10_000 ? 0 : 1)}k`;
-  return `₱${value.toFixed(0)}`;
-}
-
-function formatPercent(value: number): string {
-  const sign = value >= 0 ? "+" : "";
-  if (Math.abs(value) >= 10000) return `${sign}${(value / 100).toFixed(0)}x`;
-  return `${sign}${value.toFixed(0)}%`;
-}
 
 function formatWithCommas(n: number): string {
   if (!n) return "";
@@ -88,63 +47,102 @@ function parseFormatted(s: string): number {
   return Number(s.replace(/[^0-9]/g, "")) || 0;
 }
 
-// ─── Growth Chart ────────────────────────────────────────────────
+function computeMP2(monthly: number, annualRate: number, years: number) {
+  // MP2 dividends are computed on average daily balance, credited annually
+  // We approximate: monthly contributions compound at annual rate
+  const monthlyRate = annualRate / 100 / 12;
+  const months = years * 12;
+  const data: { month: number; balance: number; deposits: number }[] = [];
 
-function GrowthChart({ asset, startYear, amount, height = 280 }: { asset: AssetData; startYear: number; amount: number; height?: number }) {
-  const [hoverIdx, setHoverIdx] = useState<number | null>(null);
+  let balance = 0;
+  let totalDeposits = 0;
+
+  data.push({ month: 0, balance: 0, deposits: 0 });
+
+  for (let m = 1; m <= months; m++) {
+    balance += monthly;
+    totalDeposits += monthly;
+    const interest = balance * monthlyRate;
+    balance += interest;
+
+    if (years <= 5 || m % 3 === 0 || m === months) {
+      data.push({ month: m, balance, deposits: totalDeposits });
+    }
+  }
+
+  const totalInterest = balance - totalDeposits;
+  return { finalBalance: balance, totalDeposits, totalInterest, data };
+}
+
+// ─── Growth Chart (interactive) ────────────────────────────────────
+
+function GrowthChart({ data, height = 300 }: { data: { month: number; balance: number; deposits: number }[]; height?: number }) {
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
-
-  const years = Object.keys(asset.prices).map(Number).filter(y => y >= startYear).sort((a, b) => a - b);
-  const data = years.map(y => ({
-    year: y,
-    value: amount * (asset.prices[y] / asset.prices[startYear]),
-  }));
 
   if (data.length < 2) return null;
 
   const width = 600;
-  const padding = { top: 24, right: 20, bottom: 36, left: 20 };
+  const padding = { top: 20, right: 20, bottom: 36, left: 20 };
   const chartW = width - padding.left - padding.right;
   const chartH = height - padding.top - padding.bottom;
 
-  const maxVal = Math.max(...data.map(d => d.value)) * 1.05;
-  const minVal = Math.min(...data.map(d => d.value)) * 0.95;
-  const range = maxVal - minVal;
+  const maxBalance = Math.max(...data.map((d) => d.balance));
+  const maxMonth = data[data.length - 1].month;
 
-  const scaleX = (i: number) => padding.left + (i / (data.length - 1)) * chartW;
-  const scaleY = (v: number) => padding.top + chartH - ((v - minVal) / range) * chartH;
+  const scaleX = (month: number) => padding.left + (month / maxMonth) * chartW;
+  const scaleY = (val: number) => padding.top + chartH - (val / (maxBalance * 1.05)) * chartH;
 
-  const linePath = data.map((d, i) => `${i === 0 ? "M" : "L"}${scaleX(i)},${scaleY(d.value)}`).join(" ");
-  const areaPath = `${linePath} L${scaleX(data.length - 1)},${scaleY(minVal)} L${scaleX(0)},${scaleY(minVal)} Z`;
+  const balancePath = data.map((d, i) => `${i === 0 ? "M" : "L"}${scaleX(d.month)},${scaleY(d.balance)}`).join(" ");
+  const balanceArea = `${balancePath} L${scaleX(maxMonth)},${scaleY(0)} L${scaleX(0)},${scaleY(0)} Z`;
 
-  // Deposit baseline
-  const depositY = scaleY(amount);
+  const depositsPath = data.map((d, i) => `${i === 0 ? "M" : "L"}${scaleX(d.month)},${scaleY(d.deposits)}`).join(" ");
+  const depositsArea = `${depositsPath} L${scaleX(maxMonth)},${scaleY(0)} L${scaleX(0)},${scaleY(0)} Z`;
 
-  const isPositive = data[data.length - 1].value >= amount;
-  const color = isPositive ? "#00c853" : "#ff1744";
+  const years = maxMonth / 12;
+  const yearLabels: number[] = [];
+  if (years <= 5) {
+    for (let y = 0; y <= years; y++) yearLabels.push(y);
+  } else if (years <= 10) {
+    [0, 2.5, 5, 7.5, years].forEach(y => { if (!yearLabels.includes(y)) yearLabels.push(y); });
+  } else if (years <= 20) {
+    [0, 2.5, 5, 7.5, 10, 15, years].forEach(y => { if (!yearLabels.includes(y)) yearLabels.push(y); });
+  } else {
+    [0, 5, 10, 15, 20, years].forEach(y => { if (!yearLabels.includes(y)) yearLabels.push(y); });
+  }
+  yearLabels.sort((a, b) => a - b);
 
   const findClosest = (mouseX: number) => {
     const relX = Math.max(0, Math.min(1, (mouseX - padding.left) / chartW));
-    return Math.round(relX * (data.length - 1));
+    const targetMonth = relX * maxMonth;
+    let closest = 0;
+    let closestDist = Infinity;
+    data.forEach((d, i) => {
+      const dist = Math.abs(d.month - targetMonth);
+      if (dist < closestDist) { closestDist = dist; closest = i; }
+    });
+    return closest;
   };
 
   const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
     if (!svgRef.current) return;
     const rect = svgRef.current.getBoundingClientRect();
     const mouseX = ((e.clientX - rect.left) / rect.width) * width;
-    setHoverIdx(findClosest(mouseX));
+    setHoverIndex(findClosest(mouseX));
   };
 
   const handleTouchMove = (e: React.TouchEvent<SVGSVGElement>) => {
     if (!svgRef.current) return;
     const rect = svgRef.current.getBoundingClientRect();
     const mouseX = ((e.touches[0].clientX - rect.left) / rect.width) * width;
-    setHoverIdx(findClosest(mouseX));
+    setHoverIndex(findClosest(mouseX));
   };
 
-  const hoverData = hoverIdx !== null ? data[hoverIdx] : null;
-  const hoverX = hoverIdx !== null ? scaleX(hoverIdx) : 0;
-  const tooltipFlip = hoverX > width * 0.65;
+  const hoverData = hoverIndex !== null ? data[hoverIndex] : null;
+  const hoverX = hoverData ? scaleX(hoverData.month) : 0;
+  const hoverYearLabel = hoverData ? (hoverData.month / 12) : 0;
+  const hoverInterest = hoverData ? hoverData.balance - hoverData.deposits : 0;
+  const tooltipFlip = hoverX > width * 0.68;
 
   return (
     <svg
@@ -153,56 +151,52 @@ function GrowthChart({ asset, startYear, amount, height = 280 }: { asset: AssetD
       className="w-full cursor-crosshair"
       style={{ maxHeight: height }}
       onMouseMove={handleMouseMove}
-      onMouseLeave={() => setHoverIdx(null)}
+      onMouseLeave={() => setHoverIndex(null)}
       onTouchMove={handleTouchMove}
-      onTouchEnd={() => setHoverIdx(null)}
+      onTouchEnd={() => setHoverIndex(null)}
     >
       <defs>
-        <linearGradient id="assetGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.3" />
-          <stop offset="100%" stopColor={color} stopOpacity="0.03" />
+        <linearGradient id="mp2GreenGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#00c853" stopOpacity="0.4" />
+          <stop offset="100%" stopColor="#00c853" stopOpacity="0.05" />
+        </linearGradient>
+        <linearGradient id="mp2GrayGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#888" stopOpacity="0.2" />
+          <stop offset="100%" stopColor="#888" stopOpacity="0.05" />
         </linearGradient>
       </defs>
-      {/* Deposit baseline */}
-      <line x1={padding.left} y1={depositY} x2={width - padding.right} y2={depositY} stroke="#ccc" strokeWidth="1" strokeDasharray="6 4" />
-      <text x={width - padding.right - 4} y={depositY - 6} textAnchor="end" fontSize="10" fill="#aaa" fontFamily="Plus Jakarta Sans, sans-serif">
-        Invested
-      </text>
-      {/* Area + Line */}
-      <path d={areaPath} fill="url(#assetGrad)" />
-      <path d={linePath} fill="none" stroke={color} strokeWidth="2.5" strokeLinejoin="round" />
-      {/* Year labels */}
-      {data.map((d, i) => {
-        // Show every year if <=6 points, else skip some
-        const showLabel = data.length <= 7 || i === 0 || i === data.length - 1 || i % Math.ceil(data.length / 5) === 0;
-        if (!showLabel) return null;
-        return (
-          <text key={d.year} x={scaleX(i)} y={height - 4} textAnchor="middle" fontSize="12" fontWeight="600" fill="#888" fontFamily="Plus Jakarta Sans, sans-serif">
-            {d.year}
-          </text>
-        );
-      })}
-      {/* End value */}
-      {hoverIdx === null && (
-        <text x={scaleX(data.length - 1) - 4} y={scaleY(data[data.length - 1].value) - 10} textAnchor="end" fontSize="15" fontWeight="800" fill={color} fontFamily="Plus Jakarta Sans, sans-serif">
-          {formatPeso(data[data.length - 1].value)}
+      <path d={depositsArea} fill="url(#mp2GrayGrad)" />
+      <path d={depositsPath} fill="none" stroke="#ccc" strokeWidth="1.5" />
+      <path d={balanceArea} fill="url(#mp2GreenGrad)" />
+      <path d={balancePath} fill="none" stroke="#00c853" strokeWidth="2.5" strokeLinejoin="round" />
+      {yearLabels.map((y) => (
+        <text key={y} x={scaleX(y * 12)} y={height - 4} textAnchor="middle" fontSize="13" fontWeight="600" fill="#888" fontFamily="Plus Jakarta Sans, sans-serif">
+          {y % 1 === 0 ? y : y.toFixed(1)}yr
+        </text>
+      ))}
+      {hoverIndex === null && (
+        <text x={scaleX(maxMonth) - 4} y={scaleY(maxBalance) - 10} textAnchor="end" fontSize="15" fontWeight="800" fill="#00c853" fontFamily="Plus Jakarta Sans, sans-serif">
+          {formatPeso(maxBalance)}
         </text>
       )}
-      {/* Hover */}
       {hoverData && (
         <>
           <line x1={hoverX} y1={padding.top} x2={hoverX} y2={padding.top + chartH} stroke="#1a1a1a" strokeWidth="1" strokeDasharray="4 3" opacity="0.3" />
-          <circle cx={hoverX} cy={scaleY(hoverData.value)} r="5" fill={color} stroke="white" strokeWidth="2" />
-          <g transform={`translate(${tooltipFlip ? hoverX - 160 : hoverX + 10}, ${Math.max(padding.top, scaleY(hoverData.value) - 40)})`}>
-            <rect width="150" height="68" rx="10" fill="#1a1a1a" opacity="0.92" />
-            <text x="12" y="18" fontSize="12" fill="#888" fontFamily="Plus Jakarta Sans, sans-serif" fontWeight="600">
-              Jan {hoverData.year}
+          <circle cx={hoverX} cy={scaleY(hoverData.balance)} r="5" fill="#00c853" stroke="white" strokeWidth="2" />
+          <circle cx={hoverX} cy={scaleY(hoverData.deposits)} r="4" fill="#ccc" stroke="white" strokeWidth="2" />
+          <g transform={`translate(${tooltipFlip ? hoverX - 170 : hoverX + 10}, ${Math.max(padding.top, scaleY(hoverData.balance) - 50)})`}>
+            <rect width="160" height="90" rx="10" fill="#1a1a1a" opacity="0.92" />
+            <text x="12" y="20" fontSize="12" fill="#888" fontFamily="Plus Jakarta Sans, sans-serif" fontWeight="600">
+              Year {hoverYearLabel % 1 === 0 ? hoverYearLabel.toFixed(0) : hoverYearLabel.toFixed(1)}
             </text>
-            <text x="12" y="38" fontSize="15" fill="white" fontFamily="Plus Jakarta Sans, sans-serif" fontWeight="800">
-              {formatPeso(hoverData.value)}
+            <text x="12" y="40" fontSize="15" fill="white" fontFamily="Plus Jakarta Sans, sans-serif" fontWeight="800">
+              {formatPeso(hoverData.balance)}
             </text>
-            <text x="12" y="56" fontSize="11" fill={color} fontFamily="Plus Jakarta Sans, sans-serif" fontWeight="700">
-              {formatPercent(((hoverData.value - amount) / amount) * 100)}
+            <text x="12" y="58" fontSize="11" fill="#888" fontFamily="Plus Jakarta Sans, sans-serif" fontWeight="500">
+              Deposited: {formatPeso(hoverData.deposits)}
+            </text>
+            <text x="12" y="76" fontSize="11" fill="#00c853" fontFamily="Plus Jakarta Sans, sans-serif" fontWeight="700">
+              Dividends: {formatPeso(hoverInterest)}
             </text>
           </g>
         </>
@@ -211,73 +205,93 @@ function GrowthChart({ asset, startYear, amount, height = 280 }: { asset: AssetD
   );
 }
 
-// ─── All Assets Comparison Bar ────────────────────────────────────
+// ─── Historical Rate Chart ────────────────────────────────────────
 
-function ComparisonBars({ startYear, amount }: { startYear: number; amount: number }) {
-  const sorted = ASSETS
-    .filter(a => a.prices[startYear] && a.prices[CURRENT_YEAR])
-    .map(a => ({
-      ...a,
-      multiplier: a.prices[CURRENT_YEAR] / a.prices[startYear],
-      currentValue: amount * (a.prices[CURRENT_YEAR] / a.prices[startYear]),
-    }))
-    .sort((a, b) => b.multiplier - a.multiplier);
+function HistoryChart({ height = 220 }: { height?: number }) {
+  const [hoverIdx, setHoverIdx] = useState<number | null>(null);
 
-  const maxMult = Math.max(...sorted.map(s => s.multiplier));
+  const width = 600;
+  const padding = { top: 24, right: 12, bottom: 32, left: 12 };
+  const chartW = width - padding.left - padding.right;
+  const chartH = height - padding.top - padding.bottom;
+
+  const maxRate = Math.max(...MP2_HISTORY.map((d) => d.rate));
+  const barWidth = chartW / MP2_HISTORY.length;
+  const barGap = 4;
 
   return (
-    <div className="space-y-2">
-      {sorted.map((a, i) => {
-        const pct = (a.multiplier / maxMult) * 100;
-        const isPositive = a.multiplier >= 1;
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      className="w-full cursor-pointer"
+      style={{ maxHeight: height }}
+      onMouseLeave={() => setHoverIdx(null)}
+      onTouchEnd={() => setHoverIdx(null)}
+    >
+      {MP2_HISTORY.map((d, i) => {
+        const x = padding.left + i * barWidth + barGap / 2;
+        const barH = (d.rate / (maxRate * 1.15)) * chartH;
+        const y = padding.top + chartH - barH;
+        const isHovered = hoverIdx === i;
+        const isRecent = i >= MP2_HISTORY.length - 5;
+
         return (
-          <div key={a.id} className="flex items-center gap-3">
-            <span className="text-lg w-7 text-center shrink-0">{a.emoji}</span>
-            <div className="flex-1">
-              <div className="flex items-center justify-between mb-0.5">
-                <span className="text-[12px] font-bold text-[#1a1a1a]">{a.name}</span>
-                <span className={`text-[12px] font-extrabold ${isPositive ? "text-[#00c853]" : "text-[#ff1744]"}`}>
-                  {formatPeso(a.currentValue)}
-                </span>
-              </div>
-              <div className="h-2 rounded-full bg-[#f0f0f0] overflow-hidden">
-                <div
-                  className="h-full rounded-full transition-all duration-500"
-                  style={{
-                    width: `${Math.max(2, pct)}%`,
-                    backgroundColor: isPositive ? "#00c853" : "#ff1744",
-                    opacity: i === 0 ? 1 : 0.4 + (0.6 * (1 - i / sorted.length)),
-                  }}
-                />
-              </div>
-              <div className="flex justify-between mt-0.5">
-                <span className="text-[10px] text-[#aaa]">{a.multiplier.toFixed(1)}x</span>
-                <span className={`text-[10px] ${isPositive ? "text-[#00c853]" : "text-[#ff1744]"}`}>
-                  {formatPercent((a.multiplier - 1) * 100)}
-                </span>
-              </div>
-            </div>
-          </div>
+          <g key={d.year}
+            onMouseEnter={() => setHoverIdx(i)}
+            onTouchStart={() => setHoverIdx(i)}
+          >
+            <rect
+              x={x} y={y}
+              width={barWidth - barGap}
+              height={barH}
+              rx="4"
+              fill={isHovered ? "#00c853" : isRecent ? "#00c853" : "#e0e0e0"}
+              opacity={isHovered ? 1 : isRecent ? 0.6 : 0.8}
+              className="transition-all duration-150"
+            />
+            {/* Rate on top of bar */}
+            <text
+              x={x + (barWidth - barGap) / 2}
+              y={y - 6}
+              textAnchor="middle"
+              fontSize={isHovered ? "13" : "10"}
+              fontWeight={isHovered ? "800" : "600"}
+              fill={isHovered ? "#00c853" : "#aaa"}
+              fontFamily="Plus Jakarta Sans, sans-serif"
+            >
+              {d.rate}%
+            </text>
+            {/* Year label */}
+            <text
+              x={x + (barWidth - barGap) / 2}
+              y={height - 6}
+              textAnchor="middle"
+              fontSize="10"
+              fontWeight={isHovered ? "700" : "500"}
+              fill={isHovered ? "#1a1a1a" : "#aaa"}
+              fontFamily="Plus Jakarta Sans, sans-serif"
+            >
+              {`'${String(d.year).slice(2)}`}
+            </text>
+          </g>
         );
       })}
-    </div>
+    </svg>
   );
 }
 
 // ─── Page ─────────────────────────────────────────────────────────
 
-export default function InvestmentCalculatorPage() {
-  const [asset, setAsset] = useState<AssetData>(ASSETS[0]); // bitcoin default
-  const [startYear, setStartYear] = useState(2015);
-  const [amount, setAmount] = useState(100000);
+export default function MP2CalculatorPage() {
+  const [monthly, setMonthly] = useState(5000);
+  const [years, setYears] = useState(5);
+  const [rateMode, setRateMode] = useState<"latest" | "5yr" | "10yr">("latest");
 
-  const entryPrice = asset.prices[startYear];
-  const currentPrice = asset.prices[CURRENT_YEAR];
-  const multiplier = currentPrice / entryPrice;
-  const currentValue = amount * multiplier;
-  const gain = currentValue - amount;
-  const gainPct = ((multiplier - 1) * 100);
-  const isPositive = gain >= 0;
+  const rate = rateMode === "latest" ? MP2_HISTORY[MP2_HISTORY.length - 1].rate
+    : rateMode === "5yr" ? AVG_5YR : AVG_10YR;
+
+  const result = useMemo(() => computeMP2(monthly, rate, years), [monthly, rate, years]);
+
+  const interestPct = result.finalBalance > 0 ? ((result.totalInterest / result.finalBalance) * 100).toFixed(1) : "0";
 
   return (
     <div className="min-h-screen bg-[#f5f5f5]">
@@ -290,98 +304,19 @@ export default function InvestmentCalculatorPage() {
       </nav>
 
       <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1a1a1a] tracking-tight mb-4">What if you invested?</h1>
-
-        {/* Hero result card */}
-        <div className="bg-[#00c853] rounded-[20px] p-6 sm:p-8 mb-3 relative overflow-hidden">
-          <div className="absolute inset-0 pointer-events-none select-none" style={{ filter: "blur(2px)" }} aria-hidden="true">
-            {['💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈'].map((e, i) => (
-              <span key={i} className="absolute text-[22px] sm:text-[28px]" style={{
-                left: `${(i * 17.3 + i * i * 3.7) % 100}%`,
-                top: `${(i * 13.1 + i * i * 2.3) % 100}%`,
-                opacity: 0.75,
-                transform: `rotate(${(i * 37) % 360}deg)`,
-              }}>{e}</span>
-            ))}
-          </div>
-          <div className="relative text-center">
-            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/70 mb-2">
-              {formatPeso(amount)} in {asset.name} since Jan {startYear}
-            </p>
-            <p className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white">
-              {formatPeso(currentValue)}
-            </p>
-            <div className="flex justify-center mt-4">
-              <div className="bg-white/15 backdrop-blur-md rounded-2xl px-6 py-4 flex gap-8">
-                <div className="text-center">
-                  <p className="text-[11px] text-white/60 uppercase tracking-[0.5px]">Invested</p>
-                  <p className="text-lg font-bold text-white">{formatPeso(amount)}</p>
-                </div>
-                <div className="text-center">
-                  <p className={`text-[11px] ${isPositive ? "text-[#FFD600]/80" : "text-red-300"} uppercase tracking-[0.5px]`}>
-                    {isPositive ? "Gain" : "Loss"}
-                  </p>
-                  <p className={`text-lg font-bold ${isPositive ? "text-[#FFD600]" : "text-red-300"}`}>
-                    {formatPeso(Math.abs(gain))} ({formatPercent(gainPct)})
-                  </p>
-                </div>
-              </div>
-            </div>
-            <p className="text-[11px] text-white/60 mt-3">{multiplier.toFixed(2)}x return in {CURRENT_YEAR - startYear} {CURRENT_YEAR - startYear === 1 ? "year" : "years"}</p>
-          </div>
-        </div>
-
-        {/* Chart */}
-        <div className="bg-white rounded-[20px] p-5 sm:p-6 mb-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Value over time</p>
-          <GrowthChart asset={asset} startYear={startYear} amount={amount} />
-        </div>
-
-        {/* Comparison */}
-        <div className="bg-white rounded-[20px] p-5 sm:p-6 mb-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-1">All assets compared</p>
-          <p className="text-[10px] text-[#aaa] mb-4">{formatPeso(amount)} invested in Jan {startYear} → today</p>
-          <ComparisonBars startYear={startYear} amount={amount} />
-        </div>
+        {/* Page title */}
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1a1a1a] tracking-tight mb-4">Pag-IBIG MP2 Calculator</h1>
 
         {/* Inputs */}
-        <div className="space-y-3">
-          {/* Asset selector */}
+        <div className="space-y-3 mb-3">
+          {/* Monthly contribution */}
           <div className="bg-white rounded-[20px] p-5 sm:p-6">
-            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Choose an asset</p>
-            <div className="grid grid-cols-3 gap-2">
-              {ASSETS.map((a) => (
-                <button key={a.id} onClick={() => setAsset(a)}
-                  className={`py-2.5 rounded-xl text-[12px] font-bold transition-all flex items-center justify-center gap-1.5 ${
-                    asset.id === a.id ? "bg-[#1a1a1a] text-white" : "bg-[#f5f5f5] text-[#1a1a1a] hover:bg-[#e8e8e8]"
-                  }`}>
-                  <span className="text-sm">{a.emoji}</span> {a.name}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Start year */}
-          <div className="bg-white rounded-[20px] p-5 sm:p-6">
-            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">When did you invest?</p>
-            <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
-              {START_YEARS.map((y) => (
-                <button key={y} onClick={() => setStartYear(y)}
-                  className={`py-2.5 rounded-xl text-[12px] font-bold transition-all ${
-                    startYear === y ? "bg-[#1a1a1a] text-white" : "bg-[#f5f5f5] text-[#1a1a1a] hover:bg-[#e8e8e8]"
-                  }`}>{y}</button>
-              ))}
-            </div>
-          </div>
-
-          {/* Amount */}
-          <div className="bg-white rounded-[20px] p-5 sm:p-6">
-            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">How much did you invest?</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Monthly contribution</p>
             <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-              {AMOUNT_PRESETS.map((p) => (
-                <button key={p.value} onClick={() => setAmount(p.value)}
+              {MONTHLY_PRESETS.map((p) => (
+                <button key={p.value} onClick={() => setMonthly(p.value)}
                   className={`py-2.5 rounded-xl text-[13px] font-bold transition-all ${
-                    amount === p.value ? "bg-[#1a1a1a] text-white" : "bg-[#f5f5f5] text-[#1a1a1a] hover:bg-[#e8e8e8]"
+                    monthly === p.value ? "bg-[#1a1a1a] text-white" : "bg-[#f5f5f5] text-[#1a1a1a] hover:bg-[#e8e8e8]"
                   }`}>{p.label}</button>
               ))}
             </div>
@@ -392,19 +327,136 @@ export default function InvestmentCalculatorPage() {
                 <input
                   type="text"
                   inputMode="numeric"
-                  value={formatWithCommas(amount)}
-                  onChange={(e) => setAmount(parseFormatted(e.target.value))}
+                  value={formatWithCommas(monthly)}
+                  onChange={(e) => setMonthly(parseFormatted(e.target.value))}
                   className="flex-1 bg-transparent text-sm font-bold text-[#1a1a1a] outline-none"
                   placeholder="0"
                 />
               </div>
             </div>
+            <p className="text-[10px] text-[#aaa] mt-2">Minimum ₱500/month</p>
+          </div>
+
+          {/* Dividend rate assumption */}
+          <div className="bg-white rounded-[20px] p-5 sm:p-6">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888]">Projected dividend rate</p>
+              <p className="text-2xl font-extrabold text-[#00c853]">{rate.toFixed(2)}%</p>
+            </div>
+            <div className="flex bg-[#f5f5f5] rounded-full p-1">
+              {([
+                ["latest", `Latest (${MP2_HISTORY[MP2_HISTORY.length - 1].rate}%)`],
+                ["5yr", `5yr avg (${AVG_5YR.toFixed(1)}%)`],
+                ["10yr", `10yr avg (${AVG_10YR.toFixed(1)}%)`],
+              ] as const).map(([val, label]) => (
+                <button key={val} onClick={() => setRateMode(val as "latest" | "5yr" | "10yr")}
+                  className={`flex-1 py-2 rounded-full text-[11px] font-semibold transition-all ${
+                    rateMode === val ? "bg-[#00c853] text-white" : "text-[#888] hover:text-[#1a1a1a]"
+                  }`}>{label}</button>
+              ))}
+            </div>
+          </div>
+
+          {/* Time period */}
+          <div className="bg-white rounded-[20px] p-5 sm:p-6">
+            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Savings period</p>
+            <div className="grid grid-cols-4 gap-2">
+              {YEAR_OPTIONS.map((y) => (
+                <button key={y} onClick={() => setYears(y)}
+                  className={`py-2.5 rounded-xl text-[13px] font-bold transition-all ${
+                    years === y ? "bg-[#1a1a1a] text-white" : "bg-[#f5f5f5] text-[#1a1a1a] hover:bg-[#e8e8e8]"
+                  }`}>{y}yr</button>
+              ))}
+            </div>
+            <p className="text-[10px] text-[#aaa] mt-2">MP2 has a 5-year lock-in. You can renew for another 5 years.</p>
+          </div>
+        </div>
+
+        {/* Hero result card */}
+        <div className="bg-[#1565C0] rounded-[20px] p-6 sm:p-8 mb-3 relative overflow-hidden">
+          {/* Scattered emojis */}
+          <div className="absolute inset-0 pointer-events-none select-none" style={{ filter: "blur(2px)" }} aria-hidden="true">
+            {['💵','🏠','🏡','🏦','🏛️','❤️','💵','🏠','🏡','🏦','🏛️','❤️','💵','🏠','🏡','🏦','🏛️','❤️','💵','🏠','🏡','🏦','🏛️','❤️','💵','🏠','🏡','🏦','🏛️','❤️'].map((e, i) => (
+              <span key={i} className="absolute text-[22px] sm:text-[28px]" style={{
+                left: `${(i * 17.3 + i * i * 3.7) % 100}%`,
+                top: `${(i * 13.1 + i * i * 2.3) % 100}%`,
+                opacity: 0.75,
+                transform: `rotate(${(i * 37) % 360}deg)`,
+              }}>{e}</span>
+            ))}
+          </div>
+          <div className="relative text-center">
+            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/70 mb-2">
+              Your savings after {years} {years === 1 ? "year" : "years"}
+            </p>
+            <p className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white">
+              {formatPeso(result.finalBalance)}
+            </p>
+            <div className="flex justify-center mt-4">
+              <div className="bg-white/15 backdrop-blur-md rounded-2xl px-6 py-4 flex gap-8">
+                <div className="text-center">
+                  <p className="text-[11px] text-white/60 uppercase tracking-[0.5px]">Contributed</p>
+                  <p className="text-lg font-bold text-white">{formatPeso(result.totalDeposits)}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[11px] text-[#FFD600]/80 uppercase tracking-[0.5px]">Dividends (tax-free)</p>
+                  <p className="text-lg font-bold text-[#FFD600]">{formatPeso(result.totalInterest)}</p>
+                </div>
+              </div>
+            </div>
+            {/* Progress bar */}
+            <div className="mt-4 max-w-[300px] mx-auto">
+              <div className="h-2 rounded-full bg-white/20 overflow-hidden">
+                <div className="h-full rounded-full bg-white transition-all duration-500" style={{ width: `${interestPct}%` }} />
+              </div>
+              <p className="text-[11px] text-white/80 mt-1">{interestPct}% of your total is from dividends</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Growth Chart */}
+        <div className="bg-white rounded-[20px] p-5 sm:p-6 mb-3">
+          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Projected growth</p>
+          <GrowthChart data={result.data} />
+          <div className="flex justify-center gap-6 mt-2">
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-[3px] rounded-full bg-[#00c853]" />
+              <span className="text-[10px] text-[#888]">Total value</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-[3px] rounded-full bg-[#ccc]" />
+              <span className="text-[10px] text-[#888]">Contributions only</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Historical Dividend Rates */}
+        <div className="bg-white rounded-[20px] p-5 sm:p-6 mb-3">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888]">MP2 dividend rate history</p>
+            <p className="text-[11px] text-[#888]">Avg: <span className="font-bold text-[#1a1a1a]">{AVG_ALL.toFixed(2)}%</span></p>
+          </div>
+          <HistoryChart />
+          <div className="flex justify-center gap-4 mt-3">
+            <span className="text-[10px] text-[#888]">5yr avg: <span className="font-bold text-[#1a1a1a]">{AVG_5YR.toFixed(2)}%</span></span>
+            <span className="text-[10px] text-[#888]">10yr avg: <span className="font-bold text-[#1a1a1a]">{AVG_10YR.toFixed(2)}%</span></span>
+          </div>
+        </div>
+
+
+        {/* Info card */}
+        <div className="mt-3 bg-white rounded-[20px] p-5 sm:p-6">
+          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">About Pag-IBIG MP2</p>
+          <div className="space-y-2 text-[13px] text-[#666] leading-relaxed">
+            <p><span className="font-bold text-[#1a1a1a]">Tax-free dividends.</span> MP2 earnings are exempt from income tax, making it one of the highest-yielding government savings programs.</p>
+            <p><span className="font-bold text-[#1a1a1a]">5-year lock-in.</span> Your contributions are locked for 5 years. After maturity, you can withdraw or renew for another term.</p>
+            <p><span className="font-bold text-[#1a1a1a]">Dividends vary yearly.</span> The rates shown are historical — future rates depend on fund performance. This calculator uses a fixed rate for projection purposes.</p>
           </div>
         </div>
 
         {/* CTA */}
         <div className="mt-3 bg-white rounded-[20px] p-5 sm:p-6 text-center">
-          <p className="text-sm text-[#888] mb-3">Want to grow your money with less risk?</p>
+          <p className="text-sm text-[#888] mb-3">Compare with savings accounts and time deposits</p>
           <Link href="/rates"
             className="inline-block bg-[#00c853] text-white font-bold text-sm px-6 py-3 rounded-full hover:bg-[#00a844] transition-colors no-underline">
             Compare rates →
@@ -415,7 +467,7 @@ export default function InvestmentCalculatorPage() {
         <footer className="mt-8 pt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
           <span className="text-sm font-bold text-[#888]">alkansya<span className="text-[#00c853]">.ph</span></span>
           <p className="text-[10px] text-[#aaa] max-w-md sm:text-right leading-relaxed">
-            Prices are approximate (Jan 1 each year, USD-denominated). Stock prices are split-adjusted. This is for illustrative purposes only — not financial advice. Past performance does not guarantee future results.
+            This calculator is for illustrative purposes only. MP2 dividend rates vary each year based on fund performance. Always verify with Pag-IBIG Fund directly.
           </p>
         </footer>
       </main>
