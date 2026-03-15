@@ -64,9 +64,6 @@ export default function HeroCalculator({
         style={{ background: "radial-gradient(circle, rgba(200,148,10,0.15) 0%, transparent 70%)" }} />
 
       <div className="relative z-10">
-        <p className="font-mono text-[10px] sm:text-[11px] uppercase tracking-[3px] text-amber-400 mb-5 sm:mb-6">
-          Opportunity Cost Calculator
-        </p>
 
         {/* Deposit amount input */}
         <div className="mb-5 sm:mb-6 max-w-xs">
@@ -80,47 +77,39 @@ export default function HeroCalculator({
           </select>
         </div>
 
-        {/* Top 3 banks or prompt */}
-        <div className="rounded-xl sm:rounded-2xl p-4 sm:p-6 border" style={{ background: "rgba(0,0,0,0.2)", borderColor: "rgba(200,148,10,0.15)" }}>
-          {hasAmount && top3.length > 0 ? (
-            <>
-              <p className="font-mono text-[9px] uppercase tracking-[2px] text-white/40 mb-4">Best rates for your amount</p>
-              {/* key={amount} forces remount on amount change, retriggering CSS animations */}
-              <div key={amount} className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-                {top3.map((bank, i) => {
-                  const rate = getRateForAmount(bank.savings_tiers, amount);
-                  const earnings = calcInterest(amount, rate);
-                  const isFirst = i === 0;
+        {/* Top 3 banks — only shown after amount selected */}
+        {hasAmount && top3.length > 0 && (
+          <div className="rounded-xl sm:rounded-2xl p-4 sm:p-6 border" style={{ background: "rgba(0,0,0,0.2)", borderColor: "rgba(200,148,10,0.15)" }}>
+            <p className="font-mono text-[9px] uppercase tracking-[2px] text-white/40 mb-4">Best rates for your amount</p>
+            {/* key={amount} forces remount on amount change, retriggering CSS animations */}
+            <div key={amount} className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+              {top3.map((bank, i) => {
+                const rate = getRateForAmount(bank.savings_tiers, amount);
+                const earnings = calcInterest(amount, rate);
+                const isFirst = i === 0;
 
-                  return (
-                    <div key={bank.id}
-                      onClick={() => onBankClick(bank.id)}
-                      className={`rounded-xl px-4 py-3.5 sm:py-4 border cursor-pointer transition-all duration-200 hover:scale-[1.02] ${cardAnimations[i]} ${
-                        isFirst
-                          ? "border-amber-400/30 bg-amber-400/[0.08] hover:border-amber-400/50"
-                          : "border-white/10 bg-white/[0.03] hover:border-white/25"
-                      }`}>
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-base">{medals[i]}</span>
-                        <p className="font-display text-sm font-semibold text-white">{bank.name}</p>
-                      </div>
-                      <p className={`font-display text-2xl sm:text-3xl font-extrabold ${rateColors[i]}`}>{rate}%</p>
-                      <p className={`font-display text-sm font-bold mt-1 ${earningsColors[i]}`}>
-                        <AnimatedNumber value={earnings} prefix="₱" suffix="/yr" />
-                      </p>
+                return (
+                  <div key={bank.id}
+                    onClick={() => onBankClick(bank.id)}
+                    className={`rounded-xl px-4 py-3.5 sm:py-4 border cursor-pointer transition-all duration-200 hover:scale-[1.02] ${cardAnimations[i]} ${
+                      isFirst
+                        ? "border-amber-400/30 bg-amber-400/[0.08] hover:border-amber-400/50"
+                        : "border-white/10 bg-white/[0.03] hover:border-white/25"
+                    }`}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-base">{medals[i]}</span>
+                      <p className="font-display text-sm font-semibold text-white">{bank.name}</p>
                     </div>
-                  );
-                })}
-              </div>
-            </>
-          ) : (
-            <div className="text-center py-4 sm:py-6">
-              <p className="font-display text-base sm:text-lg text-white/40">
-                Select a deposit amount to see the best rates
-              </p>
+                    <p className={`font-display text-2xl sm:text-3xl font-extrabold ${rateColors[i]}`}>{rate}%</p>
+                    <p className={`font-display text-sm font-bold mt-1 ${earningsColors[i]}`}>
+                      <AnimatedNumber value={earnings} prefix="₱" suffix="/yr" />
+                    </p>
+                  </div>
+                );
+              })}
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
