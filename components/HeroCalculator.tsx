@@ -91,26 +91,34 @@ export default function HeroCalculator({
         {!hasAmount && (
           <div className="text-center">
             <p className="font-display text-sm sm:text-base text-white/70 mb-3">How much are you saving?</p>
-            <select value={amount} onChange={(e) => onAmountChange(Number(e.target.value))}
-              className="px-5 pr-16 py-3 sm:py-3.5 rounded-xl border-2 border-amber-400/30 bg-white/10 font-display text-base sm:text-lg font-medium cursor-pointer hover:border-amber-400/50 transition-colors text-white min-w-[240px]">
-              <option value={0} style={{ background: "#14332a" }}>Select deposit amount</option>
-              {AMOUNT_BRACKETS.map((a) => (
-                <option key={a.value} value={a.value} style={{ background: "#14332a" }}>{a.label}</option>
-              ))}
-            </select>
+          <div className="relative min-w-[260px] inline-block">
+              <select value={amount} onChange={(e) => onAmountChange(Number(e.target.value))}
+                className="w-full appearance-none px-5 pr-12 py-3 sm:py-3.5 rounded-xl border-2 border-amber-400/30 bg-white/10 font-display text-base sm:text-lg font-medium cursor-pointer hover:border-amber-400/50 transition-colors text-white">
+                <option value={0} style={{ background: "#14332a" }}>Select deposit amount</option>
+                {AMOUNT_BRACKETS.map((a) => (
+                  <option key={a.value} value={a.value} style={{ background: "#14332a" }}>{a.label}</option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-white/60">
+                <svg width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </div>
+            </div>
           </div>
         )}
 
         {/* Active state — amount selected, show dropdown + results */}
         {hasAmount && (
           <>
-            <div className="mb-5 sm:mb-6 max-w-xs">
+            <div className="mb-5 sm:mb-6 max-w-xs relative">
               <select value={amount} onChange={(e) => onAmountChange(Number(e.target.value))}
-                className="w-full px-4 pr-16 py-3 sm:py-3.5 rounded-xl border-2 border-amber-400/30 bg-white/10 font-display text-base sm:text-lg font-medium cursor-pointer hover:border-amber-400/50 transition-colors text-white">
+                className="w-full appearance-none px-4 pr-12 py-3 sm:py-3.5 rounded-xl border-2 border-amber-400/30 bg-white/10 font-display text-base sm:text-lg font-medium cursor-pointer hover:border-amber-400/50 transition-colors text-white">
                 {AMOUNT_BRACKETS.map((a) => (
                   <option key={a.value} value={a.value} style={{ background: "#14332a" }}>{a.label}</option>
                 ))}
               </select>
+              <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-white/60">
+                <svg width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </div>
             </div>
 
             {top3.length > 0 && (
