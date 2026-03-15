@@ -292,7 +292,7 @@ export default function InvestmentCalculatorPage() {
       <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">
         {/* Hero result card */}
         <div className="bg-[#00c853] rounded-[20px] p-6 sm:p-8 mb-3 relative overflow-hidden">
-          <div className="absolute inset-0 pointer-events-none select-none" aria-hidden="true">
+          <div className="absolute inset-0 pointer-events-none select-none" style={{ filter: "blur(2px)" }} aria-hidden="true">
             {['💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈'].map((e, i) => (
               <span key={i} className="absolute text-[22px] sm:text-[28px]" style={{
                 left: `${(i * 17.3 + i * i * 3.7) % 100}%`,
