@@ -1,14 +1,7 @@
 import Link from "next/link";
 import NavMenu from "@/components/NavMenu";
 
-const TOOLS = [
-  {
-    href: "/rates",
-    emoji: "💰",
-    title: "Compare Rates",
-    description: "Find the best savings and time deposit rates across 17 banks",
-    tag: "17 banks",
-  },
+const OTHER_TOOLS = [
   {
     href: "/calculators/compound",
     emoji: "📈",
@@ -44,8 +37,8 @@ export default function HomePage() {
       </nav>
 
       <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">
-        {/* Hero */}
-        <div className="bg-[#00c853] rounded-[20px] p-8 sm:p-12 mb-3 relative overflow-hidden">
+        {/* Compare Rates — main card */}
+        <Link href="/rates" className="block bg-[#00c853] rounded-[20px] p-6 sm:p-8 mb-3 relative overflow-hidden no-underline group hover:bg-[#00b84a] transition-colors">
           <div className="absolute inset-0 pointer-events-none select-none" aria-hidden="true">
             {['💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈'].map((e, i) => (
               <span key={i} className="absolute text-[22px] sm:text-[28px]" style={{
@@ -56,17 +49,25 @@ export default function HomePage() {
               }}>{e}</span>
             ))}
           </div>
-          <div className="relative text-center">
-            <p className="text-lg font-bold text-white mb-2">Make your money work harder</p>
-            <p className="text-[13px] text-white/70 max-w-sm mx-auto leading-relaxed">
-              Compare rates, calculate returns, and find the best place for your peso.
-            </p>
+          <div className="relative">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="text-lg font-bold text-white">Compare Rates</p>
+                  <span className="text-[10px] font-semibold text-white bg-white/20 px-2 py-0.5 rounded-full">17 banks</span>
+                </div>
+                <p className="text-[13px] text-white/70 leading-relaxed">
+                  Find the best savings and time deposit rates across Philippine banks
+                </p>
+              </div>
+              <span className="text-white/50 text-2xl group-hover:text-white transition-colors shrink-0 ml-4">→</span>
+            </div>
           </div>
-        </div>
+        </Link>
 
-        {/* Tool cards */}
+        {/* Other tools */}
         <div className="space-y-2">
-          {TOOLS.map((tool) => (
+          {OTHER_TOOLS.map((tool) => (
             <Link
               key={tool.href}
               href={tool.href}
