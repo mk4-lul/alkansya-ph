@@ -58,7 +58,7 @@ export default function HeroCalculator({
     <div className="bg-[#00c853] rounded-[20px] p-6 sm:p-8 relative overflow-hidden">
       {/* Scattered money emojis */}
       <div className="absolute inset-0 pointer-events-none select-none" aria-hidden="true">
-        {['💵','💰','🪙','💸','₱','💎','🤑','💵','💰','🪙','💸','₱','💎','🤑','💵','💰','🪙','💸','₱','💎','🤑','💵','💰','🪙','💸','₱','💎','🤑','💵','💰','🪙','💸','₱','💎','🤑','💵','💰','🪙','💸','₱'].map((e, i) => (
+        {['💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎'].map((e, i) => (
           <span key={i} className="absolute text-[22px] sm:text-[28px]" style={{
             left: `${(i * 17.3 + i * i * 3.7) % 100}%`,
             top: `${(i * 13.1 + i * i * 2.3) % 100}%`,
