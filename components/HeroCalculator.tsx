@@ -68,7 +68,7 @@ export default function HeroCalculator({
         ))}
       </div>
       <div className="relative">
-      <p className="text-center text-lg font-bold text-white/80 mb-4">How much are you saving?</p>
+      <p className="text-center text-lg font-bold text-white mb-4">How much are you saving?</p>
 
       {/* Amount grid */}
       <div className="grid grid-cols-4 gap-2 max-w-[400px] mx-auto mb-2">
