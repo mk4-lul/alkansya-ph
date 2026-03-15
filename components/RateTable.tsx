@@ -55,6 +55,7 @@ function BankRow({ bank, depositType, amount, highlight }: {
     : displayRate >= 0.5 ? "linear-gradient(90deg, #c8940a, #b38308)" : "rgba(0,0,0,0.08)";
 
   const tdTerms = getUniqueTdTerms(bank.time_deposit_rates);
+  const sourceUrl = depositType === "time_deposit" && bank.td_source_url ? bank.td_source_url : bank.source_url;
 
   return (
     <div id={`bank-${bank.id}`} className={`border-b border-[#e5e0d8] ${highlight ? "animate-bank-highlight" : ""}`}>
@@ -195,8 +196,8 @@ function BankRow({ bank, depositType, amount, highlight }: {
           <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
             <span className="font-mono text-[9px] sm:text-[10px] text-[#9a9490]">
               Verified {timeAgo(bank.last_verified)} ·{" "}
-              {bank.source_url ? (
-                <a href={bank.source_url} target="_blank" rel="noopener noreferrer"
+              {sourceUrl ? (
+                <a href={sourceUrl} target="_blank" rel="noopener noreferrer"
                   className="underline hover:text-[#1a1a1a]" onClick={(e) => e.stopPropagation()}>source</a>
               ) : "manual"}
             </span>
