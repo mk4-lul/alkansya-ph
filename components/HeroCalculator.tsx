@@ -68,7 +68,7 @@ export default function HeroCalculator({
         ))}
       </div>
       <div className="relative">
-      <p className="text-center text-[11px] font-semibold uppercase tracking-[1px] text-white/70 mb-4">Select an amount</p>
+      <p className="text-center text-[13px] font-bold uppercase tracking-[1px] text-white/80 mb-4">Select an amount</p>
 
       {/* Amount grid */}
       <div className="grid grid-cols-4 gap-2.5 max-w-[440px] mx-auto mb-2">
@@ -97,7 +97,7 @@ export default function HeroCalculator({
       {/* Top 3 banks */}
       {hasAmount && top3.length > 0 && (
         <div className="mt-6">
-          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/60 mb-3 text-center">Best rates for you</p>
+          <p className="text-[12px] font-semibold uppercase tracking-[1px] text-white/70 mb-3 text-center">Best rates for you</p>
           <div key={amount} className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             {top3.map((bank, i) => {
               const rate = getRateForAmount(bank.savings_tiers, amount);
