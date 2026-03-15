@@ -12,6 +12,7 @@ interface AssetData {
   emoji: string;
   prices: Record<number, number>; // year -> price on ~Jan 1
   unit?: string;
+  info?: string;
 }
 
 const ASSETS: AssetData[] = [
@@ -28,23 +29,23 @@ const ASSETS: AssetData[] = [
     prices: { 2015: 15.70, 2016: 13.80, 2017: 16.00, 2018: 17.00, 2019: 15.50, 2020: 17.80, 2021: 26.40, 2022: 23.30, 2023: 23.95, 2024: 23.80, 2025: 28.90, 2026: 84.44 },
   },
   {
-    id: "sp500", name: "S&P 500", emoji: "📈",
+    id: "sp500", name: "US Stocks", emoji: "📈", info: "Tracks the S&P 500 index — the 500 largest publicly traded companies in the United States.",
     prices: { 2015: 2058, 2016: 2044, 2017: 2239, 2018: 2684, 2019: 2507, 2020: 3231, 2021: 3756, 2022: 4766, 2023: 3839, 2024: 4770, 2025: 5882, 2026: 6632 },
   },
   {
-    id: "psei", name: "PSEi Index", emoji: "🇵🇭",
+    id: "psei", name: "PH Stocks", emoji: "🇵🇭", info: "Tracks the PSEi (Philippine Stock Exchange Index) — the 30 largest publicly traded companies in the Philippines.",
     prices: { 2015: 7231, 2016: 6952, 2017: 6841, 2018: 8558, 2019: 7466, 2020: 7815, 2021: 7023, 2022: 7362, 2023: 6566, 2024: 6572, 2025: 6580, 2026: 5900 },
   },
   {
-    id: "aapl", name: "Apple", emoji: "🍎",
+    id: "aapl", name: "Apple Stock", emoji: "🍎",
     prices: { 2015: 27.0, 2016: 26.3, 2017: 29.0, 2018: 43.1, 2019: 39.5, 2020: 73.4, 2021: 132.7, 2022: 182.0, 2023: 130.0, 2024: 185.6, 2025: 243.0, 2026: 228.0 },
   },
   {
-    id: "nvda", name: "Nvidia", emoji: "🟢",
+    id: "nvda", name: "Nvidia Stock", emoji: "🟢",
     prices: { 2015: 0.50, 2016: 0.82, 2017: 2.67, 2018: 5.88, 2019: 3.35, 2020: 5.90, 2021: 13.0, 2022: 29.4, 2023: 14.6, 2024: 49.5, 2025: 134.0, 2026: 114.0 },
   },
   {
-    id: "amzn", name: "Amazon", emoji: "📦",
+    id: "amzn", name: "Amazon Stock", emoji: "📦",
     prices: { 2015: 15.40, 2016: 33.83, 2017: 38.21, 2018: 59.25, 2019: 75.85, 2020: 92.50, 2021: 163.3, 2022: 166.7, 2023: 84.0, 2024: 152.0, 2025: 220.0, 2026: 205.0 },
   },
   {
@@ -270,6 +271,7 @@ export default function InvestmentCalculatorPage() {
   const [asset, setAsset] = useState<AssetData>(ASSETS[0]); // bitcoin default
   const [startYear, setStartYear] = useState(2015);
   const [amount, setAmount] = useState(100000);
+  const [showInfo, setShowInfo] = useState<string | null>(null);
 
   const entryPrice = asset.prices[startYear];
   const currentPrice = asset.prices[CURRENT_YEAR];
@@ -299,12 +301,27 @@ export default function InvestmentCalculatorPage() {
             <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Choose an asset</p>
             <div className="grid grid-cols-3 gap-2">
               {ASSETS.map((a) => (
-                <button key={a.id} onClick={() => setAsset(a)}
-                  className={`py-2.5 rounded-xl text-[12px] font-bold transition-all flex items-center justify-center gap-1.5 ${
-                    asset.id === a.id ? "bg-[#1a1a1a] text-white" : "bg-[#f5f5f5] text-[#1a1a1a] hover:bg-[#e8e8e8]"
-                  }`}>
-                  <span className="text-sm">{a.emoji}</span> {a.name}
-                </button>
+                <div key={a.id} className="relative">
+                  <button onClick={() => setAsset(a)}
+                    className={`w-full py-2.5 rounded-xl text-[12px] font-bold transition-all flex items-center justify-center gap-1.5 ${
+                      asset.id === a.id ? "bg-[#1a1a1a] text-white" : "bg-[#f5f5f5] text-[#1a1a1a] hover:bg-[#e8e8e8]"
+                    }`}>
+                    <span className="text-sm">{a.emoji}</span> {a.name}
+                    {a.info && (
+                      <span
+                        onClick={(e) => { e.stopPropagation(); setShowInfo(showInfo === a.id ? null : a.id); }}
+                        className={`inline-flex items-center justify-center w-3.5 h-3.5 rounded-full border text-[8px] ml-0.5 shrink-0 ${
+                          asset.id === a.id ? "border-white/40 text-white/60 hover:text-white" : "border-[#ccc] text-[#aaa] hover:text-[#1a1a1a]"
+                        }`}>i</span>
+                    )}
+                  </button>
+                  {showInfo === a.id && a.info && (
+                    <div className="absolute z-20 top-full mt-1 left-0 right-0 bg-[#1a1a1a] text-white text-[11px] leading-relaxed rounded-xl p-3 shadow-lg">
+                      {a.info}
+                      <button onClick={() => setShowInfo(null)} className="block mt-1 text-[10px] text-white/50 hover:text-white">dismiss</button>
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           </div>
@@ -363,29 +380,29 @@ export default function InvestmentCalculatorPage() {
             ))}
           </div>
           <div className="relative text-center">
-            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#1a1a1a]/50 mb-2">
+            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/70 mb-2">
               {formatPeso(amount)} in {asset.name} since Jan {startYear}
             </p>
-            <p className="text-4xl sm:text-5xl font-extrabold tracking-tight text-[#1a1a1a]">
+            <p className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white">
               {formatPeso(currentValue)}
             </p>
             <div className="flex justify-center mt-4">
-              <div className="bg-black/10 backdrop-blur-md rounded-2xl px-6 py-4 flex gap-8">
+              <div className="bg-white/15 backdrop-blur-md rounded-2xl px-6 py-4 flex gap-8">
                 <div className="text-center">
-                  <p className="text-[11px] text-[#1a1a1a]/50 uppercase tracking-[0.5px]">Invested</p>
-                  <p className="text-lg font-bold text-[#1a1a1a]">{formatPeso(amount)}</p>
+                  <p className="text-[11px] text-white/60 uppercase tracking-[0.5px]">Invested</p>
+                  <p className="text-lg font-bold text-white">{formatPeso(amount)}</p>
                 </div>
                 <div className="text-center">
-                  <p className={`text-[11px] ${isPositive ? "text-[#1a1a1a]/50" : "text-red-700/70"} uppercase tracking-[0.5px]`}>
+                  <p className={`text-[11px] ${isPositive ? "text-white/60" : "text-red-300"} uppercase tracking-[0.5px]`}>
                     {isPositive ? "Gain" : "Loss"}
                   </p>
-                  <p className={`text-lg font-bold ${isPositive ? "text-[#1a1a1a]" : "text-red-700"}`}>
+                  <p className={`text-lg font-bold ${isPositive ? "text-white" : "text-red-300"}`}>
                     {formatPeso(Math.abs(gain))} ({formatPercent(gainPct)})
                   </p>
                 </div>
               </div>
             </div>
-            <p className="text-[11px] text-[#1a1a1a]/50 mt-3">{multiplier.toFixed(2)}x return in {CURRENT_YEAR - startYear} {CURRENT_YEAR - startYear === 1 ? "year" : "years"}</p>
+            <p className="text-[11px] text-white/60 mt-3">{multiplier.toFixed(2)}x return in {CURRENT_YEAR - startYear} {CURRENT_YEAR - startYear === 1 ? "year" : "years"}</p>
           </div>
         </div>
 
