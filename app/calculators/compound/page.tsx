@@ -228,7 +228,7 @@ export default function CalculatorPage() {
             ))}
           </div>
           <div className="relative text-center">
-            <p className="text-sm font-bold text-white/90 mb-1">Compound interest calculator</p>
+            <p className="text-lg font-bold text-white mb-2">Compound interest calculator</p>
             <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/70 mb-2">
               Your money after {years} {years === 1 ? "year" : "years"}
             </p>
