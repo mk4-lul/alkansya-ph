@@ -1,5 +1,6 @@
 import { getBanksWithRates, BankWithRates, TimeDepositRate } from "@/lib/supabase";
 import Dashboard from "@/components/Dashboard";
+import Link from "next/link";
 
 export const revalidate = 3600;
 
@@ -284,9 +285,14 @@ export default async function HomePage() {
             alkansya<span className="text-[#00c853]">.ph</span>
           </span>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-[6px] h-[6px] rounded-full bg-[#00c853] animate-pulse-dot" />
-          <span className="text-[11px] text-[#888] hidden sm:inline">Updated weekly</span>
+        <div className="flex items-center gap-4">
+          <Link href="/calculator" className="text-[12px] font-semibold text-[#888] hover:text-[#1a1a1a] transition-colors no-underline">
+            Calculator
+          </Link>
+          <div className="flex items-center gap-2">
+            <div className="w-[6px] h-[6px] rounded-full bg-[#00c853] animate-pulse-dot" />
+            <span className="text-[11px] text-[#888] hidden sm:inline">Updated weekly</span>
+          </div>
         </div>
       </nav>
 
