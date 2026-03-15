@@ -234,7 +234,7 @@ export default async function HomePage() {
           </span>
         </div>
         <div className="flex items-center gap-3">
-          <span className="font-mono text-[9px] sm:text-[10px] uppercase tracking-[2px] text-[#6b6560] hidden sm:inline">Updated weekly</span>
+          <span className="font-display text-[10px] sm:text-[11px] uppercase tracking-[2px] text-[#6b6560] hidden sm:inline">Updated weekly</span>
           <div className="w-2 h-2 rounded-full bg-[#0a8f65] animate-pulse-dot" />
         </div>
       </nav>
@@ -246,7 +246,7 @@ export default async function HomePage() {
           <span className="text-base sm:text-lg">🛡️</span>
           <div>
             <p className="font-display text-xs sm:text-[13px] font-semibold text-[#1a1a1a] mb-1">PDIC Insured up to ₱500,000</p>
-            <p className="font-mono text-[10px] sm:text-[11px] text-[#6b6560] leading-relaxed">
+            <p className="font-display text-[10px] sm:text-[11px] text-[#6b6560] leading-relaxed">
               All banks listed are BSP-licensed and PDIC-insured. Your deposits are protected up to ₱500,000 per depositor per bank. Digital banks carry the same protection as traditional banks.
             </p>
           </div>
@@ -255,9 +255,9 @@ export default async function HomePage() {
         <footer className="mt-8 sm:mt-12 pt-4 sm:pt-6 border-t border-[#e5e0d8] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-3">
           <div>
             <p className="font-display text-sm font-bold text-[#6b6560]">alkansya<span className="text-[#c8940a]">.ph</span></p>
-            <p className="font-mono text-[9px] sm:text-[10px] text-[#9a9490] mt-1">Aggregating Philippine financial rates so you don&apos;t have to.</p>
+            <p className="font-display text-[10px] sm:text-[11px] text-[#9a9490] mt-1">Aggregating Philippine financial rates so you don&apos;t have to.</p>
           </div>
-          <p className="font-mono text-[8px] sm:text-[9px] text-[#b0aaa4] max-w-md sm:text-right">
+          <p className="font-display text-[9px] sm:text-[10px] text-[#b0aaa4] max-w-md sm:text-right">
             Rates are indicative and may not reflect real-time changes. Always verify directly with your bank before making financial decisions. Alkansya.ph is an independent informational tool — not a financial advisor, broker, or bank. We are not liable for any losses, damages, or issues arising from the use of this site or any third-party platform listed herein.
           </p>
         </footer>
