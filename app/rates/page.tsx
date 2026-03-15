@@ -289,6 +289,7 @@ export default async function HomePage() {
 
       {/* Main */}
       <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1a1a1a] tracking-tight mb-4">How much are you saving?</h1>
         <Dashboard banks={banks} avgTraditional={avgTraditional} avgDigital={avgDigital} multiplier={multiplier} />
 
         {/* PDIC */}
