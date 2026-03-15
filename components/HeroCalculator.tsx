@@ -76,7 +76,7 @@ export default function HeroCalculator({
                 isActive
                   ? "bg-white text-[#00c853]"
                   : isGold
-                    ? "bg-[#c8940a]/80 text-white hover:bg-[#c8940a]"
+                    ? "bg-[#FFD600] text-[#1a1a1a] hover:bg-[#FFDE2D]"
                     : "bg-white/20 text-white hover:bg-white/30"
               }`}>
               {a.label}
