@@ -1,320 +1,315 @@
-"use client";
-
-import { useState, useMemo } from "react";
-import Link from "next/link";
-import { formatPeso } from "@/lib/utils";
+import { getBanksWithRates, BankWithRates, TimeDepositRate } from "@/lib/supabase";
+import Dashboard from "@/components/Dashboard";
 import NavMenu from "@/components/NavMenu";
 
-const YEAR_OPTIONS = [1, 2, 3, 5, 10, 15, 20, 30];
+export const revalidate = 3600;
 
-const INITIAL_PRESETS = [
-  { label: "₱0", value: 0 },
-  { label: "₱10k", value: 10000 },
-  { label: "₱50k", value: 50000 },
-  { label: "₱100k", value: 100000 },
-  { label: "₱500k", value: 500000 },
-  { label: "₱1M", value: 1000000 },
-];
-
-const MONTHLY_PRESETS = [
-  { label: "₱0", value: 0 },
-  { label: "₱1k", value: 1000 },
-  { label: "₱5k", value: 5000 },
-  { label: "₱10k", value: 10000 },
-  { label: "₱25k", value: 25000 },
-  { label: "₱50k", value: 50000 },
-];
-
-function computeGrowth(initial: number, monthly: number, annualRate: number, years: number) {
-  const monthlyRate = annualRate / 100 / 12;
-  const months = years * 12;
-  const data: { month: number; balance: number; deposits: number; interest: number }[] = [];
-
-  let balance = initial;
-  let totalDeposits = initial;
-  let totalInterest = 0;
-
-  data.push({ month: 0, balance, deposits: totalDeposits, interest: 0 });
-
-  for (let m = 1; m <= months; m++) {
-    const interestThisMonth = balance * monthlyRate;
-    balance += interestThisMonth + monthly;
-    totalDeposits += monthly;
-    totalInterest += interestThisMonth;
-
-    if (years <= 5 || m % 3 === 0 || m === months) {
-      data.push({ month: m, balance, deposits: totalDeposits, interest: totalInterest });
-    }
-  }
-
-  return { finalBalance: balance, totalDeposits, totalInterest, data };
+function fb(
+  id: string, name: string, type: "traditional" | "digital", logo: string,
+  url: string, tdUrl: string | null, notes: string,
+  hasPromo: boolean, promoRate: number | null, promoTerms: string | null,
+  products: { name: string; tiers: { rate: number; min_deposit: number; max_deposit: number | null }[] }[],
+  td: TimeDepositRate[],
+  verified: string,
+  ratings: { avg: number; play: number; app: number }
+): BankWithRates {
+  const allTiers = products.flatMap((p) => p.tiers);
+  const rates = allTiers.map((t) => t.rate);
+  return {
+    id, name, type, logo, source_url: url, td_source_url: tdUrl, notes,
+    has_promo: hasPromo, promo_rate: promoRate, promo_terms: promoTerms,
+    avg_app_rating: ratings.avg, play_store_rating: ratings.play, app_store_rating: ratings.app,
+    savings_rate: rates.length > 0 ? Math.max(...rates) : 0,
+    savings_min_rate: rates.length > 0 ? Math.min(...rates) : 0,
+    savings_tiers: allTiers,
+    savings_products: products.map((p) => ({
+      name: p.name,
+      tiers: p.tiers,
+      best_rate: Math.max(...p.tiers.map((t) => t.rate)),
+      min_rate: Math.min(...p.tiers.map((t) => t.rate)),
+    })),
+    time_deposit_rates: td,
+    last_verified: verified,
+  };
 }
 
-function MiniChart({ data, height = 200 }: { data: { month: number; balance: number; deposits: number }[]; height?: number }) {
-  if (data.length < 2) return null;
+const FALLBACK_BANKS: BankWithRates[] = [
+  fb("bpi", "BPI", "traditional", "/logos/bpi.png",
+    "https://www.bpi.com.ph/personal/bank/deposits/deposit-rates-savings-and-checking",
+    "https://www.bpi.com.ph/personal/bank/time-deposit-accounts/peso-auto-renew",
+    "Multiple savings products", false, null, null,
+    [
+      { name: "#SaveUp", tiers: [{ rate: 0.0925, min_deposit: 5000, max_deposit: null }] },
+      { name: "#MySaveUp", tiers: [{ rate: 0.0925, min_deposit: 5000, max_deposit: null }] },
+      { name: "Jumpstart Savings", tiers: [{ rate: 0.0625, min_deposit: 2000, max_deposit: null }] },
+      { name: "Maxi-Saver", tiers: [{ rate: 0.125, min_deposit: 2000000, max_deposit: null }] },
+      { name: "Saver-Plus", tiers: [{ rate: 0.0625, min_deposit: 50000, max_deposit: null }] },
+    ],
+    [
+      { term_days: 35, rate: 0.250, min_deposit: 50000, max_deposit: 499999 },
+      { term_days: 35, rate: 0.500, min_deposit: 5000000, max_deposit: null },
+      { term_days: 365, rate: 0.750, min_deposit: 5000000, max_deposit: null },
+    ],
+    "2026-03-14T00:00:00Z",
+    { avg: 4.8, play: 4.8, app: 4.7 }),
 
-  const width = 600;
-  const padding = { top: 20, right: 20, bottom: 30, left: 20 };
-  const chartW = width - padding.left - padding.right;
-  const chartH = height - padding.top - padding.bottom;
+  fb("bdo", "BDO", "traditional", "/logos/bdo.png",
+    "https://www.bdo.com.ph/personal/accounts/savings/peso-savings",
+    "https://www.bdo.com.ph/personal/accounts/time-deposit/peso-time-deposit",
+    "Multiple savings products", false, null, null,
+    [
+      { name: "Passbook Savings", tiers: [{ rate: 0.0625, min_deposit: 0, max_deposit: null }] },
+      { name: "Optimum Savings", tiers: [{ rate: 0.25, min_deposit: 30000, max_deposit: 99999 }, { rate: 0.375, min_deposit: 100000, max_deposit: null }] },
+    ],
+    [{ term_days: 30, rate: 0.625, min_deposit: 50000, max_deposit: 299999 }, { term_days: 360, rate: 1.250, min_deposit: 10000000, max_deposit: null }],
+    "2026-03-15T00:00:00Z",
+    { avg: 2.9, play: 3.5, app: 2.3 }),
 
-  const maxBalance = Math.max(...data.map((d) => d.balance));
-  const maxMonth = data[data.length - 1].month;
+  fb("metrobank", "Metrobank", "traditional", "/logos/metrobank.png",
+    "https://www.metrobank.com.ph/articles/deposit-rates-and-fees",
+    "https://www.metrobank.com.ph/articles/time-deposit-rates-and-fees",
+    "Online Time Deposit rates", false, null, null,
+    [{ name: "Regular Savings", tiers: [{ rate: 0.0625, min_deposit: 0, max_deposit: null }] }],
+    [{ term_days: 30, rate: 4.125, min_deposit: 10000, max_deposit: 49999 }, { term_days: 180, rate: 4.500, min_deposit: 5000000, max_deposit: null }],
+    "2026-03-14T00:00:00Z",
+    { avg: 3.0, play: 2.1, app: 3.8 }),
 
-  const scaleX = (month: number) => padding.left + (month / maxMonth) * chartW;
-  const scaleY = (val: number) => padding.top + chartH - (val / maxBalance) * chartH;
+  fb("unionbank", "UnionBank", "traditional", "/logos/unionbank.png",
+    "https://www.unionbankph.com/accounts",
+    "https://www.unionbankph.com/accounts",
+    "Regular savings", false, null, null,
+    [{ name: "Regular Savings", tiers: [{ rate: 0.1, min_deposit: 0, max_deposit: null }] }],
+    [{ term_days: 30, rate: 0.625, min_deposit: 50000, max_deposit: 299999 }, { term_days: 360, rate: 1.250, min_deposit: 10000000, max_deposit: null }],
+    "2026-03-15T00:00:00Z",
+    { avg: 4.8, play: 4.8, app: 4.7 }),
 
-  const balancePath = data.map((d, i) => `${i === 0 ? "M" : "L"}${scaleX(d.month)},${scaleY(d.balance)}`).join(" ");
-  const balanceArea = `${balancePath} L${scaleX(maxMonth)},${scaleY(0)} L${scaleX(0)},${scaleY(0)} Z`;
+  fb("securitybank", "Security Bank", "traditional", "/logos/securitybank.png",
+    "https://www.securitybank.com/personal/accounts/high-interest/",
+    "https://www.securitybank.com/personal/accounts/time-deposit/time-deposit-rates/",
+    "Easy Savings 0.05%, GoalSetter up to 3%", false, null, null,
+    [
+      { name: "Easy Savings", tiers: [{ rate: 0.05, min_deposit: 0, max_deposit: null }] },
+      { name: "GoalSetter", tiers: [
+        { rate: 0.50, min_deposit: 5000, max_deposit: 49999 },
+        { rate: 1.00, min_deposit: 50000, max_deposit: 499999 },
+        { rate: 1.50, min_deposit: 500000, max_deposit: 999999 },
+        { rate: 2.00, min_deposit: 1000000, max_deposit: 4999999 },
+        { rate: 3.00, min_deposit: 5000000, max_deposit: null },
+      ]},
+    ],
+    [{ term_days: 30, rate: 0.54, min_deposit: 100000, max_deposit: 299999 }, { term_days: 365, rate: 2.47, min_deposit: 5000000, max_deposit: null }],
+    "2026-03-15T00:00:00Z",
+    { avg: 3.5, play: 3.2, app: 3.8 }),
 
-  const depositsPath = data.map((d, i) => `${i === 0 ? "M" : "L"}${scaleX(d.month)},${scaleY(d.deposits)}`).join(" ");
-  const depositsArea = `${depositsPath} L${scaleX(maxMonth)},${scaleY(0)} L${scaleX(0)},${scaleY(0)} Z`;
+  fb("rcbc", "RCBC", "traditional", "/logos/rcbc.png",
+    "https://www.rcbc.com/regular-atm",
+    "https://www.rcbc.com/rcbc-time-deposit",
+    "Regular ATM Savings", false, null, null,
+    [{ name: "Regular Savings", tiers: [{ rate: 0.15, min_deposit: 0, max_deposit: null }] }],
+    [{ term_days: 30, rate: 0.500, min_deposit: 5000, max_deposit: 39999 }, { term_days: 365, rate: 1.375, min_deposit: 10000000, max_deposit: null }],
+    "2026-03-15T00:00:00Z",
+    { avg: 2.9, play: 3.3, app: 2.4 }),
 
-  const years = maxMonth / 12;
-  const yearLabels: number[] = [];
-  if (years <= 5) {
-    for (let y = 0; y <= years; y++) yearLabels.push(y);
-  } else {
-    const step = years <= 15 ? 5 : 10;
-    for (let y = 0; y <= years; y += step) yearLabels.push(y);
-    if (!yearLabels.includes(years)) yearLabels.push(years);
+  fb("pnb", "PNB", "traditional", "/logos/pnb.png",
+    "https://www.pnb.com.ph/product-comparison/",
+    "https://www.pnb.com.ph/product-comparison/",
+    "Top Saver: higher rate at ₱50k+", false, null, null,
+    [
+      { name: "Regular Savings", tiers: [{ rate: 0.1, min_deposit: 0, max_deposit: null }] },
+      { name: "Top Saver", tiers: [{ rate: 0.5, min_deposit: 50000, max_deposit: null }] },
+    ],
+    [{ term_days: 30, rate: 0.125, min_deposit: 25000, max_deposit: 249999 }, { term_days: 360, rate: 0.375, min_deposit: 1000000, max_deposit: null }],
+    "2026-03-15T00:00:00Z",
+    { avg: 2.8, play: 2.9, app: 2.6 }),
+
+  fb("landbank", "Landbank", "traditional", "/logos/landbank.png",
+    "https://www.landbank.com/personal-savings-account-with-atm",
+    "https://www.landbank.com/personal-greengrowth-deposit",
+    "OptiSaver Plus: 1%–4% for ₱500k+ (contact branch)", false, null, null,
+    [
+      { name: "Savings Account with ATM", tiers: [{ rate: 0.05, min_deposit: 0, max_deposit: null }] },
+      { name: "OptiSaver Plus", tiers: [{ rate: 0.05, min_deposit: 50000, max_deposit: 499999 }] },
+    ],
+    [
+      { term_days: 365, rate: 2.25, min_deposit: 50000, max_deposit: 499999 },
+      { term_days: 365, rate: 3.25, min_deposit: 500000, max_deposit: 4999999 },
+      { term_days: 365, rate: 4.25, min_deposit: 5000000, max_deposit: null },
+    ],
+    "2026-03-15T00:00:00Z",
+    { avg: 3.8, play: 4.4, app: 3.2 }),
+
+  fb("maya", "Maya Bank", "digital", "/logos/maya.png",
+    "https://www.mayabank.ph/savings/",
+    "https://www.mayabank.ph/time-deposit-plus/",
+    "Base 3.50%; up to 6% with goals", false, null, null,
+    [{ name: "Maya Savings", tiers: [{ rate: 3.5, min_deposit: 0, max_deposit: 100000 }, { rate: 6.0, min_deposit: 100001, max_deposit: null }] }],
+    [
+      { term_days: 90, rate: 5.0, min_deposit: 0, max_deposit: 1000000 },
+      { term_days: 180, rate: 6.0, min_deposit: 0, max_deposit: 1000000 },
+      { term_days: 365, rate: 5.5, min_deposit: 0, max_deposit: 1000000 },
+    ],
+    "2026-03-14T00:00:00Z",
+    { avg: 4.6, play: 4.6, app: 4.6 }),
+
+  fb("cimb", "CIMB", "digital", "/logos/cimb.png",
+    "https://www.cimb.com.ph/en/personal/banking/accounts/upsave.html",
+    "https://www.cimbbank.com.ph/en/products/save/maxsave.html",
+    "UpSave 2.5%. MaxSave TD updated Jan 2026.", true, 8.0, "New depositors, limited period, max ₱200k",
+    [{ name: "UpSave", tiers: [{ rate: 2.5, min_deposit: 0, max_deposit: null }] }],
+    [
+      { term_days: 90, rate: 4.75, min_deposit: 5000, max_deposit: 1000000 },
+      { term_days: 180, rate: 5.25, min_deposit: 5000, max_deposit: 1000000 },
+      { term_days: 365, rate: 4.75, min_deposit: 5000, max_deposit: 1000000 },
+      { term_days: 730, rate: 4.50, min_deposit: 5000, max_deposit: 1000000 },
+    ],
+    "2026-03-15T00:00:00Z",
+    { avg: 4.1, play: 4.0, app: 4.2 }),
+
+  fb("tonik", "Tonik", "digital", "/logos/tonik.png",
+    "https://tonikbank.com/deposit-interest-rates",
+    "https://tonikbank.com/savings-cards/time-deposit",
+    "4%–4.5% Stash savings. TD up to 8% p.a.", false, null, null,
+    [{ name: "Stash", tiers: [{ rate: 4.0, min_deposit: 0, max_deposit: 50000 }, { rate: 4.5, min_deposit: 50001, max_deposit: null }] }],
+    [
+      { term_days: 180, rate: 6.0, min_deposit: 5000, max_deposit: 250000 },
+      { term_days: 270, rate: 7.0, min_deposit: 5000, max_deposit: 250000 },
+      { term_days: 365, rate: 8.0, min_deposit: 5000, max_deposit: 250000 },
+      { term_days: 540, rate: 6.0, min_deposit: 5000, max_deposit: 250000 },
+      { term_days: 730, rate: 6.0, min_deposit: 5000, max_deposit: 250000 },
+    ],
+    "2026-03-15T00:00:00Z",
+    { avg: 4.7, play: 4.8, app: 4.6 }),
+
+  fb("gotyme", "GoTyme", "digital", "/logos/gotyme.png",
+    "https://www.gotyme.com.ph/save-and-invest/", null,
+    "Go Save: flat 3% p.a., no conditions", false, null, null,
+    [{ name: "Go Save", tiers: [{ rate: 3.0, min_deposit: 0, max_deposit: null }] }],
+    [],
+    "2026-03-15T00:00:00Z",
+    { avg: 4.5, play: 4.6, app: 4.3 }),
+
+  fb("maribank", "MariBank", "digital", "/logos/maribank.png",
+    "https://www.maribank.ph/product/savings", null,
+    "Formerly SeaBank. Daily interest crediting.", false, null, null,
+    [{ name: "MariBank Savings", tiers: [{ rate: 3.25, min_deposit: 0, max_deposit: 1000000 }, { rate: 3.75, min_deposit: 1000001, max_deposit: null }] }],
+    [],
+    "2026-03-15T00:00:00Z",
+    { avg: 4.9, play: 4.9, app: 4.9 }),
+
+  fb("gcash_gsave", "GCash GSave", "digital", "/logos/gcash.png",
+    "https://www.gcash.com/gsave", null,
+    "Powered by CIMB, via GCash app", false, null, null,
+    [{ name: "GSave", tiers: [{ rate: 2.6, min_deposit: 0, max_deposit: null }] }],
+    [],
+    "2026-03-10T00:00:00Z",
+    { avg: 3.6, play: 4.2, app: 3.0 }),
+
+  fb("maybank", "Maybank", "traditional", "/logos/maybank.png",
+    "https://www.maybank.com.ph/", null,
+    "ADDFLEX/ADDVANTAGE long-term TD available", false, null, null,
+    [{ name: "Peso Savings", tiers: [{ rate: 0.25, min_deposit: 0, max_deposit: null }] }],
+    [
+      { term_days: 30, rate: 1.500, min_deposit: 25000, max_deposit: null },
+      { term_days: 90, rate: 1.625, min_deposit: 25000, max_deposit: null },
+      { term_days: 360, rate: 1.750, min_deposit: 25000, max_deposit: null },
+      { term_days: 365, rate: 2.000, min_deposit: 0, max_deposit: null },
+      { term_days: 730, rate: 2.500, min_deposit: 0, max_deposit: null },
+      { term_days: 1825, rate: 2.000, min_deposit: 0, max_deposit: null },
+    ],
+    "2026-03-15T00:00:00Z",
+    { avg: 4.2, play: 3.3, app: 5.0 }),
+
+  fb("hsbc", "HSBC", "traditional", "/logos/hsbc.png",
+    "https://www.hsbc.com.ph/accounts/interest-rates/",
+    "https://www.hsbc.com.ph/accounts/interest-rates/",
+    "High Yield TD for Premier/Advance (min ₱100k)", false, null, null,
+    [{ name: "Peso Savings", tiers: [{ rate: 0.005, min_deposit: 0, max_deposit: null }] }],
+    [
+      { term_days: 30, rate: 0.125, min_deposit: 25000, max_deposit: 99999 },
+      { term_days: 30, rate: 2.425, min_deposit: 100000, max_deposit: 999999 },
+      { term_days: 30, rate: 2.925, min_deposit: 5000000, max_deposit: 10000000 },
+      { term_days: 90, rate: 2.550, min_deposit: 100000, max_deposit: 999999 },
+      { term_days: 90, rate: 3.050, min_deposit: 5000000, max_deposit: 10000000 },
+      { term_days: 180, rate: 2.800, min_deposit: 100000, max_deposit: 999999 },
+      { term_days: 180, rate: 3.300, min_deposit: 5000000, max_deposit: 10000000 },
+      { term_days: 365, rate: 3.000, min_deposit: 100000, max_deposit: 999999 },
+      { term_days: 365, rate: 3.500, min_deposit: 5000000, max_deposit: 10000000 },
+    ],
+    "2026-03-15T00:00:00Z",
+    { avg: 3.1, play: 4.5, app: 1.7 }),
+
+  fb("unobank", "UNOBank", "digital", "/logos/unobank.png",
+    "https://www.uno.bank/savings-account/",
+    "https://www.uno.bank/time-deposit/",
+    "Daily interest crediting. Free insurance at ₱10k ADB.", false, null, null,
+    [{ name: "#UNOready", tiers: [
+      { rate: 3.00, min_deposit: 0, max_deposit: 4999 },
+      { rate: 3.50, min_deposit: 5000, max_deposit: 4999999 },
+      { rate: 1.00, min_deposit: 5000000, max_deposit: null },
+    ]}],
+    [
+      { term_days: 90, rate: 4.00, min_deposit: 0, max_deposit: 500000 },
+      { term_days: 180, rate: 4.25, min_deposit: 0, max_deposit: 500000 },
+      { term_days: 300, rate: 4.50, min_deposit: 0, max_deposit: 500000 },
+      { term_days: 365, rate: 5.50, min_deposit: 0, max_deposit: 500000 },
+      { term_days: 730, rate: 5.00, min_deposit: 0, max_deposit: 500000 },
+    ],
+    "2026-03-15T00:00:00Z",
+    { avg: 4.4, play: 4.4, app: 4.4 }),
+];
+
+async function getData(): Promise<BankWithRates[]> {
+  try {
+    const banks = await getBanksWithRates();
+    if (banks.length > 0) return banks;
+  } catch (e) {
+    console.error("Supabase fetch failed, using fallback data:", e);
   }
-
-  return (
-    <svg viewBox={`0 0 ${width} ${height}`} className="w-full" style={{ maxHeight: height }}>
-      <defs>
-        <linearGradient id="greenGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#00c853" stopOpacity="0.4" />
-          <stop offset="100%" stopColor="#00c853" stopOpacity="0.05" />
-        </linearGradient>
-        <linearGradient id="grayGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#888" stopOpacity="0.2" />
-          <stop offset="100%" stopColor="#888" stopOpacity="0.05" />
-        </linearGradient>
-      </defs>
-      <path d={depositsArea} fill="url(#grayGrad)" />
-      <path d={depositsPath} fill="none" stroke="#ccc" strokeWidth="1.5" />
-      <path d={balanceArea} fill="url(#greenGrad)" />
-      <path d={balancePath} fill="none" stroke="#00c853" strokeWidth="2.5" strokeLinejoin="round" />
-      {yearLabels.map((y) => (
-        <text key={y} x={scaleX(y * 12)} y={height - 6} textAnchor="middle" fontSize="11" fill="#888" fontFamily="Plus Jakarta Sans, sans-serif">
-          {y}yr
-        </text>
-      ))}
-      <text x={scaleX(maxMonth) - 4} y={scaleY(maxBalance) - 8} textAnchor="end" fontSize="13" fontWeight="700" fill="#00c853" fontFamily="Plus Jakarta Sans, sans-serif">
-        {formatPeso(maxBalance)}
-      </text>
-    </svg>
-  );
+  return FALLBACK_BANKS;
 }
 
-export default function CalculatorPage() {
-  const [initial, setInitial] = useState(50000);
-  const [monthly, setMonthly] = useState(5000);
-  const [rate, setRate] = useState(3.0);
-  const [years, setYears] = useState(10);
-
-  const result = useMemo(() => computeGrowth(initial, monthly, rate, years), [initial, monthly, rate, years]);
-
-  const interestPct = result.finalBalance > 0 ? ((result.totalInterest / result.finalBalance) * 100).toFixed(1) : "0";
+export default async function HomePage() {
+  const banks = await getData();
+  const tradBanks = banks.filter((b) => b.type === "traditional");
+  const digiBanks = banks.filter((b) => b.type === "digital");
+  const avgTraditional = tradBanks.reduce((s, b) => s + b.savings_rate, 0) / tradBanks.length;
+  const avgDigital = digiBanks.reduce((s, b) => s + b.savings_rate, 0) / digiBanks.length;
+  const multiplier = Math.round(avgDigital / avgTraditional);
 
   return (
     <div className="min-h-screen bg-[#f5f5f5]">
       {/* Nav */}
       <nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[720px] mx-auto">
-        <Link href="/" className="flex items-center gap-2 text-xl font-extrabold tracking-tight text-[#1a1a1a] no-underline">
-          alkansya<span className="text-[#00c853]">.ph</span>
-        </Link>
-        <NavMenu />
+        <div className="flex items-center gap-2">
+          <span className="text-xl font-extrabold tracking-tight text-[#1a1a1a]">
+            alkansya<span className="text-[#00c853]">.ph</span>
+          </span>
+        </div>
+        <div className="flex items-center gap-4">
+          <NavMenu />
+        </div>
       </nav>
 
+      {/* Main */}
       <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">
-        {/* Hero result card — green bg with blurred emojis */}
-        <div className="bg-[#00c853] rounded-[20px] p-6 sm:p-8 mb-3 relative overflow-hidden">
-          {/* Blurred emoji background */}
-          <div className="absolute inset-0 pointer-events-none select-none" style={{ filter: "blur(3px)" }} aria-hidden="true">
-            {['📈','💰','🪙','💸','📊','💎','🤑','📈','💰','🪙','💸','📊','💎','🤑','📈','💰','🪙','💸','📊','💎','🤑','📈','💰','🪙','💸','📊','💎','🤑','📈','💰'].map((e, i) => (
-              <span key={i} className="absolute text-[22px] sm:text-[28px]" style={{
-                left: `${(i * 17.3 + i * i * 3.7) % 100}%`,
-                top: `${(i * 13.1 + i * i * 2.3) % 100}%`,
-                opacity: 0.5,
-                transform: `rotate(${(i * 37) % 360}deg)`,
-              }}>{e}</span>
-            ))}
-          </div>
-          <div className="relative text-center">
-            <p className="text-sm font-semibold text-white/60 mb-1">Compound interest calculator</p>
-            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/40 mb-2">
-              Your money after {years} {years === 1 ? "year" : "years"}
-            </p>
-            <p className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white">
-              {formatPeso(result.finalBalance)}
-            </p>
-            <div className="flex justify-center mt-4">
-              <div className="bg-white/15 backdrop-blur-md rounded-2xl px-6 py-4 flex gap-8">
-                <div className="text-center">
-                  <p className="text-[11px] text-white/60 uppercase tracking-[0.5px]">Deposited</p>
-                  <p className="text-lg font-bold text-white">{formatPeso(result.totalDeposits)}</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-[11px] text-[#FFD600]/80 uppercase tracking-[0.5px]">Interest earned</p>
-                  <p className="text-lg font-bold text-[#FFD600]">{formatPeso(result.totalInterest)}</p>
-                </div>
-              </div>
-            </div>
-            {/* Interest percentage bar */}
-            <div className="mt-4 max-w-[300px] mx-auto">
-              <div className="h-2 rounded-full bg-white/20 overflow-hidden">
-                <div className="h-full rounded-full bg-white transition-all duration-500" style={{ width: `${interestPct}%` }} />
-              </div>
-              <p className="text-[11px] text-white/50 mt-1">{interestPct}% of your final balance is interest</p>
-            </div>
-          </div>
-        </div>
+        <Dashboard banks={banks} avgTraditional={avgTraditional} avgDigital={avgDigital} multiplier={multiplier} />
 
-        {/* Chart */}
-        <div className="bg-white rounded-[20px] p-5 sm:p-6 mb-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Growth over time</p>
-          <MiniChart data={result.data} />
-          <div className="flex justify-center gap-6 mt-2">
-            <div className="flex items-center gap-1.5">
-              <div className="w-3 h-[3px] rounded-full bg-[#00c853]" />
-              <span className="text-[10px] text-[#888]">Total balance</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-3 h-[3px] rounded-full bg-[#ccc]" />
-              <span className="text-[10px] text-[#888]">Deposits only</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Inputs */}
-        <div className="space-y-3">
-          {/* Initial deposit */}
-          <div className="bg-white rounded-[20px] p-5 sm:p-6">
-            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Initial deposit</p>
-            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-              {INITIAL_PRESETS.map((p) => (
-                <button key={p.value} onClick={() => setInitial(p.value)}
-                  className={`py-2.5 rounded-xl text-[13px] font-bold transition-all ${
-                    initial === p.value ? "bg-[#1a1a1a] text-white" : "bg-[#f5f5f5] text-[#1a1a1a] hover:bg-[#e8e8e8]"
-                  }`}>{p.label}</button>
-              ))}
-            </div>
-            <div className="mt-3 flex items-center gap-2">
-              <span className="text-sm text-[#888]">Custom:</span>
-              <input
-                type="number"
-                value={initial || ""}
-                onChange={(e) => setInitial(Number(e.target.value) || 0)}
-                className="flex-1 bg-[#f5f5f5] rounded-xl px-3 py-2 text-sm font-bold text-[#1a1a1a] outline-none focus:ring-2 focus:ring-[#00c853]"
-                placeholder="₱0"
-              />
-            </div>
-          </div>
-
-          {/* Monthly contribution */}
-          <div className="bg-white rounded-[20px] p-5 sm:p-6">
-            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Monthly contribution</p>
-            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-              {MONTHLY_PRESETS.map((p) => (
-                <button key={p.value} onClick={() => setMonthly(p.value)}
-                  className={`py-2.5 rounded-xl text-[13px] font-bold transition-all ${
-                    monthly === p.value ? "bg-[#1a1a1a] text-white" : "bg-[#f5f5f5] text-[#1a1a1a] hover:bg-[#e8e8e8]"
-                  }`}>{p.label}</button>
-              ))}
-            </div>
-            <div className="mt-3 flex items-center gap-2">
-              <span className="text-sm text-[#888]">Custom:</span>
-              <input
-                type="number"
-                value={monthly || ""}
-                onChange={(e) => setMonthly(Number(e.target.value) || 0)}
-                className="flex-1 bg-[#f5f5f5] rounded-xl px-3 py-2 text-sm font-bold text-[#1a1a1a] outline-none focus:ring-2 focus:ring-[#00c853]"
-                placeholder="₱0"
-              />
-            </div>
-          </div>
-
-          {/* Interest rate — SLIDER */}
-          <div className="bg-white rounded-[20px] p-5 sm:p-6">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888]">Interest rate (per year)</p>
-              <p className="text-2xl font-extrabold text-[#00c853]">{rate.toFixed(1)}%</p>
-            </div>
-            <input
-              type="range"
-              min="0"
-              max="15"
-              step="0.1"
-              value={rate}
-              onChange={(e) => setRate(Number(e.target.value))}
-              className="w-full h-2 rounded-full appearance-none cursor-pointer"
-              style={{
-                background: `linear-gradient(to right, #00c853 0%, #00c853 ${(rate / 15) * 100}%, #e8e8e8 ${(rate / 15) * 100}%, #e8e8e8 100%)`,
-              }}
-            />
-            <div className="flex justify-between mt-1">
-              <span className="text-[10px] text-[#aaa]">0%</span>
-              <span className="text-[10px] text-[#aaa]">15%</span>
-            </div>
-          </div>
-
-          {/* Time period */}
-          <div className="bg-white rounded-[20px] p-5 sm:p-6">
-            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Time period</p>
-            <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
-              {YEAR_OPTIONS.map((y) => (
-                <button key={y} onClick={() => setYears(y)}
-                  className={`py-2.5 rounded-xl text-[13px] font-bold transition-all ${
-                    years === y ? "bg-[#1a1a1a] text-white" : "bg-[#f5f5f5] text-[#1a1a1a] hover:bg-[#e8e8e8]"
-                  }`}>{y}yr</button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Compare CTA */}
-        <div className="mt-3 bg-white rounded-[20px] p-5 sm:p-6 text-center">
-          <p className="text-sm text-[#888] mb-3">Want to find the best rate for your money?</p>
-          <Link href="/"
-            className="inline-block bg-[#00c853] text-white font-bold text-sm px-6 py-3 rounded-full hover:bg-[#00a844] transition-colors no-underline">
-            Compare rates →
-          </Link>
+        {/* PDIC */}
+        <div className="mt-3 bg-white rounded-2xl px-5 py-4 flex gap-3 items-start">
+          <span className="text-xl">🛡️</span>
+          <p className="text-[12px] text-[#888] leading-relaxed">
+            <span className="font-bold text-[#1a1a1a]">PDIC insured up to ₱500,000.</span> All banks listed are BSP-licensed. Digital banks carry the same protection as traditional banks.
+          </p>
         </div>
 
         {/* Footer */}
         <footer className="mt-8 pt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
           <span className="text-sm font-bold text-[#888]">alkansya<span className="text-[#00c853]">.ph</span></span>
           <p className="text-[10px] text-[#aaa] max-w-md sm:text-right leading-relaxed">
-            This calculator is for illustrative purposes only. Actual returns may vary based on compounding frequency, taxes, and platform-specific terms.
+            Rates are indicative and may not reflect real-time changes. Always verify directly with your bank. Alkansya.ph is an independent informational tool — not a financial advisor, broker, or bank.
           </p>
         </footer>
       </main>
-
-      {/* Slider thumb styling */}
-      <style jsx>{`
-        input[type="range"]::-webkit-slider-thumb {
-          -webkit-appearance: none;
-          appearance: none;
-          width: 24px;
-          height: 24px;
-          border-radius: 50%;
-          background: #00c853;
-          cursor: pointer;
-          border: 3px solid white;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-        }
-        input[type="range"]::-moz-range-thumb {
-          width: 24px;
-          height: 24px;
-          border-radius: 50%;
-          background: #00c853;
-          cursor: pointer;
-          border: 3px solid white;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-        }
-      `}</style>
     </div>
   );
 }
