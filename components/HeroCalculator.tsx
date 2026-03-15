@@ -56,9 +56,16 @@ export default function HeroCalculator({
 
   return (
     <div className="bg-[#00c853] rounded-[20px] p-6 sm:p-8 relative overflow-hidden">
-      {/* Money emoji background pattern */}
-      <div className="absolute inset-0 pointer-events-none select-none opacity-[0.08] text-[28px] leading-[36px] tracking-[8px] whitespace-pre-wrap break-all" aria-hidden="true">
-        {'💵💰🪙💸₱💵💰🪙💸₱'.repeat(30)}
+      {/* Scattered money emojis */}
+      <div className="absolute inset-0 pointer-events-none select-none" aria-hidden="true">
+        {['💵','💰','🪙','💸','₱','💎','🤑','💵','💰','🪙','💸','₱','💎','🤑','💵','💰','🪙','💸','₱','💎','🤑','💵','💰','🪙','💸','₱','💎','🤑','💵','💰','🪙','💸','₱','💎','🤑','💵','💰','🪙','💸','₱'].map((e, i) => (
+          <span key={i} className="absolute text-[22px] sm:text-[28px]" style={{
+            left: `${(i * 17.3 + i * i * 3.7) % 100}%`,
+            top: `${(i * 13.1 + i * i * 2.3) % 100}%`,
+            opacity: 0.12,
+            transform: `rotate(${(i * 37) % 360}deg)`,
+          }}>{e}</span>
+        ))}
       </div>
       <div className="relative">
       <p className="text-center text-lg font-bold text-white/80 mb-4">How much are you saving?</p>
@@ -76,7 +83,7 @@ export default function HeroCalculator({
                 isActive
                   ? "bg-white text-[#00c853]"
                   : isGold
-                    ? "bg-[#FFD600] text-[#1a1a1a] hover:bg-[#FFDE2D]"
+                    ? "bg-[#FFD600]/20 text-white hover:bg-[#FFD600]/30"
                     : "bg-white/20 text-white hover:bg-white/30"
               }`}>
               {a.label}
