@@ -30,7 +30,6 @@ function fb(
   };
 }
 
-// Helper for simple flat-rate TD entries
 function td(term_days: number, rate: number): TimeDepositRate {
   return { term_days, rate, min_deposit: 0, max_deposit: null };
 }
@@ -48,27 +47,22 @@ const FALLBACK_BANKS: BankWithRates[] = [
       { name: "Saver-Plus", tiers: [{ rate: 0.0625, min_deposit: 50000, max_deposit: null }] },
     ],
     [
-      // Peso Auto Renew — 35 Days
       { term_days: 35, rate: 0.250, min_deposit: 50000, max_deposit: 499999 },
       { term_days: 35, rate: 0.375, min_deposit: 500000, max_deposit: 999999 },
       { term_days: 35, rate: 0.375, min_deposit: 1000000, max_deposit: 4999999 },
       { term_days: 35, rate: 0.500, min_deposit: 5000000, max_deposit: null },
-      // 63 Days
       { term_days: 63, rate: 0.250, min_deposit: 50000, max_deposit: 499999 },
       { term_days: 63, rate: 0.500, min_deposit: 500000, max_deposit: 999999 },
       { term_days: 63, rate: 0.500, min_deposit: 1000000, max_deposit: 4999999 },
       { term_days: 63, rate: 0.625, min_deposit: 5000000, max_deposit: null },
-      // 91 Days
       { term_days: 91, rate: 0.375, min_deposit: 50000, max_deposit: 499999 },
       { term_days: 91, rate: 0.500, min_deposit: 500000, max_deposit: 999999 },
       { term_days: 91, rate: 0.500, min_deposit: 1000000, max_deposit: 4999999 },
       { term_days: 91, rate: 0.625, min_deposit: 5000000, max_deposit: null },
-      // 182 Days
       { term_days: 182, rate: 0.375, min_deposit: 50000, max_deposit: 499999 },
       { term_days: 182, rate: 0.500, min_deposit: 500000, max_deposit: 999999 },
       { term_days: 182, rate: 0.500, min_deposit: 1000000, max_deposit: 4999999 },
       { term_days: 182, rate: 0.750, min_deposit: 5000000, max_deposit: null },
-      // 365 Days
       { term_days: 365, rate: 0.500, min_deposit: 50000, max_deposit: 499999 },
       { term_days: 365, rate: 0.500, min_deposit: 500000, max_deposit: 999999 },
       { term_days: 365, rate: 0.500, min_deposit: 1000000, max_deposit: 4999999 },
@@ -95,7 +89,6 @@ const FALLBACK_BANKS: BankWithRates[] = [
     "Online Time Deposit rates", false, null, null,
     [{ name: "Regular Savings", tiers: [{ rate: 0.0625, min_deposit: 0, max_deposit: null }] }],
     [
-      // Online Time Deposit — 30 Days
       { term_days: 30, rate: 4.125, min_deposit: 10000, max_deposit: 49999 },
       { term_days: 30, rate: 4.125, min_deposit: 50000, max_deposit: 199999 },
       { term_days: 30, rate: 4.125, min_deposit: 200000, max_deposit: 499999 },
@@ -104,7 +97,6 @@ const FALLBACK_BANKS: BankWithRates[] = [
       { term_days: 30, rate: 4.250, min_deposit: 5000000, max_deposit: 9999999 },
       { term_days: 30, rate: 4.250, min_deposit: 10000000, max_deposit: 19999999 },
       { term_days: 30, rate: 4.250, min_deposit: 20000000, max_deposit: null },
-      // 60 Days
       { term_days: 60, rate: 4.125, min_deposit: 10000, max_deposit: 49999 },
       { term_days: 60, rate: 4.125, min_deposit: 50000, max_deposit: 199999 },
       { term_days: 60, rate: 4.125, min_deposit: 200000, max_deposit: 499999 },
@@ -113,7 +105,6 @@ const FALLBACK_BANKS: BankWithRates[] = [
       { term_days: 60, rate: 4.250, min_deposit: 5000000, max_deposit: 9999999 },
       { term_days: 60, rate: 4.250, min_deposit: 10000000, max_deposit: 19999999 },
       { term_days: 60, rate: 4.250, min_deposit: 20000000, max_deposit: null },
-      // 180 Days
       { term_days: 180, rate: 4.125, min_deposit: 10000, max_deposit: 49999 },
       { term_days: 180, rate: 4.250, min_deposit: 50000, max_deposit: 199999 },
       { term_days: 180, rate: 4.250, min_deposit: 200000, max_deposit: 499999 },
@@ -179,25 +170,32 @@ const FALLBACK_BANKS: BankWithRates[] = [
     "2026-03-11T00:00:00Z"),
 
   fb("tonik", "Tonik", "digital", "🟡",
-    "https://tonikbank.com/deposit-interest-rates", null,
-    "4%–4.5% on Solo/Group Stash", false, null, null,
+    "https://tonikbank.com/deposit-interest-rates",
+    "https://tonikbank.com/savings-cards/time-deposit",
+    "4%–4.5% Stash savings. TD up to 8% p.a.", false, null, null,
     [{ name: "Stash", tiers: [{ rate: 4.0, min_deposit: 0, max_deposit: 50000 }, { rate: 4.5, min_deposit: 50001, max_deposit: null }] }],
-    [td(30, 4.0), td(90, 4.5), td(180, 5.5), td(360, 6.0)],
-    "2026-03-10T00:00:00Z"),
+    [
+      { term_days: 180, rate: 6.0, min_deposit: 5000, max_deposit: 250000 },
+      { term_days: 270, rate: 7.0, min_deposit: 5000, max_deposit: 250000 },
+      { term_days: 365, rate: 8.0, min_deposit: 5000, max_deposit: 250000 },
+      { term_days: 540, rate: 6.0, min_deposit: 5000, max_deposit: 250000 },
+      { term_days: 730, rate: 6.0, min_deposit: 5000, max_deposit: 250000 },
+    ],
+    "2026-03-15T00:00:00Z"),
 
   fb("gotyme", "GoTyme", "digital", "🟢",
-    "https://www.gotyme.com.ph/savings", null,
-    "Standard savings, no lock-in", false, null, null,
-    [{ name: "Savings", tiers: [{ rate: 3.5, min_deposit: 0, max_deposit: null }] }],
-    [td(30, 3.5), td(90, 4.0), td(180, 4.5), td(360, 5.0)],
-    "2026-03-10T00:00:00Z"),
+    "https://www.gotyme.com.ph/save-and-invest/", null,
+    "Go Save: flat 3% p.a., no conditions", false, null, null,
+    [{ name: "Go Save", tiers: [{ rate: 3.0, min_deposit: 0, max_deposit: null }] }],
+    [],
+    "2026-03-15T00:00:00Z"),
 
-  fb("seabank", "SeaBank", "digital", "🔵",
-    "https://www.seabank.ph/", null,
-    "Tiered rate by balance", false, null, null,
-    [{ name: "Savings", tiers: [{ rate: 3.0, min_deposit: 0, max_deposit: 50000 }, { rate: 4.0, min_deposit: 50001, max_deposit: null }] }],
-    [td(30, 3.5), td(90, 4.0), td(180, 4.5), td(360, 5.0)],
-    "2026-03-09T00:00:00Z"),
+  fb("maribank", "MariBank", "digital", "🔵",
+    "https://www.maribank.ph/product/savings", null,
+    "Formerly SeaBank. Daily interest crediting.", false, null, null,
+    [{ name: "MariBank Savings", tiers: [{ rate: 3.25, min_deposit: 0, max_deposit: 1000000 }, { rate: 3.75, min_deposit: 1000001, max_deposit: null }] }],
+    [],
+    "2026-03-15T00:00:00Z"),
 
   fb("gcash_gsave", "GCash GSave", "digital", "💙",
     "https://www.gcash.com/gsave", null,
