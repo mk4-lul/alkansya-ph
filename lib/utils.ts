@@ -102,10 +102,14 @@ export const AMOUNT_BRACKETS = [
 
 export const TERM_LABELS: Record<number, string> = {
   30: "30 Days",
+  35: "35 Days",
   60: "60 Days",
-  90: "90 Days",
+  63: "63 Days",
+  90: "3 Months",
+  91: "3 Months",
   120: "120 Days",
   180: "6 Months",
+  182: "6 Months",
   360: "1 Year",
   365: "1 Year",
 };
