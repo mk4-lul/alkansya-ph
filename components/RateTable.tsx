@@ -103,24 +103,6 @@ function BankRow({
       {/* Expanded */}
       {expanded && (
         <div className="px-5 pb-5 animate-fade-in">
-          {/* App rating card */}
-          {bank.avg_app_rating && (
-            <div className="flex items-center gap-3 mb-4 bg-[#f5f5f5] rounded-xl px-4 py-3">
-              <div className="flex items-center gap-1 text-[#c8940a]">
-                {[1,2,3,4,5].map((s) => (
-                  <span key={s} className={`text-[14px] ${s <= Math.round(bank.avg_app_rating!) ? "text-[#c8940a]" : "text-[#ddd]"}`}>★</span>
-                ))}
-              </div>
-              <div>
-                <span className="text-sm font-bold text-[#1a1a1a]">{bank.avg_app_rating}</span>
-                <span className="text-[11px] text-[#888] ml-1.5">App rating</span>
-              </div>
-              <div className="ml-auto flex gap-3 text-[10px] text-[#888]">
-                <span>Play Store {bank.play_store_rating}</span>
-                <span>App Store {bank.app_store_rating}</span>
-              </div>
-            </div>
-          )}
           {/* Savings products */}
           {depositType === "savings" && bank.savings_products.length > 0 && (
             <div className="mb-4">
