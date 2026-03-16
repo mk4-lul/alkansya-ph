@@ -269,16 +269,17 @@ function ComparisonBars({ startYear, amount }: { startYear: number; amount: numb
 // ─── Page ─────────────────────────────────────────────────────────
 
 export default function InvestmentCalculatorPage() {
-  const [asset, setAsset] = useState<AssetData>(ASSETS[0]); // bitcoin default
-  const [startYear, setStartYear] = useState(2015);
-  const [amount, setAmount] = useState(100000);
+  const [asset, setAsset] = useState<AssetData | null>(null);
+  const [startYear, setStartYear] = useState<number | null>(null);
+  const [amount, setAmount] = useState<number | null>(null);
   const [showInfo, setShowInfo] = useState<string | null>(null);
 
-  const entryPrice = asset.prices[startYear];
-  const currentPrice = asset.prices[CURRENT_YEAR];
-  const multiplier = currentPrice / entryPrice;
-  const currentValue = amount * multiplier;
-  const gain = currentValue - amount;
+  const isReady = asset !== null && startYear !== null && amount !== null && amount > 0;
+  const entryPrice = isReady ? asset.prices[startYear] : 0;
+  const currentPrice = isReady ? asset.prices[CURRENT_YEAR] : 0;
+  const multiplier = entryPrice > 0 ? currentPrice / entryPrice : 0;
+  const currentValue = isReady ? amount * multiplier : 0;
+  const gain = currentValue - (amount ?? 0);
   const gainPct = ((multiplier - 1) * 100);
   const isPositive = gain >= 0;
 
@@ -305,14 +306,14 @@ export default function InvestmentCalculatorPage() {
                 <div key={a.id} className="relative">
                   <button onClick={() => setAsset(a)}
                     className={`w-full py-2.5 rounded-xl text-[12px] font-bold transition-all flex items-center justify-center gap-1.5 ${
-                      asset.id === a.id ? "bg-[#1a1a1a] text-white" : "bg-[#f5f5f5] text-[#1a1a1a] hover:bg-[#e8e8e8]"
+                      asset?.id === a.id ? "bg-[#1a1a1a] text-white" : "bg-[#f5f5f5] text-[#1a1a1a] hover:bg-[#e8e8e8]"
                     }`}>
                     <span className="text-sm">{a.emoji}</span> {a.name}
                     {a.info && (
                       <span
                         onClick={(e) => { e.stopPropagation(); setShowInfo(showInfo === a.id ? null : a.id); }}
                         className={`inline-flex items-center justify-center w-3.5 h-3.5 rounded-full border text-[8px] ml-0.5 shrink-0 ${
-                          asset.id === a.id ? "border-white/40 text-white/60 hover:text-white" : "border-[#ccc] text-[#aaa] hover:text-[#1a1a1a]"
+                          asset?.id === a.id ? "border-white/40 text-white/60 hover:text-white" : "border-[#ccc] text-[#aaa] hover:text-[#1a1a1a]"
                         }`}>i</span>
                     )}
                   </button>
@@ -358,7 +359,7 @@ export default function InvestmentCalculatorPage() {
                 <input
                   type="text"
                   inputMode="numeric"
-                  value={formatWithCommas(amount)}
+                  value={formatWithCommas(amount ?? 0)}
                   onChange={(e) => setAmount(parseFormatted(e.target.value))}
                   className="flex-1 bg-transparent text-sm font-bold text-[#1a1a1a] outline-none"
                   placeholder="0"
@@ -368,6 +369,9 @@ export default function InvestmentCalculatorPage() {
           </div>
         </div>
 
+        {/* Results — only when all inputs selected */}
+        {isReady && asset && startYear && (
+        <>
         {/* Hero result card */}
         <div className="bg-[#FFD700] rounded-[20px] p-6 sm:p-8 mb-3 relative overflow-hidden">
           <div className="absolute inset-0 pointer-events-none select-none" style={{ filter: "blur(2px)" }} aria-hidden="true">
@@ -421,6 +425,8 @@ export default function InvestmentCalculatorPage() {
           <p className="text-[10px] text-[#aaa] mb-4">{formatPeso(amount)} invested in Jan {startYear} → today</p>
           <ComparisonBars startYear={startYear} amount={amount} />
         </div>
+        </>
+        )}
 
         {/* CTA */}
         <div className="mt-3 bg-white rounded-[20px] p-5 sm:p-6 text-center">
