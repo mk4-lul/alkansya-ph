@@ -195,14 +195,15 @@ function MiniChart({ data, height = 300 }: { data: { month: number; balance: num
 }
 
 export default function CalculatorPage() {
-  const [initial, setInitial] = useState(50000);
-  const [monthly, setMonthly] = useState(5000);
-  const [rate, setRate] = useState(3.0);
-  const [years, setYears] = useState(10);
+  const [initial, setInitial] = useState<number | null>(null);
+  const [monthly, setMonthly] = useState<number | null>(null);
+  const [rate, setRate] = useState(0);
+  const [years, setYears] = useState<number | null>(null);
 
-  const result = useMemo(() => computeGrowth(initial, monthly, rate, years), [initial, monthly, rate, years]);
+  const isReady = initial !== null && monthly !== null && rate > 0 && years !== null;
+  const result = useMemo(() => isReady ? computeGrowth(initial, monthly, rate, years) : null, [initial, monthly, rate, years, isReady]);
 
-  const interestPct = result.finalBalance > 0 ? ((result.totalInterest / result.finalBalance) * 100).toFixed(1) : "0";
+  const interestPct = result && result.finalBalance > 0 ? ((result.totalInterest / result.finalBalance) * 100).toFixed(1) : "0";
 
   return (
     <div className="min-h-screen bg-[#f5f5f5]">
@@ -237,7 +238,7 @@ export default function CalculatorPage() {
                 <input
                   type="text"
                   inputMode="numeric"
-                  value={formatWithCommas(initial)}
+                  value={formatWithCommas(initial ?? 0)}
                   onChange={(e) => setInitial(parseFormatted(e.target.value))}
                   className="flex-1 bg-transparent text-sm font-bold text-[#1a1a1a] outline-none"
                   placeholder="0"
@@ -264,7 +265,7 @@ export default function CalculatorPage() {
                 <input
                   type="text"
                   inputMode="numeric"
-                  value={formatWithCommas(monthly)}
+                  value={formatWithCommas(monthly ?? 0)}
                   onChange={(e) => setMonthly(parseFormatted(e.target.value))}
                   className="flex-1 bg-transparent text-sm font-bold text-[#1a1a1a] outline-none"
                   placeholder="0"
@@ -311,7 +312,9 @@ export default function CalculatorPage() {
           </div>
         </div>
 
-        {/* Hero result card */}
+        {/* Hero result card — only shows when all inputs selected */}
+        {isReady && result && (
+        <>
         <div className="bg-[#00FF7F] rounded-[20px] p-6 sm:p-8 mb-3 relative overflow-hidden">
           {/* Scattered money emojis */}
           <div className="absolute inset-0 pointer-events-none select-none" style={{ filter: "blur(2px)" }} aria-hidden="true">
@@ -370,6 +373,8 @@ export default function CalculatorPage() {
             </div>
           </div>
         </div>
+        </>
+        )}
 
         {/* Compare CTA */}
         <div className="mt-3 bg-white rounded-[20px] p-5 sm:p-6 text-center">
