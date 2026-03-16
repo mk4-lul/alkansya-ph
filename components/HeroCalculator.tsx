@@ -58,13 +58,15 @@ export default function HeroCalculator({
     <div className="bg-[#00c853] rounded-[20px] p-6 sm:p-8 relative overflow-hidden">
       {/* Scattered money emojis */}
       <div className="absolute inset-0 pointer-events-none select-none" style={{ filter: "blur(2px)" }} aria-hidden="true">
-        {['💵','💰','💸','📈','🏦','💵','💰','💸','📈','🏦','💵','💰','💸','📈','🏦','💵','💰','💸','📈','🏦','💵','💰','💸','📈','🏦','💵','💰','💸','📈','🏦','💵','💰','💸','📈','🏦','💵','💰','💸','📈','🏦'].map((e, i) => (
-          <span key={i} className="absolute text-[22px] sm:text-[28px]" style={{
-            left: `${(i * 17.3 + i * i * 3.7) % 100}%`,
-            top: `${(i * 13.1 + i * i * 2.3) % 100}%`,
+        {['💵','💰','💸','📈','🏦'].map((e, i) => (
+          <span key={i} className="absolute text-[28px] sm:text-[34px] emoji-float" style={{
+            left: `${(i * 47 + 13) % 100}%`,
+            top: `${(i * 31 + 7) % 100}%`,
             opacity: 0.75,
-            transform: `rotate(${(i * 37) % 360}deg)`,
-          }}>{e}</span>
+            '--base-rotate': `rotate(${(i * 37) % 360}deg)`,
+            '--float-duration': `${6 + (i % 5) * 2}s`,
+            '--float-delay': `${-((i * 1.3) % 8)}s`,
+          } as React.CSSProperties}>{e}</span>
         ))}
       </div>
       <div className="relative">
