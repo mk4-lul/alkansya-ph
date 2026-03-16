@@ -198,10 +198,12 @@ export default function CalculatorPage() {
   const [initial, setInitial] = useState<number | null>(null);
   const [monthly, setMonthly] = useState<number | null>(null);
   const [rate, setRate] = useState(0);
+  const [rateInterval, setRateInterval] = useState<"year" | "month">("year");
   const [years, setYears] = useState<number | null>(null);
 
+  const annualRate = rateInterval === "month" ? rate * 12 : rate;
   const isReady = initial !== null && monthly !== null && rate > 0 && years !== null;
-  const result = useMemo(() => isReady ? computeGrowth(initial, monthly, rate, years) : null, [initial, monthly, rate, years, isReady]);
+  const result = useMemo(() => isReady ? computeGrowth(initial, monthly, annualRate, years) : null, [initial, monthly, annualRate, years, isReady]);
 
   const interestPct = result && result.finalBalance > 0 ? ((result.totalInterest / result.finalBalance) * 100).toFixed(1) : "0";
 
@@ -277,25 +279,40 @@ export default function CalculatorPage() {
           {/* Interest rate — SLIDER */}
           <div className="bg-white rounded-[20px] p-5 sm:p-6">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888]">Interest rate (per year)</p>
+              <div className="flex items-center gap-2">
+                <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888]">Interest rate</p>
+                <div className="flex bg-[#f5f5f5] rounded-full p-0.5">
+                  <button onClick={() => { if (rateInterval !== "year") { setRate(Number((rate * 12).toFixed(1))); setRateInterval("year"); } }}
+                    className={`px-2.5 py-1 rounded-full text-[10px] font-semibold transition-all ${
+                      rateInterval === "year" ? "bg-[#1a1a1a] text-white" : "text-[#888]"
+                    }`}>/year</button>
+                  <button onClick={() => { if (rateInterval !== "month") { setRate(Number((rate / 12).toFixed(1))); setRateInterval("month"); } }}
+                    className={`px-2.5 py-1 rounded-full text-[10px] font-semibold transition-all ${
+                      rateInterval === "month" ? "bg-[#1a1a1a] text-white" : "text-[#888]"
+                    }`}>/month</button>
+                </div>
+              </div>
               <p className="text-2xl font-extrabold text-[#00c853]">{rate.toFixed(1)}%</p>
             </div>
             <input
               type="range"
               min="0"
-              max="100"
+              max={rateInterval === "year" ? "100" : "10"}
               step="0.1"
               value={rate}
               onChange={(e) => setRate(Number(e.target.value))}
               className="w-full h-2 rounded-full appearance-none cursor-pointer"
               style={{
-                background: `linear-gradient(to right, #00c853 0%, #00c853 ${(rate / 100) * 100}%, #e8e8e8 ${(rate / 100) * 100}%, #e8e8e8 100%)`,
+                background: `linear-gradient(to right, #00c853 0%, #00c853 ${(rate / (rateInterval === "year" ? 100 : 10)) * 100}%, #e8e8e8 ${(rate / (rateInterval === "year" ? 100 : 10)) * 100}%, #e8e8e8 100%)`,
               }}
             />
             <div className="flex justify-between mt-1">
               <span className="text-[10px] text-[#aaa]">0%</span>
-              <span className="text-[10px] text-[#aaa]">100%</span>
+              <span className="text-[10px] text-[#aaa]">{rateInterval === "year" ? "100" : "10"}%</span>
             </div>
+            {rateInterval === "month" && rate > 0 && (
+              <p className="text-[10px] text-[#aaa] mt-1 text-right">{(rate * 12).toFixed(1)}% per year</p>
+            )}
           </div>
 
           {/* Time period */}
