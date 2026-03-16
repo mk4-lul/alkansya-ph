@@ -18,70 +18,57 @@ interface VerdictResult {
   verdict: Verdict;
   daysOfWork: number;
   percentOfIncome: number;
-  totalCost: number;
-  monthlyPayment: number;
-  interestCost: number;
-  saveMonths: number;
-  savePerMonth: number;
+  monthsToSave: number;
+  savingsRatio: number;
   emoji: string;
   title: string;
   subtitle: string;
   message: string;
 }
 
-function getVerdict(income: number, price: number, payMethod: "cash" | "installment", installmentMonths: number): VerdictResult {
+function getVerdict(income: number, price: number, savings: number): VerdictResult {
   const dailyPay = income / 22;
-  const isInstallment = payMethod === "installment";
-  const interestRate = 0.02;
-  const totalCost = isInstallment ? price * (1 + interestRate * installmentMonths) : price;
-  const interestCost = totalCost - price;
-  const monthlyPayment = isInstallment ? totalCost / installmentMonths : 0;
   const daysOfWork = price / dailyPay;
   const percentOfIncome = (price / income) * 100;
-  const monthlySaving = income * 0.2;
-  const saveMonths = Math.ceil(price / monthlySaving);
-  const savePerMonth = Math.ceil(price / Math.max(saveMonths, 1));
+  const monthsToSave = savings > 0 ? Math.ceil(price / savings) : 999;
+  const savingsRatio = savings / income;
 
   let verdict: Verdict, emoji: string, title: string, subtitle: string, message: string;
 
-  if (isInstallment) {
-    const mp = (monthlyPayment / income) * 100;
-    if (mp <= 10) {
-      verdict = "green"; emoji = "🤙"; title = "G lang!"; subtitle = "Kaya naman pala.";
-      message = `₱${formatWithCommas(Math.round(monthlyPayment))} lang per month — ${mp.toFixed(0)}% ng sahod mo. Basta wag mag-stack ng maraming installment.`;
-    } else if (mp <= 25) {
-      verdict = "yellow"; emoji = "🤨"; title = "Hmm, sure ka ba?"; subtitle = "Hindi naman bawal, pero...";
-      message = `₱${formatWithCommas(Math.round(monthlyPayment))}/mo — ${mp.toFixed(0)}% ng sahod mo. May dagdag pang ₱${formatWithCommas(Math.round(interestCost))} sa interest. Ang sakit nun.`;
-    } else {
-      verdict = "red"; emoji = "💀"; title = "Wag muna, pre."; subtitle = "Masakit 'to sa bulsa.";
-      message = `₱${formatWithCommas(Math.round(monthlyPayment))}/mo?! ${mp.toFixed(0)}% ng sahod mo! Plus ₱${formatWithCommas(Math.round(interestCost))} sa interest. Nagbabayad ka na ng pang-ibang tao na sweldo.`;
-    }
+  // Logic: combine income percentage + how long it takes to save
+  if (percentOfIncome <= 10) {
+    verdict = "green"; emoji = "✅"; title = "Bili na!"; subtitle = "Easy money.";
+    message = `${daysOfWork.toFixed(1)} araw ng trabaho lang 'to. ${percentOfIncome.toFixed(0)}% ng sahod mo. Go na, walang drama.`;
+  } else if (percentOfIncome <= 30 && monthsToSave <= 2) {
+    verdict = "green"; emoji = "👍"; title = "G naman."; subtitle = "Kaya mo 'to.";
+    message = `${daysOfWork.toFixed(1)} araw ng trabaho — ${percentOfIncome.toFixed(0)}% ng sahod mo. At ${monthsToSave === 1 ? "isang buwan" : `${monthsToSave} months`} lang ipon, mabibili mo na.`;
+  } else if (percentOfIncome <= 30) {
+    verdict = "green"; emoji = "🤙"; title = "G lang."; subtitle = "Basta may disiplina.";
+    message = `${daysOfWork.toFixed(1)} araw ng trabaho. Kung itutuloy mo yung ₱${formatWithCommas(savings)}/mo na ipon, mga ${monthsToSave} months bago mo mabili 'to.`;
+  } else if (percentOfIncome <= 60 && monthsToSave <= 3) {
+    verdict = "yellow"; emoji = "🫠"; title = "Medyo mahal ah..."; subtitle = "Kaya mo, pero masasaktan ka.";
+    message = `${daysOfWork.toFixed(0)} araw ng trabaho 'to — ${percentOfIncome.toFixed(0)}% ng sahod mo. Kailangan mo mag-ipon ng ${monthsToSave} months. Pag binili mo agad, ang luwag ng wallet mo... kasi wala na laman.`;
+  } else if (percentOfIncome <= 60) {
+    verdict = "yellow"; emoji = "🤨"; title = "Hmm, sure ka ba?"; subtitle = "Medyo matagal ang ipon.";
+    message = `${daysOfWork.toFixed(0)} araw ng trabaho. Sa ₱${formatWithCommas(savings)}/mo na ipon mo, ${monthsToSave} months bago mo 'to mabili. Tiis-tiis muna.`;
+  } else if (percentOfIncome <= 100) {
+    verdict = "red"; emoji = "🚫"; title = "Huy, wag!"; subtitle = "'Di mo pa afford 'to, bes.";
+    message = `${daysOfWork.toFixed(0)} araw ng trabaho — ${percentOfIncome.toFixed(0)}% ng sahod mo. Halos buong sweldo. ${monthsToSave <= 12 ? `Mag-ipon ka ng ${monthsToSave} months, mabibili mo rin.` : "Ang tagal pa ng ipon, pero kaya yan."}`;
+  } else if (percentOfIncome <= 200) {
+    verdict = "red"; emoji = "💀"; title = "Luh, grabe 'to."; subtitle = "Mas mahal pa sa sahod mo.";
+    message = `${daysOfWork.toFixed(0)} araw ng trabaho. Kahit di ka kumain at di ka uminom, kulang pa rin. ${savings > 0 ? `Sa ₱${formatWithCommas(savings)}/mo, mga ${monthsToSave} months pa 'to.` : "Mag-ipon ka muna, promise worth it."}`;
   } else {
-    if (percentOfIncome <= 10) {
-      verdict = "green"; emoji = "✅"; title = "Bili na!"; subtitle = "Easy money.";
-      message = `${daysOfWork.toFixed(1)} araw ng trabaho lang. ${percentOfIncome.toFixed(0)}% ng sahod mo. Walang drama, go.`;
-    } else if (percentOfIncome <= 30) {
-      verdict = "green"; emoji = "👍"; title = "G naman."; subtitle = "Kaya mo, basta may ipon ka pa.";
-      message = `${daysOfWork.toFixed(1)} araw ng trabaho — ${percentOfIncome.toFixed(0)}% ng sahod mo. Hindi siya cheap pero afford mo naman.`;
-    } else if (percentOfIncome <= 60) {
-      verdict = "yellow"; emoji = "🫠"; title = "Medyo mahal ah..."; subtitle = "Kaya mo, pero masasaktan ka.";
-      message = `${daysOfWork.toFixed(0)} araw ng trabaho. ${percentOfIncome.toFixed(0)}% ng buong sahod mo. Pag binili mo 'to — ang luwag ng wallet mo. Kasi wala na laman.`;
-    } else if (percentOfIncome <= 100) {
-      verdict = "red"; emoji = "🚫"; title = "Huy, wag!"; subtitle = "'Di mo pa afford, bes.";
-      message = `${daysOfWork.toFixed(0)} araw ng trabaho — ${percentOfIncome.toFixed(0)}% ng sahod mo. Halos buong sweldo mo sa isang bagay. Pano na pagkain?`;
-    } else {
-      verdict = "red"; emoji = "💀"; title = "Luh, grabe 'to."; subtitle = "Mas mahal pa sa sahod mo.";
-      message = `${daysOfWork.toFixed(0)} araw ng trabaho. Kahit 'di ka kumain at 'di ka uminom, kulang pa rin. ${percentOfIncome > 200 ? "Ilang buwan na sahod mo 'to ah." : "Mag-ipon muna."}`;
-    }
+    verdict = "red"; emoji = "🪦"; title = "Pre, ano ba 'to."; subtitle = "Ilang buwan na sahod mo 'to.";
+    message = `${Math.ceil(percentOfIncome / 100)} months na sahod mo 'to. ${daysOfWork.toFixed(0)} araw ng trabaho. ${savings > 0 ? `Kakailanganin mo ng ${monthsToSave} months na ipon.` : "Wala ka pang naipon. Simula muna tayo doon."} Breathe ka muna.`;
   }
 
-  return { verdict, daysOfWork, percentOfIncome, totalCost, monthlyPayment, interestCost, saveMonths, savePerMonth, emoji, title, subtitle, message };
+  return { verdict, daysOfWork, percentOfIncome, monthsToSave, savingsRatio, emoji, title, subtitle, message };
 }
 
-function VerdictCard({ result, price, payMethod }: { result: VerdictResult; price: number; payMethod: string }) {
+function VerdictCard({ result }: { result: VerdictResult }) {
   const [show, setShow] = useState(false);
   const prevKey = useRef("");
-  const key = `${result.title}-${result.percentOfIncome.toFixed(0)}`;
+  const key = `${result.title}-${result.percentOfIncome.toFixed(0)}-${result.monthsToSave}`;
 
   useEffect(() => {
     if (key !== prevKey.current) {
@@ -98,7 +85,7 @@ function VerdictCard({ result, price, payMethod }: { result: VerdictResult; pric
   const dividerColor = result.verdict === "yellow" ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.2)";
 
   return (
-    <div className="mt-8 mb-4" style={{ perspective: "800px" }}>
+    <div style={{ perspective: "800px" }}>
       <div
         className="rounded-3xl px-6 py-8 sm:px-10 sm:py-10 text-center transition-all duration-500"
         style={{
@@ -138,64 +125,13 @@ function VerdictCard({ result, price, payMethod }: { result: VerdictResult; pric
             <p className="text-2xl sm:text-3xl font-black">{result.percentOfIncome.toFixed(0)}%</p>
             <p className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: subColor }}>ng sahod</p>
           </div>
-          {payMethod === "installment" && (
-            <>
-              <div style={{ width: 1, background: dividerColor }} />
-              <div>
-                <p className="text-2xl sm:text-3xl font-black">{formatPeso(result.totalCost)}</p>
-                <p className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: subColor }}>babayaran talaga</p>
-              </div>
-            </>
-          )}
-        </div>
-
-        {payMethod === "installment" && (
-          <div className="mt-5 pt-5 flex justify-center gap-6" style={{
-            borderTop: `1px solid ${dividerColor}`,
-            transition: "opacity 0.4s 0.4s", opacity: show ? 1 : 0,
-          }}>
-            <div>
-              <p className="text-lg font-black">{formatPeso(result.monthlyPayment)}</p>
-              <p className="text-[10px] font-semibold" style={{ color: subColor }}>per month</p>
-            </div>
-            <div>
-              <p className="text-lg font-black">{formatPeso(result.interestCost)}</p>
-              <p className="text-[10px] font-semibold" style={{ color: subColor }}>interest</p>
-            </div>
-            <div>
-              <p className="text-lg font-black">+{((result.interestCost / price) * 100).toFixed(0)}%</p>
-              <p className="text-[10px] font-semibold" style={{ color: subColor }}>extra mo</p>
-            </div>
+          <div style={{ width: 1, background: dividerColor }} />
+          <div>
+            <p className="text-2xl sm:text-3xl font-black">{result.monthsToSave >= 999 ? "—" : result.monthsToSave}</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: subColor }}>months ipon</p>
           </div>
-        )}
+        </div>
       </div>
-
-      {result.verdict !== "green" && show && (
-        <div className="mt-4 bg-[#00a844] rounded-2xl p-5 text-center" style={{ animation: "fadeSlideUp 0.5s 0.5s both" }}>
-          <p className="text-[11px] text-white/80 font-semibold uppercase tracking-wider mb-2">💡 Instead</p>
-          <p className="text-sm text-white/90 leading-relaxed">
-            Mag-ipon ka ng <span className="text-white font-black">{formatPeso(result.savePerMonth)}/month</span> —
-            sa <span className="text-white font-black">{result.saveMonths} months</span>,
-            mabibili mo na &apos;to. Walang utang, walang interest.
-          </p>
-          {payMethod === "installment" && result.interestCost > 0 && (
-            <p className="text-xs text-white/70 mt-2">
-              Makakatipid ka pa ng {formatPeso(result.interestCost)} na sana mapupunta sa interest. Pang-samgyup na &apos;yun.
-            </p>
-          )}
-        </div>
-      )}
-
-      {result.verdict === "green" && payMethod === "installment" && result.interestCost > 100 && show && (
-        <div className="mt-4 bg-[#00a844] rounded-2xl p-5 text-center" style={{ animation: "fadeSlideUp 0.5s 0.5s both" }}>
-          <p className="text-[11px] text-white/80 font-semibold uppercase tracking-wider mb-2">💡 Alam mo ba</p>
-          <p className="text-sm text-white/90 leading-relaxed">
-            Kaya mo naman, pero ₱{formatWithCommas(Math.round(result.interestCost))} ang interest.
-            Mag-ipon ka ng <span className="text-white font-black">{formatPeso(result.savePerMonth)}/mo</span>,
-            mabibili mo &apos;to sa <span className="text-white font-black">{result.saveMonths} months</span> — at yung interest money, sa&apos;yo na.
-          </p>
-        </div>
-      )}
     </div>
   );
 }
@@ -203,67 +139,52 @@ function VerdictCard({ result, price, payMethod }: { result: VerdictResult; pric
 export default function AffordCalculatorPage() {
   const [income, setIncome] = useState(0);
   const [price, setPrice] = useState(0);
-  const [payMethod, setPayMethod] = useState<"cash" | "installment">("cash");
-  const [installmentMonths, setInstallmentMonths] = useState(12);
+  const [savings, setSavings] = useState(0);
 
-  const isReady = income > 0 && price > 0;
+  const isReady = income > 0 && price > 0 && savings > 0;
   const result = useMemo(
-    () => isReady ? getVerdict(income, price, payMethod, installmentMonths) : null,
-    [income, price, payMethod, installmentMonths, isReady]
+    () => isReady ? getVerdict(income, price, savings) : null,
+    [income, price, savings, isReady]
   );
 
   const incomePercent = (income / 200000) * 100;
   const pricePercent = (price / 500000) * 100;
+  const savingsPercent = (savings / (income || 1)) * 100;
 
   return (
-    <div className="min-h-screen bg-[#00c853]">
+    <div className="min-h-screen bg-[#00c853] flex flex-col">
       <style>{`
         @keyframes fadeSlideUp {
           from { opacity: 0; transform: translateY(12px); }
           to { opacity: 1; transform: translateY(0); }
         }
         input[type="range"] {
-          -webkit-appearance: none;
-          appearance: none;
-          width: 100%;
-          height: 6px;
-          border-radius: 999px;
-          outline: none;
-          cursor: pointer;
+          -webkit-appearance: none; appearance: none;
+          width: 100%; height: 6px; border-radius: 999px; outline: none; cursor: pointer;
         }
         input[type="range"]::-webkit-slider-thumb {
-          -webkit-appearance: none;
-          appearance: none;
-          width: 28px;
-          height: 28px;
-          border-radius: 50%;
-          background: #fff;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-          cursor: grab;
+          -webkit-appearance: none; appearance: none;
+          width: 28px; height: 28px; border-radius: 50%; background: #fff;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.3); cursor: grab;
         }
-        input[type="range"]::-webkit-slider-thumb:active {
-          cursor: grabbing;
-          transform: scale(1.15);
-        }
+        input[type="range"]::-webkit-slider-thumb:active { cursor: grabbing; transform: scale(1.15); }
         input[type="range"]::-moz-range-thumb {
-          width: 28px;
-          height: 28px;
-          border-radius: 50%;
-          background: #fff;
-          border: none;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-          cursor: grab;
+          width: 28px; height: 28px; border-radius: 50%; background: #fff;
+          border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.3); cursor: grab;
         }
       `}</style>
 
-      <nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[520px] mx-auto">
+      {/* Nav */}
+      <nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[520px] mx-auto w-full">
         <Link href="/" className="text-xl font-extrabold tracking-tight text-white no-underline">
-          alkansya<span className="text-[#00c853]">.ph</span>
+          alkansya<span className="text-white/60">.ph</span>
         </Link>
         <NavMenu dark />
       </nav>
 
-      <main className="max-w-[520px] mx-auto px-4 sm:px-6 pb-12">
+      {/* Centered content */}
+      <main className="flex-1 flex flex-col justify-center max-w-[520px] mx-auto px-6 sm:px-8 w-full pb-8">
+
         {/* Title */}
         <div className="text-center mb-10">
           <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight leading-none mb-2">
@@ -272,109 +193,81 @@ export default function AffordCalculatorPage() {
           <p className="text-sm text-white/60">Alamin bago bilhin.</p>
         </div>
 
-        {/* Inputs — centered */}
-        <div className="space-y-8 text-center">
+        {/* 3 Sliders */}
+        <div className="space-y-7 mb-4">
 
-          {/* Income slider */}
-          <div>
-            <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-2">Sahod mo per month</p>
+          {/* Sahod */}
+          <div className="text-center">
+            <p className="text-xs font-bold text-white/70 uppercase tracking-wider mb-1">Sahod mo per month</p>
             <p className="text-3xl sm:text-4xl font-black text-white mb-3">
-              {income === 0 ? <span className="text-white/40">₱—</span> : formatPeso(income)}
+              {income === 0 ? <span className="text-white/30">₱—</span> : formatPeso(income)}
             </p>
             <input
-              type="range"
-              min="0"
-              max="200000"
-              step="500"
-              value={income}
+              type="range" min="0" max="200000" step="500" value={income}
               onChange={(e) => setIncome(Number(e.target.value))}
-              style={{
-                background: `linear-gradient(to right, #fff 0%, #fff ${incomePercent}%, rgba(0,0,0,0.12) ${incomePercent}%, rgba(0,0,0,0.12) 100%)`,
-              }}
+              style={{ background: `linear-gradient(to right, #fff 0%, #fff ${incomePercent}%, rgba(0,0,0,0.12) ${incomePercent}%, rgba(0,0,0,0.12) 100%)` }}
             />
             <div className="flex justify-between mt-1 px-0.5">
-              <span className="text-[10px] text-white/50">₱0</span>
-              <span className="text-[10px] text-white/50">₱200k</span>
+              <span className="text-[10px] text-white/40">₱0</span>
+              <span className="text-[10px] text-white/40">₱200k</span>
             </div>
           </div>
 
-          {/* Price slider */}
-          <div>
-            <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-2">Presyo ng gusto mo</p>
+          {/* Presyo */}
+          <div className="text-center">
+            <p className="text-xs font-bold text-white/70 uppercase tracking-wider mb-1">Presyo ng gusto mo</p>
             <p className="text-3xl sm:text-4xl font-black text-white mb-3">
-              {price === 0 ? <span className="text-white/40">₱—</span> : formatPeso(price)}
+              {price === 0 ? <span className="text-white/30">₱—</span> : formatPeso(price)}
             </p>
             <input
-              type="range"
-              min="0"
-              max="500000"
-              step="250"
-              value={price}
+              type="range" min="0" max="500000" step="250" value={price}
               onChange={(e) => setPrice(Number(e.target.value))}
-              style={{
-                background: `linear-gradient(to right, #fff 0%, #fff ${pricePercent}%, rgba(0,0,0,0.12) ${pricePercent}%, rgba(0,0,0,0.12) 100%)`,
-              }}
+              style={{ background: `linear-gradient(to right, #fff 0%, #fff ${pricePercent}%, rgba(0,0,0,0.12) ${pricePercent}%, rgba(0,0,0,0.12) 100%)` }}
             />
             <div className="flex justify-between mt-1 px-0.5">
-              <span className="text-[10px] text-white/50">₱0</span>
-              <span className="text-[10px] text-white/50">₱500k</span>
+              <span className="text-[10px] text-white/40">₱0</span>
+              <span className="text-[10px] text-white/40">₱500k</span>
             </div>
           </div>
 
-          {/* Payment method */}
-          <div>
-            <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-3">Pano mo babayaran?</p>
-            <div className="flex gap-2 justify-center">
-              <button onClick={() => setPayMethod("cash")}
-                className={`px-6 py-3 rounded-xl text-sm font-bold transition-all ${
-                  payMethod === "cash"
-                    ? "bg-white text-[#0a0a0a]"
-                    : "bg-white/40 text-white/70 hover:bg-white/30"
-                }`}>Isang bagsak</button>
-              <button onClick={() => setPayMethod("installment")}
-                className={`px-6 py-3 rounded-xl text-sm font-bold transition-all ${
-                  payMethod === "installment"
-                    ? "bg-white text-[#0a0a0a]"
-                    : "bg-white/40 text-white/70 hover:bg-white/30"
-                }`}>Hulugan</button>
+          {/* Natitipid */}
+          <div className="text-center">
+            <p className="text-xs font-bold text-white/70 uppercase tracking-wider mb-1">Natitipid mo kada buwan</p>
+            <p className="text-3xl sm:text-4xl font-black text-white mb-3">
+              {savings === 0 ? <span className="text-white/30">₱—</span> : formatPeso(savings)}
+            </p>
+            <input
+              type="range" min="0" max={income || 100000} step="500" value={savings}
+              onChange={(e) => setSavings(Math.min(Number(e.target.value), income || 100000))}
+              style={{ background: `linear-gradient(to right, #fff 0%, #fff ${savingsPercent}%, rgba(0,0,0,0.12) ${savingsPercent}%, rgba(0,0,0,0.12) 100%)` }}
+            />
+            <div className="flex justify-between mt-1 px-0.5">
+              <span className="text-[10px] text-white/40">₱0</span>
+              <span className="text-[10px] text-white/40">{income > 0 ? formatPeso(income) : "—"}</span>
             </div>
-            {payMethod === "installment" && (
-              <div className="flex gap-1.5 mt-3 justify-center">
-                {[
-                  { label: "3mo", months: 3 },
-                  { label: "6mo", months: 6 },
-                  { label: "12mo", months: 12 },
-                  { label: "24mo", months: 24 },
-                ].map((t) => (
-                  <button key={t.months} onClick={() => setInstallmentMonths(t.months)}
-                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-                      installmentMonths === t.months
-                        ? "bg-white/40 text-white"
-                        : "bg-white/15 text-white/50 hover:bg-white/25"
-                    }`}>{t.label}</button>
-                ))}
-              </div>
-            )}
           </div>
         </div>
 
         {/* Verdict */}
         {isReady && result && (
-          <VerdictCard result={result} price={price} payMethod={payMethod} />
+          <div className="mt-4">
+            <VerdictCard result={result} />
+          </div>
         )}
 
         {/* CTA */}
-        <div className="text-center mt-10">
-          <p className="text-xs text-white/50 mb-3">Gusto mo lumaki savings mo?</p>
+        <div className="text-center mt-8">
+          <p className="text-xs text-white/40 mb-3">Gusto mo lumaki savings mo?</p>
           <Link href="/rates"
             className="inline-block bg-[#1a1a1a] text-white font-bold text-sm px-6 py-3 rounded-full hover:bg-[#111] transition-colors no-underline">
             Compare rates →
           </Link>
         </div>
 
-        <footer className="mt-10 pt-4 text-center">
-          <p className="text-[10px] text-white/40 leading-relaxed">
-            Guide lang &apos;to, hindi financial advice. Installment rates are estimates (~2% monthly add-on). Always check the total cost bago mag-sign up.
+        {/* Footer */}
+        <footer className="mt-8 text-center">
+          <p className="text-[10px] text-white/30 leading-relaxed">
+            Guide lang &apos;to, hindi financial advice. Mag-isip muna bago bumili.
           </p>
         </footer>
       </main>
