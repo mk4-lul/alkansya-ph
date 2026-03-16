@@ -126,10 +126,10 @@ export default function AffordCalculatorPage() {
   return (
     <div className="h-[100dvh] bg-[#f5f5f5] flex flex-col overflow-hidden">
       <style>{`
-        input[type="range"] { -webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:999px;outline:none;cursor:pointer; }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none;appearance:none;width:24px;height:24px;border-radius:50%;background:#1a1a1a;box-shadow:0 1px 4px rgba(0,0,0,0.15);cursor:grab; }
-        input[type="range"]::-webkit-slider-thumb:active { cursor:grabbing;transform:scale(1.15); }
-        input[type="range"]::-moz-range-thumb { width:24px;height:24px;border-radius:50%;background:#1a1a1a;border:none;box-shadow:0 1px 4px rgba(0,0,0,0.15);cursor:grab; }
+        input[type="range"] { -webkit-appearance:none;appearance:none;width:100%;height:3px;border-radius:999px;outline:none;cursor:pointer; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;background:#1a1a1a;box-shadow:0 1px 3px rgba(0,0,0,0.15);cursor:grab; }
+        input[type="range"]::-webkit-slider-thumb:active { cursor:grabbing;transform:scale(1.1); }
+        input[type="range"]::-moz-range-thumb { width:18px;height:18px;border-radius:50%;background:#1a1a1a;border:none;box-shadow:0 1px 3px rgba(0,0,0,0.15);cursor:grab; }
         @keyframes pulse-glow { 0%,100%{box-shadow:0 0 0 0 rgba(0,200,83,0.4)} 50%{box-shadow:0 0 0 10px rgba(0,200,83,0)} }
       `}</style>
 
@@ -154,62 +154,56 @@ export default function AffordCalculatorPage() {
             </div>
 
             {/* 3 Sliders */}
-            <div className="flex-1 flex flex-col justify-center space-y-5 min-h-0">
+            <div className="flex-1 flex flex-col justify-center space-y-4 min-h-0">
               {/* Sahod */}
               <div className="text-center">
-                <p className="text-[10px] font-bold text-[#888] uppercase tracking-wider mb-0.5">Sahod mo per month</p>
-                <p className="text-2xl font-black text-[#1a1a1a] mb-1.5">
-                  {income === 0 ? <span className="text-[#ccc]">₱—</span> : formatPeso(income)}
-                </p>
+                <div className="flex items-baseline justify-between mb-0.5 px-0.5">
+                  <p className="text-[10px] font-bold text-[#888] uppercase tracking-wider">Sahod mo per month</p>
+                  <p className="text-lg font-black text-[#1a1a1a]">
+                    {income === 0 ? <span className="text-[#ccc]">—</span> : formatPeso(income)}
+                  </p>
+                </div>
                 <input type="range" min="0" max="200000" step="500" value={income}
                   onChange={(e) => setIncome(Number(e.target.value))}
                   style={{ background: `linear-gradient(to right, #00c853 ${(income/200000)*100}%, #ddd ${(income/200000)*100}%)` }}
                 />
-                <div className="flex justify-between mt-0.5">
-                  <span className="text-[9px] text-[#bbb]">₱0</span>
-                  <span className="text-[9px] text-[#bbb]">₱200k</span>
-                </div>
               </div>
 
               {/* Presyo */}
               <div className="text-center">
-                <p className="text-[10px] font-bold text-[#888] uppercase tracking-wider mb-0.5">Presyo ng gusto mo</p>
-                <p className="text-2xl font-black text-[#1a1a1a] mb-1.5">
-                  {price === 0 ? <span className="text-[#ccc]">₱—</span> : formatPeso(price)}
-                </p>
+                <div className="flex items-baseline justify-between mb-0.5 px-0.5">
+                  <p className="text-[10px] font-bold text-[#888] uppercase tracking-wider">Presyo ng gusto mo</p>
+                  <p className="text-lg font-black text-[#1a1a1a]">
+                    {price === 0 ? <span className="text-[#ccc]">—</span> : formatPeso(price)}
+                  </p>
+                </div>
                 <input type="range" min="0" max="500000" step="250" value={price}
                   onChange={(e) => setPrice(Number(e.target.value))}
                   style={{ background: `linear-gradient(to right, #1a1a1a ${(price/500000)*100}%, #ddd ${(price/500000)*100}%)` }}
                 />
-                <div className="flex justify-between mt-0.5">
-                  <span className="text-[9px] text-[#bbb]">₱0</span>
-                  <span className="text-[9px] text-[#bbb]">₱500k</span>
-                </div>
               </div>
 
               {/* Natitipid */}
               <div className="text-center">
-                <p className="text-[10px] font-bold text-[#888] uppercase tracking-wider mb-0.5">Natitipid mo kada buwan</p>
-                <p className="text-2xl font-black text-[#1a1a1a] mb-1.5">
-                  {savings === 0 ? <span className="text-[#ccc]">₱—</span> : formatPeso(savings)}
-                </p>
+                <div className="flex items-baseline justify-between mb-0.5 px-0.5">
+                  <p className="text-[10px] font-bold text-[#888] uppercase tracking-wider">Natitipid mo kada buwan</p>
+                  <p className="text-lg font-black text-[#1a1a1a]">
+                    {savings === 0 ? <span className="text-[#ccc]">—</span> : formatPeso(savings)}
+                  </p>
+                </div>
                 <input type="range" min="0" max={income || 100000} step="500" value={savings}
                   onChange={(e) => setSavings(Math.min(Number(e.target.value), income || 100000))}
                   style={{ background: `linear-gradient(to right, #00c853 ${(savings/(income||1))*100}%, #ddd ${(savings/(income||1))*100}%)` }}
                 />
-                <div className="flex justify-between mt-0.5">
-                  <span className="text-[9px] text-[#bbb]">₱0</span>
-                  <span className="text-[9px] text-[#bbb]">{income > 0 ? formatPeso(income) : "—"}</span>
-                </div>
               </div>
             </div>
 
             {/* Button */}
-            <div className="py-3 shrink-0">
+            <div className="pt-3 shrink-0 text-center">
               <button
                 onClick={() => isReady && setRevealed(true)}
                 disabled={!isReady}
-                className={`w-full py-4 rounded-2xl text-base font-black tracking-tight transition-all ${
+                className={`px-6 py-2.5 rounded-full text-sm font-bold tracking-tight transition-all ${
                   isReady ? "bg-[#00c853] text-white active:scale-[0.97]" : "bg-[#e0e0e0] text-[#aaa] cursor-not-allowed"
                 }`}
                 style={isReady ? { animation: "pulse-glow 2s ease infinite" } : undefined}
