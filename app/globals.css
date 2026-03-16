@@ -71,3 +71,16 @@ select option { background: #fff; }
   animation: emojiFloat var(--float-duration, 8s) ease-in-out infinite;
   animation-delay: var(--float-delay, 0s);
 }
+
+@keyframes emojiRain {
+  0% { top: -20px; opacity: 0; transform: rotate(0deg); }
+  10% { opacity: 0.8; }
+  85% { opacity: 0.8; }
+  100% { top: 100%; opacity: 0; transform: rotate(var(--rain-spin, 45deg)); }
+}
+
+.emoji-rain {
+  position: absolute;
+  animation: emojiRain var(--rain-speed, 3s) linear infinite;
+  animation-delay: var(--rain-delay, 0s);
+}
