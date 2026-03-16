@@ -11,6 +11,7 @@ interface AssetData {
   id: string;
   name: string;
   emoji: string;
+  icon?: string; // path to custom icon in /icons/
   prices: Record<number, number>; // year -> yearly mean price
   unit?: string;
   info?: string;
@@ -19,19 +20,19 @@ interface AssetData {
 // Approximate yearly mean prices (USD). 2026 = YTD as of March 2026.
 const ASSETS: AssetData[] = [
   {
-    id: "btc", name: "Bitcoin", emoji: "₿",
+    id: "btc", name: "Bitcoin", emoji: "₿", icon: "/icons/btc.png",
     prices: { 2015: 272, 2016: 567, 2017: 4000, 2018: 7600, 2019: 7350, 2020: 11100, 2021: 47000, 2022: 28300, 2023: 28500, 2024: 63500, 2025: 95000, 2026: 78000 },
   },
   {
-    id: "gold", name: "Gold", emoji: "🥇", unit: "/oz",
+    id: "gold", name: "Gold", emoji: "🥇", icon: "/icons/gold.png", unit: "/oz",
     prices: { 2015: 1160, 2016: 1250, 2017: 1260, 2018: 1270, 2019: 1393, 2020: 1770, 2021: 1800, 2022: 1800, 2023: 1943, 2024: 2390, 2025: 2800, 2026: 5090 },
   },
   {
-    id: "silver", name: "Silver", emoji: "🥈", unit: "/oz",
+    id: "silver", name: "Silver", emoji: "🥈", icon: "/icons/silver.png", unit: "/oz",
     prices: { 2015: 15.70, 2016: 17.10, 2017: 17.10, 2018: 15.70, 2019: 16.20, 2020: 20.50, 2021: 25.10, 2022: 21.70, 2023: 23.40, 2024: 28.30, 2025: 31.00, 2026: 84.00 },
   },
   {
-    id: "sp500", name: "US Stocks", emoji: "📈", info: "Tracks the S&P 500 index — the 500 largest publicly traded companies in the United States.",
+    id: "sp500", name: "US Stocks", emoji: "🇺🇸", info: "Tracks the S&P 500 index — the 500 largest publicly traded companies in the United States.",
     prices: { 2015: 2061, 2016: 2094, 2017: 2449, 2018: 2747, 2019: 2913, 2020: 3218, 2021: 4273, 2022: 4098, 2023: 4282, 2024: 5200, 2025: 5900, 2026: 6632 },
   },
   {
@@ -39,19 +40,19 @@ const ASSETS: AssetData[] = [
     prices: { 2015: 7300, 2016: 7100, 2017: 7900, 2018: 7700, 2019: 7800, 2020: 6100, 2021: 6600, 2022: 6700, 2023: 6400, 2024: 6600, 2025: 6400, 2026: 5900 },
   },
   {
-    id: "aapl", name: "Apple Stock", emoji: "🍎",
+    id: "aapl", name: "Apple Stock", emoji: "🍎", icon: "/icons/aapl.png",
     prices: { 2015: 30.0, 2016: 26.0, 2017: 38.0, 2018: 47.0, 2019: 50.0, 2020: 94.0, 2021: 149.0, 2022: 155.0, 2023: 175.0, 2024: 207.0, 2025: 230.0, 2026: 228.0 },
   },
   {
-    id: "nvda", name: "Nvidia Stock", emoji: "🟢",
+    id: "nvda", name: "Nvidia Stock", emoji: "🟢", icon: "/icons/nvda.png",
     prices: { 2015: 0.52, 2016: 1.05, 2017: 3.50, 2018: 6.00, 2019: 4.10, 2020: 8.50, 2021: 19.0, 2022: 20.0, 2023: 32.0, 2024: 90.0, 2025: 130.0, 2026: 114.0 },
   },
   {
-    id: "amzn", name: "Amazon Stock", emoji: "📦",
+    id: "amzn", name: "Amazon Stock", emoji: "📦", icon: "/icons/amzn.png",
     prices: { 2015: 24.50, 2016: 36.00, 2017: 49.00, 2018: 80.00, 2019: 91.00, 2020: 150.0, 2021: 170.0, 2022: 130.0, 2023: 127.0, 2024: 186.0, 2025: 215.0, 2026: 205.0 },
   },
   {
-    id: "goog", name: "Google Stock", emoji: "🔍",
+    id: "goog", name: "Google Stock", emoji: "🔍", icon: "/icons/goog.png",
     prices: { 2015: 33.00, 2016: 38.00, 2017: 46.50, 2018: 54.50, 2019: 59.00, 2020: 73.00, 2021: 129.0, 2022: 113.0, 2023: 128.0, 2024: 168.0, 2025: 180.0, 2026: 170.0 },
   },
 ];
@@ -235,7 +236,10 @@ function ComparisonBars({ startYear, amount }: { startYear: number; amount: numb
         const isPositive = a.multiplier >= 1;
         return (
           <div key={a.id} className="flex items-center gap-3">
-            <span className="text-lg w-7 text-center shrink-0">{a.emoji}</span>
+            {a.icon
+              ? <img src={a.icon} alt={a.name} className="w-7 h-7 object-contain shrink-0" />
+              : <span className="text-lg w-7 text-center shrink-0">{a.emoji}</span>
+            }
             <div className="flex-1">
               <div className="flex items-center justify-between mb-0.5">
                 <span className="text-[12px] font-bold text-[#1a1a1a]">{a.name}</span>
@@ -309,7 +313,10 @@ export default function InvestmentCalculatorPage() {
                     className={`w-full py-2.5 rounded-xl text-[12px] font-bold transition-all flex items-center justify-center gap-1.5 ${
                       asset?.id === a.id ? "bg-[#1a1a1a] text-white" : "bg-[#f5f5f5] text-[#1a1a1a] hover:bg-[#e8e8e8]"
                     }`}>
-                    <span className="text-sm">{a.emoji}</span> {a.name}
+                    {a.icon
+                      ? <img src={a.icon} alt="" className="w-4 h-4 object-contain" />
+                      : <span className="text-sm">{a.emoji}</span>
+                    } {a.name}
                     {a.info && (
                       <span
                         onClick={(e) => { e.stopPropagation(); setShowInfo(showInfo === a.id ? null : a.id); }}
