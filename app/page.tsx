@@ -151,6 +151,19 @@ export default function HomePage() {
           ))}
         </div>
 
+        {/* Afford ko ba 'to — meme card */}
+        <Link href="/calculators/afford"
+          className="block mt-2 rounded-[20px] px-5 py-4 no-underline group hover:scale-[1.01] transition-transform overflow-hidden relative"
+          style={{ background: "linear-gradient(135deg, #FF9800 0%, #FFB74D 50%, #fff 100%)" }}>
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">🛍️</span>
+            <div className="flex-1">
+              <p className="text-[15px] font-black text-[#1a1a1a]">Afford ko ba &apos;to?</p>
+            </div>
+            <span className="text-[#1a1a1a]/30 text-lg group-hover:text-[#1a1a1a] transition-colors shrink-0">→</span>
+          </div>
+        </Link>
+
         {/* Footer */}
         <footer className="mt-8 pt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
           <span className="text-sm font-bold text-[#888]">alkansya<span className="text-[#00c853]">.ph</span></span>
