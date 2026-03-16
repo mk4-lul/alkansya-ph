@@ -282,18 +282,18 @@ export default function CalculatorPage() {
             <input
               type="range"
               min="0"
-              max="15"
+              max="20"
               step="0.1"
               value={rate}
               onChange={(e) => setRate(Number(e.target.value))}
               className="w-full h-2 rounded-full appearance-none cursor-pointer"
               style={{
-                background: `linear-gradient(to right, #00c853 0%, #00c853 ${(rate / 15) * 100}%, #e8e8e8 ${(rate / 15) * 100}%, #e8e8e8 100%)`,
+                background: `linear-gradient(to right, #00c853 0%, #00c853 ${(rate / 20) * 100}%, #e8e8e8 ${(rate / 20) * 100}%, #e8e8e8 100%)`,
               }}
             />
             <div className="flex justify-between mt-1">
               <span className="text-[10px] text-[#aaa]">0%</span>
-              <span className="text-[10px] text-[#aaa]">15%</span>
+              <span className="text-[10px] text-[#aaa]">20%</span>
             </div>
           </div>
 
