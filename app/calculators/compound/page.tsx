@@ -4,6 +4,7 @@ import { useState, useMemo, useRef } from "react";
 import Link from "next/link";
 import { formatPeso } from "@/lib/utils";
 import NavMenu from "@/components/NavMenu";
+import ScrollingPeso from "@/components/ScrollingPeso";
 
 const YEAR_OPTIONS = [1, 2, 3, 5, 10, 15, 20, 30];
 
@@ -314,13 +315,15 @@ export default function CalculatorPage() {
         <div className="bg-[#00FF7F] rounded-[20px] p-6 sm:p-8 mb-3 relative overflow-hidden">
           {/* Scattered money emojis */}
           <div className="absolute inset-0 pointer-events-none select-none" style={{ filter: "blur(2px)" }} aria-hidden="true">
-            {['💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈','💵','💰','💸','💎','🤑','📈'].map((e, i) => (
-              <span key={i} className="absolute text-[22px] sm:text-[28px]" style={{
-                left: `${(i * 17.3 + i * i * 3.7) % 100}%`,
-                top: `${(i * 13.1 + i * i * 2.3) % 100}%`,
+            {['💵','💰','💸','💎','🤑','📈'].map((e, i) => (
+              <span key={i} className="absolute text-[28px] sm:text-[34px] emoji-float" style={{
+                left: `${(i * 47 + 13) % 100}%`,
+                top: `${(i * 31 + 7) % 100}%`,
                 opacity: 0.75,
-                transform: `rotate(${(i * 37) % 360}deg)`,
-              }}>{e}</span>
+                '--base-rotate': `rotate(${(i * 37) % 360}deg)`,
+                '--float-duration': `${6 + (i % 5) * 2}s`,
+                '--float-delay': `${-((i * 1.3) % 8)}s`,
+              } as React.CSSProperties}>{e}</span>
             ))}
           </div>
           <div className="relative text-center">
@@ -328,17 +331,17 @@ export default function CalculatorPage() {
               Your money after {years} {years === 1 ? "year" : "years"}
             </p>
             <p className="text-5xl sm:text-6xl font-extrabold tracking-tight text-[#1a1a1a]">
-              {formatPeso(result.finalBalance)}
+              <ScrollingPeso value={result.finalBalance} />
             </p>
             <div className="flex justify-center mt-4">
               <div className="bg-black/10 backdrop-blur-md rounded-2xl px-6 py-4 flex gap-8">
                 <div className="text-center">
                   <p className="text-[12px] font-semibold text-[#1a1a1a]/50 uppercase tracking-[0.5px]">Deposited</p>
-                  <p className="text-xl font-extrabold text-[#1a1a1a]">{formatPeso(result.totalDeposits)}</p>
+                  <p className="text-xl font-extrabold text-[#1a1a1a]"><ScrollingPeso value={result.totalDeposits} /></p>
                 </div>
                 <div className="text-center">
                   <p className="text-[12px] font-semibold text-[#1a1a1a]/50 uppercase tracking-[0.5px]">Interest earned</p>
-                  <p className="text-xl font-extrabold text-[#1a1a1a]">{formatPeso(result.totalInterest)}</p>
+                  <p className="text-xl font-extrabold text-[#1a1a1a]"><ScrollingPeso value={result.totalInterest} /></p>
                 </div>
               </div>
             </div>
