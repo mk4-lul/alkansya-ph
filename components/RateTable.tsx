@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { BankWithRates, flagRate } from "@/lib/supabase";
 import {
   formatPeso,
@@ -14,6 +14,31 @@ import {
   formatRateRange,
   TERM_LABELS,
 } from "@/lib/utils";
+
+function AnimatedValue({ value, format }: { value: number; format: (n: number) => string }) {
+  const [display, setDisplay] = useState(value);
+  const prevValue = useRef(value);
+  const raf = useRef<number>(0);
+
+  useEffect(() => {
+    const from = prevValue.current;
+    const to = value;
+    prevValue.current = value;
+    if (from === to) { setDisplay(to); return; }
+    const startTime = performance.now();
+    function tick(now: number) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / 600, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplay(from + (to - from) * eased);
+      if (progress < 1) raf.current = requestAnimationFrame(tick);
+    }
+    raf.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf.current);
+  }, [value]);
+
+  return <span>{format(display)}</span>;
+}
 
 function FlagButton({ bankId }: { bankId: string }) {
   const [flagged, setFlagged] = useState(false);
@@ -95,8 +120,13 @@ function BankRow({
           </div>
         </div>
         <div className="text-right">
-          <p className={`text-xl sm:text-2xl font-extrabold tracking-tight ${rateColor}`}>{rateText}</p>
-          {amount > 0 && <p className="text-[11px] text-[#888] font-medium">{formatPeso(earnings)}/yr</p>}
+          <p className={`text-xl sm:text-2xl font-extrabold tracking-tight ${rateColor}`}>
+            {depositType === "savings" && hasRange && amount === 0
+              ? rateText
+              : <AnimatedValue value={displayRate} format={(n) => `${n.toFixed(n >= 1 ? 2 : 4)}%`} />
+            }
+          </p>
+          {amount > 0 && <p className="text-[11px] text-[#888] font-medium"><AnimatedValue value={earnings} format={(n) => `${formatPeso(n)}/yr`} /></p>}
         </div>
       </div>
 
@@ -140,7 +170,7 @@ function BankRow({
                               <span className={`text-sm font-bold ${
                                 tier.rate >= 2 ? "text-[#00c853]" : tier.rate >= 0.5 ? "text-[#1a1a1a]" : "text-[#888]"
                               }`}>{tier.rate}%</span>
-                              {amount > 0 && <span className="text-[10px] text-[#888] w-[5rem] text-right">{formatPeso(tierEarnings)}/yr</span>}
+                              {amount > 0 && <span className="text-[10px] text-[#888] w-[5rem] text-right"><AnimatedValue value={tierEarnings} format={(n) => `${formatPeso(n)}/yr`} /></span>}
                             </div>
                           </div>
                         );
@@ -183,8 +213,10 @@ function BankRow({
                   return (
                     <div key={term} className="bg-[#f5f5f5] rounded-xl px-4 py-3 text-center min-w-[80px]">
                       <p className="text-[10px] font-semibold uppercase tracking-[0.5px] text-[#888]">{TERM_LABELS[term] || `${term}d`}</p>
-                      <p className={`text-lg font-extrabold mt-0.5 ${rate >= 2 ? "text-[#00c853]" : "text-[#1a1a1a]"}`}>{rate}%</p>
-                      {amount > 0 && <p className="text-[10px] text-[#888]">{formatPeso(calcInterest(amount, rate, term))}</p>}
+                      <p className={`text-lg font-extrabold mt-0.5 ${rate >= 2 ? "text-[#00c853]" : "text-[#1a1a1a]"}`}>
+                        <AnimatedValue value={rate} format={(n) => `${n.toFixed(n >= 1 ? 2 : 3)}%`} />
+                      </p>
+                      {amount > 0 && <p className="text-[10px] text-[#888]"><AnimatedValue value={calcInterest(amount, rate, term)} format={(n) => formatPeso(n)} /></p>}
                     </div>
                   );
                 })}
@@ -291,7 +323,7 @@ export default function RateTable({
         ))}
         {filtered.length === 0 && <p className="text-center py-8 text-sm text-[#888]">No results match your filters</p>}
         {!showAll && filtered.length > 10 && (
-          <div className="flex justify-center">
+          <div className="flex justify-center pb-4">
             <button
               onClick={() => setShowAll(true)}
               className="px-6 py-2.5 rounded-full bg-white text-[13px] font-bold text-[#888] hover:text-[#1a1a1a] transition-colors">
