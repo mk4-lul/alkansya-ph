@@ -22,29 +22,29 @@ function getVerdict(income: number, price: number, savings: number): VR {
   let v: Verdict, e: string, t: string, s: string, m: string;
 
   if (pct <= 10) {
-    v="green";e="✅";t="Bili na!";s="Easy money.";
+    v="green";e="✅";t="Bili na!";s="Kayang kaya naman.";
     m=`${days.toFixed(1)} araw ng trabaho lang. ${pct.toFixed(0)}% ng sahod mo. Go na.`;
   } else if (pct <= 30 && mos <= 2) {
-    v="green";e="👍";t="G naman.";s="Kaya mo 'to.";
-    m=`${days.toFixed(1)} araw ng trabaho — ${pct.toFixed(0)}% ng sahod. ${mos === 1 ? "Isang buwan" : `${mos} months`} lang ipon.`;
+    v="green";e="👍";t="G naman.";s="Kayang kaya.";
+    m=`${days.toFixed(1)} araw ng trabaho — ${pct.toFixed(0)}% ng sahod. ${mos === 1 ? "Isang buwan" : `${mos} months`} lang na ipon.`;
   } else if (pct <= 30) {
     v="green";e="🤙";t="G lang.";s="Basta may disiplina.";
     m=`${days.toFixed(1)} araw ng trabaho. Sa ₱${fmtC(savings)}/mo na ipon, mga ${mos} months.`;
   } else if (pct <= 60 && mos <= 3) {
-    v="yellow";e="🫠";t="Medyo mahal ah...";s="Masasaktan ka.";
-    m=`${days.toFixed(0)} araw ng trabaho — ${pct.toFixed(0)}% ng sahod. ${mos} months ipon. Ang luwag ng wallet... kasi wala na laman.`;
+    v="yellow";e="🫠";t="Medyo mahal ah...";s="Pag isipan mo muna.";
+    m=`${days.toFixed(0)} araw ng trabaho — ${pct.toFixed(0)}% ng sahod. ${mos} months na ipon. Ang luwag ng wallet... kasi wala nang laman.`;
   } else if (pct <= 60) {
-    v="yellow";e="🤨";t="Hmm, sure ka ba?";s="Matagal ang ipon.";
+    v="yellow";e="🤨";t="Hmm, sure ka ba?";s="Matagal na pag ipon to.";
     m=`${days.toFixed(0)} araw ng trabaho. Sa ₱${fmtC(savings)}/mo, ${mos} months bago mo mabili. Tiis muna.`;
   } else if (pct <= 100) {
-    v="red";e="🚫";t="Huy, wag!";s="'Di mo pa afford, bes.";
-    m=`${days.toFixed(0)} araw ng trabaho — ${pct.toFixed(0)}% ng sahod. Halos buong sweldo. ${mos <= 12 ? `${mos} months ipon pa.` : "Matagal pa, pero kaya."}`;
+    v="red";e="🚫";t="Huy, wag!";s="'Di mo pa afford pre.";
+    m=`${days.toFixed(0)} araw ng trabaho — ${pct.toFixed(0)}% ng sahod. Halos buong sweldo. ${mos <= 12 ? `${mos} months ipon pa.` : "Matagal pa, pero kaya yan!"}`;
   } else if (pct <= 200) {
     v="red";e="💀";t="Luh, grabe.";s="Mas mahal pa sa sahod mo.";
-    m=`${days.toFixed(0)} araw ng trabaho. Kahit di ka kumain, kulang pa rin. ${savings > 0 ? `${mos} months pa 'to.` : "Mag-ipon muna."}`;
+    m=`${days.toFixed(0)} araw ng trabaho. Kahit di ka kumain, kulang pa rin. ${savings > 0 ? `${mos} months pa 'to.` : "Ipon-ipon muna."}`;
   } else {
-    v="red";e="🪦";t="Pre, ano 'to.";s="Ilang buwan na sahod.";
-    m=`${Math.ceil(pct/100)} months na sahod mo 'to. ${savings > 0 ? `${mos} months ipon.` : "Wala ka pang ipon."} Breathe muna.`;
+    v="red";e="🪦";t="Ok ka lang??";s="Ilang buwan na sahod to.";
+    m=`${Math.ceil(pct/100)} months na sahod mo 'to. ${savings > 0 ? `${mos} months ipon.` : "Wala ka pang ipon."} Gamitin ang brain.`;
   }
   return { verdict:v, daysOfWork:days, percentOfIncome:pct, monthsToSave:mos, emoji:e, title:t, subtitle:s, message:m };
 }
