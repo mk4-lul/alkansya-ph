@@ -56,9 +56,9 @@ export default function HeroCalculator({
 
   return (
     <>
-    {/* Select an amount — dark card */}
-    <div className="bg-[#1a1a1a] rounded-[20px] p-6 sm:p-8">
-      <p className="text-center text-[13px] font-bold uppercase tracking-[1px] text-white/60 mb-4">Select an amount</p>
+    {/* Select an amount — white card */}
+    <div className="bg-white rounded-[20px] p-6 sm:p-8">
+      <p className="text-center text-[13px] font-bold uppercase tracking-[1px] text-[#888] mb-4">Select an amount</p>
       <div className="grid grid-cols-4 gap-2.5 max-w-[440px] mx-auto">
         {AMOUNT_BRACKETS.map((a) => {
           const isGold = a.value >= 1000000;
@@ -71,10 +71,10 @@ export default function HeroCalculator({
                 isActive && isGold
                   ? "bg-[#FFD600] border-[#FFD600] text-[#1a1a1a]"
                   : isActive
-                    ? "bg-white border-white text-[#1a1a1a]"
+                    ? "bg-[#1a1a1a] border-[#1a1a1a] text-white"
                     : isGold
-                      ? "bg-transparent border-[#FFD600]/40 text-[#FFD600] hover:bg-[#FFD600]/10"
-                      : "bg-transparent border-white/20 text-white/80 hover:bg-white/5"
+                      ? "bg-transparent border-[#FFD600]/40 text-[#c8a600] hover:bg-[#FFD600]/5"
+                      : "bg-transparent border-[#e0e0e0] text-[#1a1a1a] hover:bg-[#f5f5f5]"
               }`}>
               {a.label}
             </button>
