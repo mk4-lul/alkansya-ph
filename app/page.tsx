@@ -1,5 +1,39 @@
+"use client";
+
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import NavMenu from "@/components/NavMenu";
+
+function CountUp({ target, duration = 1200, suffix = "" }: { target: number; duration?: number; suffix?: string }) {
+  const [value, setValue] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+  const started = useRef(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !started.current) {
+          started.current = true;
+          const start = performance.now();
+          function tick(now: number) {
+            const progress = Math.min((now - start) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            setValue(target * eased);
+            if (progress < 1) requestAnimationFrame(tick);
+          }
+          requestAnimationFrame(tick);
+        }
+      },
+      { threshold: 0.5 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [target, duration]);
+
+  const display = target >= 100 ? Math.round(value) : value.toFixed(target % 1 !== 0 ? 1 : 0);
+
+  return <span ref={ref}>{display}{suffix}</span>;
+}
 
 const OTHER_TOOLS = [
   {
@@ -37,34 +71,69 @@ export default function HomePage() {
       </nav>
 
       <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">
-        {/* Compare Rates — main hero card */}
-        <Link href="/rates" className="block bg-[#00c853] rounded-[20px] p-8 sm:p-10 mb-3 relative overflow-hidden no-underline group hover:bg-[#00b84a] transition-colors">
-          {/* Subtle floating ₱ symbols instead of emojis */}
-          <div className="absolute inset-0 pointer-events-none select-none overflow-hidden" aria-hidden="true">
-            <span className="absolute text-[120px] sm:text-[160px] font-extrabold text-white/[0.04] -top-4 -right-4 leading-none">₱</span>
-            <span className="absolute text-[80px] sm:text-[100px] font-extrabold text-white/[0.04] bottom-2 left-4 leading-none">₱</span>
-            <span className="absolute text-[60px] font-extrabold text-white/[0.04] top-8 left-[30%] leading-none rotate-12">₱</span>
-          </div>
+        {/* Compare Rates — dramatic hero card */}
+        <Link href="/rates" className="block bg-[#1a1a1a] rounded-[20px] p-8 sm:p-10 mb-3 relative overflow-hidden no-underline group">
+          {/* Subtle grid pattern background */}
+          <div className="absolute inset-0 pointer-events-none" aria-hidden="true" style={{
+            backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px)",
+            backgroundSize: "24px 24px",
+          }} />
+
           <div className="relative">
-            <p className="text-lg font-bold text-white mb-2">Compare Rates</p>
-            <p className="text-[13px] text-white/70 leading-relaxed mb-6 max-w-sm">
-              Find the best savings and time deposit rates across Philippine banks — traditional and digital.
-            </p>
-            <div className="flex gap-3">
-              <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-2.5">
-                <p className="text-xl font-extrabold text-white">17</p>
-                <p className="text-[10px] text-white/60 font-semibold">banks</p>
+            {/* Headline */}
+            <p className="text-[13px] font-bold uppercase tracking-[1.5px] text-[#00c853] mb-6">Compare Rates</p>
+
+            {/* The big story */}
+            <div className="mb-8">
+              <p className="text-white/50 text-sm font-semibold mb-2">Digital banks pay up to</p>
+              <div className="flex items-baseline gap-2">
+                <p className="text-6xl sm:text-7xl font-extrabold tracking-tighter text-[#00c853] leading-none">
+                  <CountUp target={60} suffix="×" />
+                </p>
+                <p className="text-white/40 text-sm font-semibold">more than traditional</p>
               </div>
-              <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-2.5">
-                <p className="text-xl font-extrabold text-white">10</p>
-                <p className="text-[10px] text-white/60 font-semibold">traditional</p>
+            </div>
+
+            {/* Visual comparison bars */}
+            <div className="space-y-3 mb-8">
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[11px] font-semibold text-white/40">Traditional avg</span>
+                  <span className="text-[13px] font-extrabold text-white/50">0.10%</span>
+                </div>
+                <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+                  <div className="h-full rounded-full bg-white/20 transition-all duration-1000" style={{ width: "2%" }} />
+                </div>
               </div>
-              <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-2.5">
-                <p className="text-xl font-extrabold text-white">7</p>
-                <p className="text-[10px] text-white/60 font-semibold">digital</p>
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[11px] font-semibold text-[#00c853]/70">Digital best</span>
+                  <span className="text-[13px] font-extrabold text-[#00c853]">6.00%</span>
+                </div>
+                <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+                  <div className="h-full rounded-full bg-[#00c853] transition-all duration-1000" style={{ width: "100%" }} />
+                </div>
               </div>
-              <div className="flex-1 flex items-center justify-end">
-                <span className="text-white/40 text-3xl group-hover:text-white transition-colors">→</span>
+            </div>
+
+            {/* Stats row */}
+            <div className="flex items-center justify-between">
+              <div className="flex gap-3">
+                <div className="bg-white/[0.06] rounded-xl px-4 py-2.5">
+                  <p className="text-lg font-extrabold text-white"><CountUp target={17} /></p>
+                  <p className="text-[10px] text-white/40 font-semibold">banks</p>
+                </div>
+                <div className="bg-white/[0.06] rounded-xl px-4 py-2.5">
+                  <p className="text-lg font-extrabold text-white"><CountUp target={10} /></p>
+                  <p className="text-[10px] text-white/40 font-semibold">traditional</p>
+                </div>
+                <div className="bg-white/[0.06] rounded-xl px-4 py-2.5">
+                  <p className="text-lg font-extrabold text-white"><CountUp target={7} /></p>
+                  <p className="text-[10px] text-white/40 font-semibold">digital</p>
+                </div>
+              </div>
+              <div className="w-12 h-12 rounded-full bg-[#00c853] flex items-center justify-center group-hover:scale-110 transition-transform">
+                <span className="text-white text-xl font-bold">→</span>
               </div>
             </div>
           </div>
