@@ -142,24 +142,22 @@ export default function AffordCalculatorPage() {
       </nav>
 
       {/* Content */}
-      <main className="flex-1 flex flex-col max-w-[520px] mx-auto px-5 w-full min-h-0">
+      <main className="flex-1 flex flex-col justify-center max-w-[520px] mx-auto px-5 w-full min-h-0">
 
         {!revealed ? (
-          <>
+          <div>
             {/* Title */}
-            <div className="text-center pt-1 pb-3 shrink-0">
-              <h1 className="text-3xl sm:text-4xl font-black text-[#1a1a1a] tracking-tight leading-none">
-                Afford ko ba &apos;to?
-              </h1>
-            </div>
+            <h1 className="text-2xl sm:text-3xl font-black text-[#1a1a1a] tracking-tight leading-none text-center mb-6">
+              Afford ko ba &apos;to?
+            </h1>
 
             {/* 3 Sliders */}
-            <div className="flex-1 flex flex-col justify-center space-y-4 min-h-0">
+            <div className="space-y-5">
               {/* Sahod */}
-              <div className="text-center">
-                <div className="flex items-baseline justify-between mb-0.5 px-0.5">
+              <div>
+                <div className="flex items-baseline justify-between mb-1 px-0.5">
                   <p className="text-[10px] font-bold text-[#888] uppercase tracking-wider">Sahod mo per month</p>
-                  <p className="text-lg font-black text-[#1a1a1a]">
+                  <p className="text-sm font-black text-[#1a1a1a]">
                     {income === 0 ? <span className="text-[#ccc]">—</span> : formatPeso(income)}
                   </p>
                 </div>
@@ -170,10 +168,10 @@ export default function AffordCalculatorPage() {
               </div>
 
               {/* Presyo */}
-              <div className="text-center">
-                <div className="flex items-baseline justify-between mb-0.5 px-0.5">
+              <div>
+                <div className="flex items-baseline justify-between mb-1 px-0.5">
                   <p className="text-[10px] font-bold text-[#888] uppercase tracking-wider">Presyo ng gusto mo</p>
-                  <p className="text-lg font-black text-[#1a1a1a]">
+                  <p className="text-sm font-black text-[#1a1a1a]">
                     {price === 0 ? <span className="text-[#ccc]">—</span> : formatPeso(price)}
                   </p>
                 </div>
@@ -184,10 +182,10 @@ export default function AffordCalculatorPage() {
               </div>
 
               {/* Natitipid */}
-              <div className="text-center">
-                <div className="flex items-baseline justify-between mb-0.5 px-0.5">
+              <div>
+                <div className="flex items-baseline justify-between mb-1 px-0.5">
                   <p className="text-[10px] font-bold text-[#888] uppercase tracking-wider">Natitipid mo kada buwan</p>
-                  <p className="text-lg font-black text-[#1a1a1a]">
+                  <p className="text-sm font-black text-[#1a1a1a]">
                     {savings === 0 ? <span className="text-[#ccc]">—</span> : formatPeso(savings)}
                   </p>
                 </div>
@@ -198,18 +196,18 @@ export default function AffordCalculatorPage() {
               </div>
             </div>
 
-            {/* Button */}
-            <div className="pt-3 shrink-0 text-center">
+            {/* Button — right after sliders */}
+            <div className="mt-5 text-center">
               <button
                 onClick={() => isReady && setRevealed(true)}
                 disabled={!isReady}
-                className={`px-6 py-2.5 rounded-full text-sm font-bold tracking-tight transition-all ${
+                className={`px-5 py-2 rounded-full text-[13px] font-bold tracking-tight transition-all ${
                   isReady ? "bg-[#00c853] text-white active:scale-[0.97]" : "bg-[#e0e0e0] text-[#aaa] cursor-not-allowed"
                 }`}
                 style={isReady ? { animation: "pulse-glow 2s ease infinite" } : undefined}
               >Afford ko ba &apos;to?</button>
             </div>
-          </>
+          </div>
         ) : result ? (
           <VerdictCard result={result} onTryAgain={() => { setRevealed(false); setIncome(0); setPrice(0); setSavings(0); }} />
         ) : null}
