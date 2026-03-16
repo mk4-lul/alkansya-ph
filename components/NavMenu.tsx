@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 const PAGES = [
@@ -13,6 +14,7 @@ const PAGES = [
 
 export default function NavMenu() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
     <div className="relative">
@@ -31,16 +33,26 @@ export default function NavMenu() {
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
           <div className="absolute right-0 top-12 z-50 bg-white rounded-2xl shadow-lg border border-black/5 w-[260px] p-2 animate-fade-in">
-            {PAGES.map((page) => (
-              <Link
-                key={page.href}
-                href={page.href}
-                onClick={() => setOpen(false)}
-                className="flex flex-col px-4 py-3 rounded-xl hover:bg-[#f5f5f5] transition-colors no-underline">
-                <span className="text-sm font-bold text-[#1a1a1a]">{page.label}</span>
-                <span className="text-[11px] text-[#888]">{page.description}</span>
-              </Link>
-            ))}
+            {PAGES.map((page) => {
+              const isCurrent = pathname === page.href;
+              return isCurrent ? (
+                <div
+                  key={page.href}
+                  className="flex flex-col px-4 py-3 rounded-xl opacity-40 cursor-default">
+                  <span className="text-sm font-bold text-[#1a1a1a]">{page.label}</span>
+                  <span className="text-[11px] text-[#888]">{page.description}</span>
+                </div>
+              ) : (
+                <Link
+                  key={page.href}
+                  href={page.href}
+                  onClick={() => setOpen(false)}
+                  className="flex flex-col px-4 py-3 rounded-xl hover:bg-[#f5f5f5] transition-colors no-underline">
+                  <span className="text-sm font-bold text-[#1a1a1a]">{page.label}</span>
+                  <span className="text-[11px] text-[#888]">{page.description}</span>
+                </Link>
+              );
+            })}
           </div>
         </>
       )}
