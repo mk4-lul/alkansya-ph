@@ -135,7 +135,7 @@ export default function AffordCalculatorPage() {
 
       {/* Raining emoji background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-        {['👕','🕶','👗','👜','🎒','💄','💍','🐶','🍺','🥂','🍾','✈️','⌚️','📱','💻','🛍️'].map((e, i) => (
+        {['👕','🕶','👗','👜','🎒','💄','💍','🐶','🍺','🥂','🍾','✈️','⌚️','📱','💻','🛍️','🚗','🚲','🛵','🏍','🛻','💎','📺','🎁','🔫','🚴🏼‍♀️'].map((e, i) => (
           <span key={i} className="absolute emoji-rain text-3xl sm:text-4xl" style={{
             left: `${(i * 6.25)}%`,
             opacity: 0.1,
