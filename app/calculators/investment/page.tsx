@@ -5,53 +5,54 @@ import Link from "next/link";
 import NavMenu from "@/components/NavMenu";
 import ScrollingPeso from "@/components/ScrollingPeso";
 
-// ─── Asset Price Data (approximate Jan 1 prices, USD) ────────────
+// ─── Asset Price Data (approximate yearly mean prices, USD) ────────────
 
 interface AssetData {
   id: string;
   name: string;
   emoji: string;
-  prices: Record<number, number>; // year -> price on ~Jan 1
+  prices: Record<number, number>; // year -> yearly mean price
   unit?: string;
   info?: string;
 }
 
+// Approximate yearly mean prices (USD). 2026 = YTD as of March 2026.
 const ASSETS: AssetData[] = [
   {
     id: "btc", name: "Bitcoin", emoji: "₿",
-    prices: { 2015: 314, 2016: 434, 2017: 998, 2018: 13850, 2019: 3747, 2020: 7200, 2021: 29000, 2022: 46300, 2023: 16540, 2024: 42280, 2025: 93400, 2026: 71500 },
+    prices: { 2015: 272, 2016: 567, 2017: 4000, 2018: 7600, 2019: 7350, 2020: 11100, 2021: 47000, 2022: 28300, 2023: 28500, 2024: 63500, 2025: 95000, 2026: 78000 },
   },
   {
     id: "gold", name: "Gold", emoji: "🥇", unit: "/oz",
-    prices: { 2015: 1184, 2016: 1062, 2017: 1150, 2018: 1303, 2019: 1282, 2020: 1517, 2021: 1898, 2022: 1830, 2023: 1824, 2024: 2063, 2025: 2625, 2026: 5090 },
+    prices: { 2015: 1160, 2016: 1250, 2017: 1260, 2018: 1270, 2019: 1393, 2020: 1770, 2021: 1800, 2022: 1800, 2023: 1943, 2024: 2390, 2025: 2800, 2026: 5090 },
   },
   {
     id: "silver", name: "Silver", emoji: "🥈", unit: "/oz",
-    prices: { 2015: 15.70, 2016: 13.80, 2017: 16.00, 2018: 17.00, 2019: 15.50, 2020: 17.80, 2021: 26.40, 2022: 23.30, 2023: 23.95, 2024: 23.80, 2025: 28.90, 2026: 84.44 },
+    prices: { 2015: 15.70, 2016: 17.10, 2017: 17.10, 2018: 15.70, 2019: 16.20, 2020: 20.50, 2021: 25.10, 2022: 21.70, 2023: 23.40, 2024: 28.30, 2025: 31.00, 2026: 84.00 },
   },
   {
     id: "sp500", name: "US Stocks", emoji: "📈", info: "Tracks the S&P 500 index — the 500 largest publicly traded companies in the United States.",
-    prices: { 2015: 2058, 2016: 2044, 2017: 2239, 2018: 2684, 2019: 2507, 2020: 3231, 2021: 3756, 2022: 4766, 2023: 3839, 2024: 4770, 2025: 5882, 2026: 6632 },
+    prices: { 2015: 2061, 2016: 2094, 2017: 2449, 2018: 2747, 2019: 2913, 2020: 3218, 2021: 4273, 2022: 4098, 2023: 4282, 2024: 5200, 2025: 5900, 2026: 6632 },
   },
   {
     id: "psei", name: "PH Stocks", emoji: "🇵🇭", info: "Tracks the PSEi (Philippine Stock Exchange Index) — the 30 largest publicly traded companies in the Philippines.",
-    prices: { 2015: 7231, 2016: 6952, 2017: 6841, 2018: 8558, 2019: 7466, 2020: 7815, 2021: 7023, 2022: 7362, 2023: 6566, 2024: 6572, 2025: 6580, 2026: 5900 },
+    prices: { 2015: 7300, 2016: 7100, 2017: 7900, 2018: 7700, 2019: 7800, 2020: 6100, 2021: 6600, 2022: 6700, 2023: 6400, 2024: 6600, 2025: 6400, 2026: 5900 },
   },
   {
     id: "aapl", name: "Apple Stock", emoji: "🍎",
-    prices: { 2015: 27.0, 2016: 26.3, 2017: 29.0, 2018: 43.1, 2019: 39.5, 2020: 73.4, 2021: 132.7, 2022: 182.0, 2023: 130.0, 2024: 185.6, 2025: 243.0, 2026: 228.0 },
+    prices: { 2015: 30.0, 2016: 26.0, 2017: 38.0, 2018: 47.0, 2019: 50.0, 2020: 94.0, 2021: 149.0, 2022: 155.0, 2023: 175.0, 2024: 207.0, 2025: 230.0, 2026: 228.0 },
   },
   {
     id: "nvda", name: "Nvidia Stock", emoji: "🟢",
-    prices: { 2015: 0.50, 2016: 0.82, 2017: 2.67, 2018: 5.88, 2019: 3.35, 2020: 5.90, 2021: 13.0, 2022: 29.4, 2023: 14.6, 2024: 49.5, 2025: 134.0, 2026: 114.0 },
+    prices: { 2015: 0.52, 2016: 1.05, 2017: 3.50, 2018: 6.00, 2019: 4.10, 2020: 8.50, 2021: 19.0, 2022: 20.0, 2023: 32.0, 2024: 90.0, 2025: 130.0, 2026: 114.0 },
   },
   {
     id: "amzn", name: "Amazon Stock", emoji: "📦",
-    prices: { 2015: 15.40, 2016: 33.83, 2017: 38.21, 2018: 59.25, 2019: 75.85, 2020: 92.50, 2021: 163.3, 2022: 166.7, 2023: 84.0, 2024: 152.0, 2025: 220.0, 2026: 205.0 },
+    prices: { 2015: 24.50, 2016: 36.00, 2017: 49.00, 2018: 80.00, 2019: 91.00, 2020: 150.0, 2021: 170.0, 2022: 130.0, 2023: 127.0, 2024: 186.0, 2025: 215.0, 2026: 205.0 },
   },
   {
     id: "goog", name: "Google Stock", emoji: "🔍",
-    prices: { 2015: 26.50, 2016: 38.75, 2017: 39.75, 2018: 52.58, 2019: 52.10, 2020: 67.20, 2021: 87.60, 2022: 144.7, 2023: 88.7, 2024: 140.3, 2025: 189.0, 2026: 170.0 },
+    prices: { 2015: 33.00, 2016: 38.00, 2017: 46.50, 2018: 54.50, 2019: 59.00, 2020: 73.00, 2021: 129.0, 2022: 113.0, 2023: 128.0, 2024: 168.0, 2025: 180.0, 2026: 170.0 },
   },
 ];
 
@@ -198,7 +199,7 @@ function GrowthChart({ asset, startYear, amount, height = 280 }: { asset: AssetD
           <g transform={`translate(${tooltipFlip ? hoverX - 160 : hoverX + 10}, ${Math.max(padding.top, scaleY(hoverData.value) - 40)})`}>
             <rect width="150" height="68" rx="10" fill="#1a1a1a" opacity="0.92" />
             <text x="12" y="18" fontSize="12" fill="#888" fontFamily="Plus Jakarta Sans, sans-serif" fontWeight="600">
-              Jan {hoverData.year}
+              {hoverData.year}
             </text>
             <text x="12" y="38" fontSize="15" fill="white" fontFamily="Plus Jakarta Sans, sans-serif" fontWeight="800">
               {formatPeso(hoverData.value)}
@@ -388,8 +389,9 @@ export default function InvestmentCalculatorPage() {
           </div>
           <div className="relative text-center">
             <p className="text-[13px] font-bold uppercase tracking-[1px] text-white/80 mb-2">
-              {formatPeso(amount)} in {asset.name} since Jan {startYear}
+              {formatPeso(amount)} in {asset.name} since {startYear}
             </p>
+            <p className="text-[12px] font-semibold text-white/50 mb-1">you&apos;d have around</p>
             <p className="text-5xl sm:text-6xl font-extrabold tracking-tight text-white">
               <ScrollingPeso value={currentValue} />
             </p>
@@ -401,7 +403,7 @@ export default function InvestmentCalculatorPage() {
                 </div>
                 <div className="text-center">
                   <p className={`text-[12px] font-semibold ${isPositive ? "text-white/70" : "text-red-300"} uppercase tracking-[0.5px]`}>
-                    {isPositive ? "Gain" : "Loss"}
+                    {isPositive ? "~Gain" : "~Loss"}
                   </p>
                   <p className={`text-xl font-extrabold ${isPositive ? "text-white" : "text-red-300"}`}>
                     <ScrollingPeso value={Math.abs(gain)} /> ({formatPercent(gainPct)})
@@ -409,7 +411,7 @@ export default function InvestmentCalculatorPage() {
                 </div>
               </div>
             </div>
-            <p className="text-[12px] font-semibold text-white/70 mt-3">{multiplier.toFixed(2)}x return in {CURRENT_YEAR - startYear} {CURRENT_YEAR - startYear === 1 ? "year" : "years"}</p>
+            <p className="text-[12px] font-semibold text-white/70 mt-3">~{multiplier.toFixed(2)}x return in {CURRENT_YEAR - startYear} {CURRENT_YEAR - startYear === 1 ? "year" : "years"}</p>
           </div>
         </div>
 
@@ -422,7 +424,7 @@ export default function InvestmentCalculatorPage() {
         {/* Comparison */}
         <div className="bg-white rounded-[20px] p-5 sm:p-6 mb-3">
           <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-1">All assets compared</p>
-          <p className="text-[10px] text-[#aaa] mb-4">{formatPeso(amount)} invested in Jan {startYear} → today</p>
+          <p className="text-[10px] text-[#aaa] mb-4">{formatPeso(amount)} invested in {startYear} → today</p>
           <ComparisonBars startYear={startYear} amount={amount} />
         </div>
         </>
@@ -441,7 +443,7 @@ export default function InvestmentCalculatorPage() {
         <footer className="mt-8 pt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
           <span className="text-sm font-bold text-[#888]">alkansya<span className="text-[#00c853]">.ph</span></span>
           <p className="text-[10px] text-[#aaa] max-w-md sm:text-right leading-relaxed">
-            Prices are approximate (Jan 1 each year, USD-denominated). Stock prices are split-adjusted. This is for illustrative purposes only — not financial advice. Past performance does not guarantee future results.
+            Prices are approximate yearly averages (USD-denominated). Stock prices are split-adjusted. This is for illustrative purposes only — not financial advice. Past performance does not guarantee future results.
           </p>
         </footer>
       </main>
