@@ -135,13 +135,13 @@ export default function AffordCalculatorPage() {
 
       {/* Raining emoji background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-        {Array.from({ length: 20 }, () => ['👕','👙','🧳','🕶','👗','👞','👜','👝','👛','🎒','👟','🥾','🥿','👠','👡','🩰','👢','🧢','💄','💍','🐶','🐱','🍺','🍻','🥂','🍷','🥃','🍸','🍾','🧋','✈️','🚢','⌚️','📱','💻','🖥','📷','🛍️','🛒']).flat().map((e, i) => (
-          <span key={i} className="absolute emoji-rain text-lg" style={{
-            left: `${(i * 0.13 + (i * 7.3) % 17) % 100}%`,
-            opacity: 0.12,
-            '--rain-speed': `${6 + (i % 11) * 2.5}s`,
-            '--rain-delay': `${-((i * 0.41) % 30)}s`,
-            '--rain-spin': `${(i % 2 === 0 ? 1 : -1) * (10 + (i * 7) % 60)}deg`,
+        {['👕','🕶','👗','👜','🎒','💄','💍','🐶','🍺','🥂','🍾','✈️','⌚️','📱','💻','🛍️'].map((e, i) => (
+          <span key={i} className="absolute emoji-rain text-3xl sm:text-4xl" style={{
+            left: `${(i * 6.25)}%`,
+            opacity: 0.1,
+            '--rain-speed': `${12 + (i % 5) * 4}s`,
+            '--rain-delay': `${-((i * 1.9) % 20)}s`,
+            '--rain-spin': `${(i % 2 === 0 ? 1 : -1) * (10 + i * 8)}deg`,
           } as React.CSSProperties}>{e}</span>
         ))}
       </div>
