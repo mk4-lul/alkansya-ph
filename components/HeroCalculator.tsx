@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { BankWithRates } from "@/lib/supabase";
 import { formatPeso, calcInterest, getRateForAmount, AMOUNT_BRACKETS } from "@/lib/utils";
 
-function AnimatedNumber({ value, prefix = "", suffix = "" }: { value: number; prefix?: string; suffix?: string }) {
+function AnimatedNumber({ value, prefix = "", suffix = "", decimals = 2 }: { value: number; prefix?: string; suffix?: string; decimals?: number }) {
   const [display, setDisplay] = useState(value);
   const prevValue = useRef(value);
   const raf = useRef<number>(0);
@@ -28,7 +28,7 @@ function AnimatedNumber({ value, prefix = "", suffix = "" }: { value: number; pr
 
   return (
     <span>
-      {prefix}{display.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{suffix}
+      {prefix}{display.toLocaleString("en-PH", { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}{suffix}
     </span>
   );
 }
@@ -81,14 +81,14 @@ export default function HeroCalculator({
             <button
               key={a.value}
               onClick={() => onAmountChange(a.value)}
-              className={`py-4 rounded-xl text-base font-extrabold transition-all ${
+              className={`py-4 rounded-xl text-base font-extrabold transition-all border ${
                 isActive && isGold
-                  ? "bg-[#FFD600] text-[#1a1a1a] ring-2 ring-[#1a1a1a]"
+                  ? "bg-[#FFD600] border-[#FFD600] text-[#1a1a1a] ring-2 ring-[#1a1a1a]"
                   : isActive
-                    ? "bg-white text-[#1a1a1a] ring-2 ring-[#1a1a1a]"
+                    ? "bg-white border-white text-[#1a1a1a] ring-2 ring-[#1a1a1a]"
                     : isGold
-                      ? "bg-[#FFD600] text-[#1a1a1a] hover:bg-[#FFD600]/90"
-                      : "bg-white text-[#1a1a1a] hover:bg-white/90"
+                      ? "bg-transparent border-[#FFD600] text-[#FFD600] hover:bg-[#FFD600]/10"
+                      : "bg-transparent border-white/40 text-white hover:bg-white/10"
               }`}>
               {a.label}
             </button>
@@ -116,7 +116,9 @@ export default function HeroCalculator({
                       : "bg-white/15 backdrop-blur-md text-white"
                   }`}>
                   <p className={`text-sm font-bold`}>{bank.name}</p>
-                  <p className="text-3xl font-extrabold tracking-tight mt-1">{rate}%</p>
+                  <p className="text-3xl font-extrabold tracking-tight mt-1">
+                    <AnimatedNumber value={rate} prefix="" suffix="%" decimals={2} />
+                  </p>
                   <p className={`text-sm font-semibold mt-1 ${isFirst ? "text-[#888]" : "text-white/70"}`}>
                     <AnimatedNumber value={earnings} prefix="₱" suffix="/yr" />
                   </p>
