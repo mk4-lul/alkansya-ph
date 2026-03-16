@@ -10,7 +10,7 @@ const PAGES = [
   { label: "Compound Calculator", href: "/calculators/compound", description: "See how your money grows over time" },
   { label: "Pag-IBIG MP2 Calculator", href: "/calculators/mp2", description: "Tax-free government savings program" },
   { label: "Investment Calculator", href: "/calculators/investment", description: "What if you invested in Bitcoin, gold, stocks?" },
-  { label: "Can I Afford This?", href: "/calculators/afford", description: "Find out before you buy" },
+  { label: "Afford ko ba 'to?", href: "/calculators/afford", description: "Alamin bago bilhin" },
 ];
 
 export default function NavMenu({ dark = false }: { dark?: boolean }) {
