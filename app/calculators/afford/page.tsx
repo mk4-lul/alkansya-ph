@@ -22,29 +22,29 @@ function getVerdict(income: number, price: number, savings: number): VR {
   let v: Verdict, e: string, t: string, s: string, m: string;
 
   if (pct <= 10) {
-    v="green";e="✅";t="Bili na!";s="Kayang kaya naman.";
+    v="green";e="✅";t="Bili na!";s="Easy money.";
     m=`${days.toFixed(1)} araw ng trabaho lang. ${pct.toFixed(0)}% ng sahod mo. Go na.`;
   } else if (pct <= 30 && mos <= 2) {
-    v="green";e="👍";t="G naman.";s="Kayang kaya.";
-    m=`${days.toFixed(1)} araw ng trabaho — ${pct.toFixed(0)}% ng sahod. ${mos === 1 ? "Isang buwan" : `${mos} months`} lang na ipon.`;
+    v="green";e="👍";t="G naman.";s="Kaya mo 'to.";
+    m=`${days.toFixed(1)} araw ng trabaho — ${pct.toFixed(0)}% ng sahod. ${mos === 1 ? "Isang buwan" : `${mos} months`} lang ipon.`;
   } else if (pct <= 30) {
     v="green";e="🤙";t="G lang.";s="Basta may disiplina.";
     m=`${days.toFixed(1)} araw ng trabaho. Sa ₱${fmtC(savings)}/mo na ipon, mga ${mos} months.`;
   } else if (pct <= 60 && mos <= 3) {
-    v="yellow";e="🫠";t="Medyo mahal ah...";s="Pag isipan mo muna.";
-    m=`${days.toFixed(0)} araw ng trabaho — ${pct.toFixed(0)}% ng sahod. ${mos} months na ipon. Ang luwag ng wallet... kasi wala nang laman.`;
+    v="yellow";e="🫠";t="Medyo mahal ah...";s="Masasaktan ka.";
+    m=`${days.toFixed(0)} araw ng trabaho — ${pct.toFixed(0)}% ng sahod. ${mos} months ipon. Ang luwag ng wallet... kasi wala na laman.`;
   } else if (pct <= 60) {
-    v="yellow";e="🤨";t="Hmm, sure ka ba?";s="Matagal na pag ipon to.";
+    v="yellow";e="🤨";t="Hmm, sure ka ba?";s="Matagal ang ipon.";
     m=`${days.toFixed(0)} araw ng trabaho. Sa ₱${fmtC(savings)}/mo, ${mos} months bago mo mabili. Tiis muna.`;
   } else if (pct <= 100) {
-    v="red";e="🚫";t="Huy, wag!";s="'Di mo pa afford pre.";
-    m=`${days.toFixed(0)} araw ng trabaho — ${pct.toFixed(0)}% ng sahod. Halos buong sweldo. ${mos <= 12 ? `${mos} months ipon pa.` : "Matagal pa, pero kaya yan!"}`;
+    v="red";e="🚫";t="Huy, wag!";s="'Di mo pa afford, bes.";
+    m=`${days.toFixed(0)} araw ng trabaho — ${pct.toFixed(0)}% ng sahod. Halos buong sweldo. ${mos <= 12 ? `${mos} months ipon pa.` : "Matagal pa, pero kaya."}`;
   } else if (pct <= 200) {
     v="red";e="💀";t="Luh, grabe.";s="Mas mahal pa sa sahod mo.";
-    m=`${days.toFixed(0)} araw ng trabaho. Kahit di ka kumain, kulang pa rin. ${savings > 0 ? `${mos} months pa 'to.` : "Ipon-ipon muna."}`;
+    m=`${days.toFixed(0)} araw ng trabaho. Kahit di ka kumain, kulang pa rin. ${savings > 0 ? `${mos} months pa 'to.` : "Mag-ipon muna."}`;
   } else {
-    v="red";e="🪦";t="Ok ka lang??";s="Ilang buwan na sahod to.";
-    m=`${Math.ceil(pct/100)} months na sahod mo 'to. ${savings > 0 ? `${mos} months ipon.` : "Wala ka pang ipon."} Gamitin ang brain.`;
+    v="red";e="🪦";t="Pre, ano 'to.";s="Ilang buwan na sahod.";
+    m=`${Math.ceil(pct/100)} months na sahod mo 'to. ${savings > 0 ? `${mos} months ipon.` : "Wala ka pang ipon."} Breathe muna.`;
   }
   return { verdict:v, daysOfWork:days, percentOfIncome:pct, monthsToSave:mos, emoji:e, title:t, subtitle:s, message:m };
 }
@@ -124,7 +124,7 @@ export default function AffordCalculatorPage() {
   const result = useMemo(() => isReady ? getVerdict(income, price, savings) : null, [income, price, savings, isReady]);
 
   return (
-    <div className="h-[100dvh] bg-[#f5f5f5] flex flex-col overflow-hidden">
+    <div className="h-[100dvh] bg-[#f5f5f5] flex flex-col overflow-hidden relative">
       <style>{`
         input[type="range"] { -webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:999px;outline:none;cursor:pointer; }
         input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none;appearance:none;width:28px;height:28px;border-radius:50%;background:#1a1a1a;box-shadow:0 2px 8px rgba(0,0,0,0.2);cursor:grab; }
@@ -133,8 +133,21 @@ export default function AffordCalculatorPage() {
         @keyframes pulse-glow { 0%,100%{box-shadow:0 0 0 0 rgba(0,200,83,0.4)} 50%{box-shadow:0 0 0 10px rgba(0,200,83,0)} }
       `}</style>
 
+      {/* Raining emoji background */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+        {Array.from({ length: 20 }, () => ['👕','👙','🧳','🕶','👗','👞','👜','👝','👛','🎒','👟','🥾','🥿','👠','👡','🩰','👢','🧢','💄','💍','🐶','🐱','🍺','🍻','🥂','🍷','🥃','🍸','🍾','🧋','✈️','🚢','⌚️','📱','💻','🖥','📷','🛍️','🛒']).flat().map((e, i) => (
+          <span key={i} className="absolute emoji-rain text-lg" style={{
+            left: `${(i * 0.13 + (i * 7.3) % 17) % 100}%`,
+            opacity: 0.12,
+            '--rain-speed': `${6 + (i % 11) * 2.5}s`,
+            '--rain-delay': `${-((i * 0.41) % 30)}s`,
+            '--rain-spin': `${(i % 2 === 0 ? 1 : -1) * (10 + (i * 7) % 60)}deg`,
+          } as React.CSSProperties}>{e}</span>
+        ))}
+      </div>
+
       {/* Nav */}
-      <nav className="flex justify-between items-center px-4 py-2 max-w-[520px] mx-auto w-full shrink-0">
+      <nav className="relative z-10 flex justify-between items-center px-4 py-2 max-w-[520px] mx-auto w-full shrink-0">
         <Link href="/" className="text-lg font-extrabold tracking-tight text-[#1a1a1a] no-underline">
           alkansya<span className="text-[#00c853]">.ph</span>
         </Link>
@@ -142,7 +155,7 @@ export default function AffordCalculatorPage() {
       </nav>
 
       {/* Content */}
-      <main className="flex-1 flex flex-col justify-center max-w-[520px] mx-auto px-5 w-full min-h-0">
+      <main className="relative z-10 flex-1 flex flex-col justify-center max-w-[520px] mx-auto px-5 w-full min-h-0">
 
         {!revealed ? (
           <div>
@@ -160,7 +173,7 @@ export default function AffordCalculatorPage() {
                   {income === 0 ? <span className="text-[#ccc]">₱—</span> : formatPeso(income)}
                 </p>
                 <input type="range" min="0" max="100000" step="500" value={income}
-                  onChange={(e) => setIncome(Number(e.target.value))}
+                  onChange={(e) => { const v = Number(e.target.value); setIncome(v); setPrice(p => Math.min(p, v * 20)); setSavings(s => Math.min(s, v)); }}
                   style={{ background: `linear-gradient(to right, #00c853 ${(income/100000)*100}%, #ddd ${(income/100000)*100}%)` }}
                 />
               </div>
@@ -171,9 +184,9 @@ export default function AffordCalculatorPage() {
                 <p className="text-2xl sm:text-3xl font-black text-[#1a1a1a] mb-2">
                   {price === 0 ? <span className="text-[#ccc]">₱—</span> : formatPeso(price)}
                 </p>
-                <input type="range" min="0" max="500000" step="250" value={price}
+                <input type="range" min="0" max={income * 20 || 500000} step="250" value={price}
                   onChange={(e) => setPrice(Number(e.target.value))}
-                  style={{ background: `linear-gradient(to right, #1a1a1a ${(price/500000)*100}%, #ddd ${(price/500000)*100}%)` }}
+                  style={{ background: `linear-gradient(to right, #1a1a1a ${(price/(income * 20 || 500000))*100}%, #ddd ${(price/(income * 20 || 500000))*100}%)` }}
                 />
               </div>
 
