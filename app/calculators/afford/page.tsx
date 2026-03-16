@@ -171,15 +171,15 @@ function VerdictCard({ result, price, payMethod }: { result: VerdictResult; pric
       </div>
 
       {result.verdict !== "green" && show && (
-        <div className="mt-4 bg-[#111] rounded-2xl p-5 text-center" style={{ animation: "fadeSlideUp 0.5s 0.5s both" }}>
-          <p className="text-[11px] text-white/40 font-semibold uppercase tracking-wider mb-2">💡 Instead</p>
-          <p className="text-sm text-white/70 leading-relaxed">
-            Mag-ipon ka ng <span className="text-[#00c853] font-bold">{formatPeso(result.savePerMonth)}/month</span> —
-            sa <span className="text-[#00c853] font-bold">{result.saveMonths} months</span>,
+        <div className="mt-4 bg-[#00a844] rounded-2xl p-5 text-center" style={{ animation: "fadeSlideUp 0.5s 0.5s both" }}>
+          <p className="text-[11px] text-white/80 font-semibold uppercase tracking-wider mb-2">💡 Instead</p>
+          <p className="text-sm text-white/90 leading-relaxed">
+            Mag-ipon ka ng <span className="text-white font-black">{formatPeso(result.savePerMonth)}/month</span> —
+            sa <span className="text-white font-black">{result.saveMonths} months</span>,
             mabibili mo na &apos;to. Walang utang, walang interest.
           </p>
           {payMethod === "installment" && result.interestCost > 0 && (
-            <p className="text-xs text-white/40 mt-2">
+            <p className="text-xs text-white/70 mt-2">
               Makakatipid ka pa ng {formatPeso(result.interestCost)} na sana mapupunta sa interest. Pang-samgyup na &apos;yun.
             </p>
           )}
@@ -187,12 +187,12 @@ function VerdictCard({ result, price, payMethod }: { result: VerdictResult; pric
       )}
 
       {result.verdict === "green" && payMethod === "installment" && result.interestCost > 100 && show && (
-        <div className="mt-4 bg-[#111] rounded-2xl p-5 text-center" style={{ animation: "fadeSlideUp 0.5s 0.5s both" }}>
-          <p className="text-[11px] text-white/40 font-semibold uppercase tracking-wider mb-2">💡 Alam mo ba</p>
-          <p className="text-sm text-white/70 leading-relaxed">
+        <div className="mt-4 bg-[#00a844] rounded-2xl p-5 text-center" style={{ animation: "fadeSlideUp 0.5s 0.5s both" }}>
+          <p className="text-[11px] text-white/80 font-semibold uppercase tracking-wider mb-2">💡 Alam mo ba</p>
+          <p className="text-sm text-white/90 leading-relaxed">
             Kaya mo naman, pero ₱{formatWithCommas(Math.round(result.interestCost))} ang interest.
-            Mag-ipon ka ng <span className="text-[#00c853] font-bold">{formatPeso(result.savePerMonth)}/mo</span>,
-            mabibili mo &apos;to sa <span className="text-[#00c853] font-bold">{result.saveMonths} months</span> — at yung interest money, sa&apos;yo na.
+            Mag-ipon ka ng <span className="text-white font-black">{formatPeso(result.savePerMonth)}/mo</span>,
+            mabibili mo &apos;to sa <span className="text-white font-black">{result.saveMonths} months</span> — at yung interest money, sa&apos;yo na.
           </p>
         </div>
       )}
@@ -216,7 +216,7 @@ export default function AffordCalculatorPage() {
   const pricePercent = (price / 500000) * 100;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-[#00c853]">
       <style>{`
         @keyframes fadeSlideUp {
           from { opacity: 0; transform: translateY(12px); }
@@ -269,7 +269,7 @@ export default function AffordCalculatorPage() {
           <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight leading-none mb-2">
             Afford ko ba &apos;to?
           </h1>
-          <p className="text-sm text-white/30">Alamin bago bilhin.</p>
+          <p className="text-sm text-white/60">Alamin bago bilhin.</p>
         </div>
 
         {/* Inputs — centered */}
@@ -277,9 +277,9 @@ export default function AffordCalculatorPage() {
 
           {/* Income slider */}
           <div>
-            <p className="text-xs font-bold text-white/40 uppercase tracking-wider mb-2">Sahod mo per month</p>
+            <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-2">Sahod mo per month</p>
             <p className="text-3xl sm:text-4xl font-black text-white mb-3">
-              {income === 0 ? <span className="text-white/20">₱—</span> : formatPeso(income)}
+              {income === 0 ? <span className="text-white/40">₱—</span> : formatPeso(income)}
             </p>
             <input
               type="range"
@@ -289,20 +289,20 @@ export default function AffordCalculatorPage() {
               value={income}
               onChange={(e) => setIncome(Number(e.target.value))}
               style={{
-                background: `linear-gradient(to right, #00c853 0%, #00c853 ${incomePercent}%, rgba(255,255,255,0.08) ${incomePercent}%, rgba(255,255,255,0.08) 100%)`,
+                background: `linear-gradient(to right, #fff 0%, #fff ${incomePercent}%, rgba(0,0,0,0.12) ${incomePercent}%, rgba(0,0,0,0.12) 100%)`,
               }}
             />
             <div className="flex justify-between mt-1 px-0.5">
-              <span className="text-[10px] text-white/20">₱0</span>
-              <span className="text-[10px] text-white/20">₱200k</span>
+              <span className="text-[10px] text-white/50">₱0</span>
+              <span className="text-[10px] text-white/50">₱200k</span>
             </div>
           </div>
 
           {/* Price slider */}
           <div>
-            <p className="text-xs font-bold text-white/40 uppercase tracking-wider mb-2">Presyo ng gusto mo</p>
+            <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-2">Presyo ng gusto mo</p>
             <p className="text-3xl sm:text-4xl font-black text-white mb-3">
-              {price === 0 ? <span className="text-white/20">₱—</span> : formatPeso(price)}
+              {price === 0 ? <span className="text-white/40">₱—</span> : formatPeso(price)}
             </p>
             <input
               type="range"
@@ -312,30 +312,30 @@ export default function AffordCalculatorPage() {
               value={price}
               onChange={(e) => setPrice(Number(e.target.value))}
               style={{
-                background: `linear-gradient(to right, #fff 0%, #fff ${pricePercent}%, rgba(255,255,255,0.08) ${pricePercent}%, rgba(255,255,255,0.08) 100%)`,
+                background: `linear-gradient(to right, #fff 0%, #fff ${pricePercent}%, rgba(0,0,0,0.12) ${pricePercent}%, rgba(0,0,0,0.12) 100%)`,
               }}
             />
             <div className="flex justify-between mt-1 px-0.5">
-              <span className="text-[10px] text-white/20">₱0</span>
-              <span className="text-[10px] text-white/20">₱500k</span>
+              <span className="text-[10px] text-white/50">₱0</span>
+              <span className="text-[10px] text-white/50">₱500k</span>
             </div>
           </div>
 
           {/* Payment method */}
           <div>
-            <p className="text-xs font-bold text-white/40 uppercase tracking-wider mb-3">Pano mo babayaran?</p>
+            <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-3">Pano mo babayaran?</p>
             <div className="flex gap-2 justify-center">
               <button onClick={() => setPayMethod("cash")}
                 className={`px-6 py-3 rounded-xl text-sm font-bold transition-all ${
                   payMethod === "cash"
                     ? "bg-white text-[#0a0a0a]"
-                    : "bg-white/[0.07] text-white/50 hover:bg-white/[0.12]"
+                    : "bg-white/40 text-white/70 hover:bg-white/30"
                 }`}>Isang bagsak</button>
               <button onClick={() => setPayMethod("installment")}
                 className={`px-6 py-3 rounded-xl text-sm font-bold transition-all ${
                   payMethod === "installment"
                     ? "bg-white text-[#0a0a0a]"
-                    : "bg-white/[0.07] text-white/50 hover:bg-white/[0.12]"
+                    : "bg-white/40 text-white/70 hover:bg-white/30"
                 }`}>Hulugan</button>
             </div>
             {payMethod === "installment" && (
@@ -349,8 +349,8 @@ export default function AffordCalculatorPage() {
                   <button key={t.months} onClick={() => setInstallmentMonths(t.months)}
                     className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
                       installmentMonths === t.months
-                        ? "bg-white/20 text-white"
-                        : "bg-white/[0.05] text-white/30 hover:bg-white/[0.1]"
+                        ? "bg-white/40 text-white"
+                        : "bg-white/15 text-white/50 hover:bg-white/25"
                     }`}>{t.label}</button>
                 ))}
               </div>
@@ -365,15 +365,15 @@ export default function AffordCalculatorPage() {
 
         {/* CTA */}
         <div className="text-center mt-10">
-          <p className="text-xs text-white/20 mb-3">Gusto mo lumaki savings mo?</p>
+          <p className="text-xs text-white/50 mb-3">Gusto mo lumaki savings mo?</p>
           <Link href="/rates"
-            className="inline-block bg-[#00c853] text-white font-bold text-sm px-6 py-3 rounded-full hover:bg-[#00a844] transition-colors no-underline">
+            className="inline-block bg-[#1a1a1a] text-white font-bold text-sm px-6 py-3 rounded-full hover:bg-[#111] transition-colors no-underline">
             Compare rates →
           </Link>
         </div>
 
         <footer className="mt-10 pt-4 text-center">
-          <p className="text-[10px] text-white/15 leading-relaxed">
+          <p className="text-[10px] text-white/40 leading-relaxed">
             Guide lang &apos;to, hindi financial advice. Installment rates are estimates (~2% monthly add-on). Always check the total cost bago mag-sign up.
           </p>
         </footer>
