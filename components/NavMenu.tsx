@@ -10,22 +10,26 @@ const PAGES = [
   { label: "Compound Calculator", href: "/calculators/compound", description: "See how your money grows over time" },
   { label: "Pag-IBIG MP2 Calculator", href: "/calculators/mp2", description: "Tax-free government savings program" },
   { label: "Investment Calculator", href: "/calculators/investment", description: "What if you invested in Bitcoin, gold, stocks?" },
+  { label: "Can I Afford This?", href: "/calculators/afford", description: "Find out before you buy" },
 ];
 
-export default function NavMenu() {
+export default function NavMenu({ dark = false }: { dark?: boolean }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+
+  const lineColor = dark ? "bg-white" : "bg-[#1a1a1a]";
+  const hoverBg = dark ? "hover:bg-white/10" : "hover:bg-[#f0f0f0]";
 
   return (
     <div className="relative">
       {/* Burger button */}
       <button
         onClick={() => setOpen(!open)}
-        className="w-9 h-9 flex flex-col items-center justify-center gap-[5px] rounded-xl hover:bg-[#f0f0f0] transition-colors"
+        className={`w-9 h-9 flex flex-col items-center justify-center gap-[5px] rounded-xl ${hoverBg} transition-colors`}
         aria-label="Menu">
-        <span className={`block w-[18px] h-[2px] bg-[#1a1a1a] rounded-full transition-all ${open ? "rotate-45 translate-y-[7px]" : ""}`} />
-        <span className={`block w-[18px] h-[2px] bg-[#1a1a1a] rounded-full transition-all ${open ? "opacity-0" : ""}`} />
-        <span className={`block w-[18px] h-[2px] bg-[#1a1a1a] rounded-full transition-all ${open ? "-rotate-45 -translate-y-[7px]" : ""}`} />
+        <span className={`block w-[18px] h-[2px] ${lineColor} rounded-full transition-all ${open ? "rotate-45 translate-y-[7px]" : ""}`} />
+        <span className={`block w-[18px] h-[2px] ${lineColor} rounded-full transition-all ${open ? "opacity-0" : ""}`} />
+        <span className={`block w-[18px] h-[2px] ${lineColor} rounded-full transition-all ${open ? "-rotate-45 -translate-y-[7px]" : ""}`} />
       </button>
 
       {/* Dropdown */}
