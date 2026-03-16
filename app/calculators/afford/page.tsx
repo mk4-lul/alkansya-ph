@@ -1,149 +1,114 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import NavMenu from "@/components/NavMenu";
 
-function formatPeso(value: number): string {
-  if (value >= 1_000_000) return `₱${(value / 1_000_000).toFixed(1)}M`;
-  return `₱${Math.round(value).toLocaleString("en-PH")}`;
+function formatPeso(v: number): string {
+  if (v >= 1_000_000) return `₱${(v / 1_000_000).toFixed(1)}M`;
+  return `₱${Math.round(v).toLocaleString("en-PH")}`;
 }
-function formatWithCommas(n: number): string {
-  return n.toLocaleString("en-PH");
-}
+function fmtC(n: number): string { return n.toLocaleString("en-PH"); }
 
 type Verdict = "green" | "yellow" | "red";
-
-interface VerdictResult {
-  verdict: Verdict;
-  daysOfWork: number;
-  percentOfIncome: number;
-  monthsToSave: number;
-  emoji: string;
-  title: string;
-  subtitle: string;
-  message: string;
+interface VR {
+  verdict: Verdict; daysOfWork: number; percentOfIncome: number; monthsToSave: number;
+  emoji: string; title: string; subtitle: string; message: string;
 }
 
-function getVerdict(income: number, price: number, savings: number): VerdictResult {
-  const dailyPay = income / 22;
-  const daysOfWork = price / dailyPay;
-  const percentOfIncome = (price / income) * 100;
-  const monthsToSave = savings > 0 ? Math.ceil(price / savings) : 999;
+function getVerdict(income: number, price: number, savings: number): VR {
+  const daily = income / 22, days = price / daily, pct = (price / income) * 100;
+  const mos = savings > 0 ? Math.ceil(price / savings) : 999;
+  let v: Verdict, e: string, t: string, s: string, m: string;
 
-  let verdict: Verdict, emoji: string, title: string, subtitle: string, message: string;
-
-  if (percentOfIncome <= 10) {
-    verdict = "green"; emoji = "✅"; title = "Bili na!"; subtitle = "Easy money.";
-    message = `${daysOfWork.toFixed(1)} araw ng trabaho lang 'to. ${percentOfIncome.toFixed(0)}% ng sahod mo. Go na, walang drama.`;
-  } else if (percentOfIncome <= 30 && monthsToSave <= 2) {
-    verdict = "green"; emoji = "👍"; title = "G naman."; subtitle = "Kaya mo 'to.";
-    message = `${daysOfWork.toFixed(1)} araw ng trabaho — ${percentOfIncome.toFixed(0)}% ng sahod mo. At ${monthsToSave === 1 ? "isang buwan" : `${monthsToSave} months`} lang ipon, mabibili mo na.`;
-  } else if (percentOfIncome <= 30) {
-    verdict = "green"; emoji = "🤙"; title = "G lang."; subtitle = "Basta may disiplina.";
-    message = `${daysOfWork.toFixed(1)} araw ng trabaho. Kung itutuloy mo yung ₱${formatWithCommas(savings)}/mo na ipon, mga ${monthsToSave} months bago mo mabili 'to.`;
-  } else if (percentOfIncome <= 60 && monthsToSave <= 3) {
-    verdict = "yellow"; emoji = "🫠"; title = "Medyo mahal ah..."; subtitle = "Kaya mo, pero masasaktan ka.";
-    message = `${daysOfWork.toFixed(0)} araw ng trabaho 'to — ${percentOfIncome.toFixed(0)}% ng sahod mo. Kailangan mo mag-ipon ng ${monthsToSave} months. Pag binili mo agad, ang luwag ng wallet mo... kasi wala na laman.`;
-  } else if (percentOfIncome <= 60) {
-    verdict = "yellow"; emoji = "🤨"; title = "Hmm, sure ka ba?"; subtitle = "Medyo matagal ang ipon.";
-    message = `${daysOfWork.toFixed(0)} araw ng trabaho. Sa ₱${formatWithCommas(savings)}/mo na ipon mo, ${monthsToSave} months bago mo 'to mabili. Tiis-tiis muna.`;
-  } else if (percentOfIncome <= 100) {
-    verdict = "red"; emoji = "🚫"; title = "Huy, wag!"; subtitle = "'Di mo pa afford 'to, bes.";
-    message = `${daysOfWork.toFixed(0)} araw ng trabaho — ${percentOfIncome.toFixed(0)}% ng sahod mo. Halos buong sweldo. ${monthsToSave <= 12 ? `Mag-ipon ka ng ${monthsToSave} months, mabibili mo rin.` : "Ang tagal pa ng ipon, pero kaya yan."}`;
-  } else if (percentOfIncome <= 200) {
-    verdict = "red"; emoji = "💀"; title = "Luh, grabe 'to."; subtitle = "Mas mahal pa sa sahod mo.";
-    message = `${daysOfWork.toFixed(0)} araw ng trabaho. Kahit di ka kumain at di ka uminom, kulang pa rin. ${savings > 0 ? `Sa ₱${formatWithCommas(savings)}/mo, mga ${monthsToSave} months pa 'to.` : "Mag-ipon ka muna, promise worth it."}`;
+  if (pct <= 10) {
+    v="green";e="✅";t="Bili na!";s="Easy money.";
+    m=`${days.toFixed(1)} araw ng trabaho lang. ${pct.toFixed(0)}% ng sahod mo. Go na.`;
+  } else if (pct <= 30 && mos <= 2) {
+    v="green";e="👍";t="G naman.";s="Kaya mo 'to.";
+    m=`${days.toFixed(1)} araw ng trabaho — ${pct.toFixed(0)}% ng sahod. ${mos === 1 ? "Isang buwan" : `${mos} months`} lang ipon.`;
+  } else if (pct <= 30) {
+    v="green";e="🤙";t="G lang.";s="Basta may disiplina.";
+    m=`${days.toFixed(1)} araw ng trabaho. Sa ₱${fmtC(savings)}/mo na ipon, mga ${mos} months.`;
+  } else if (pct <= 60 && mos <= 3) {
+    v="yellow";e="🫠";t="Medyo mahal ah...";s="Masasaktan ka.";
+    m=`${days.toFixed(0)} araw ng trabaho — ${pct.toFixed(0)}% ng sahod. ${mos} months ipon. Ang luwag ng wallet... kasi wala na laman.`;
+  } else if (pct <= 60) {
+    v="yellow";e="🤨";t="Hmm, sure ka ba?";s="Matagal ang ipon.";
+    m=`${days.toFixed(0)} araw ng trabaho. Sa ₱${fmtC(savings)}/mo, ${mos} months bago mo mabili. Tiis muna.`;
+  } else if (pct <= 100) {
+    v="red";e="🚫";t="Huy, wag!";s="'Di mo pa afford, bes.";
+    m=`${days.toFixed(0)} araw ng trabaho — ${pct.toFixed(0)}% ng sahod. Halos buong sweldo. ${mos <= 12 ? `${mos} months ipon pa.` : "Matagal pa, pero kaya."}`;
+  } else if (pct <= 200) {
+    v="red";e="💀";t="Luh, grabe.";s="Mas mahal pa sa sahod mo.";
+    m=`${days.toFixed(0)} araw ng trabaho. Kahit di ka kumain, kulang pa rin. ${savings > 0 ? `${mos} months pa 'to.` : "Mag-ipon muna."}`;
   } else {
-    verdict = "red"; emoji = "🪦"; title = "Pre, ano ba 'to."; subtitle = "Ilang buwan na sahod mo 'to.";
-    message = `${Math.ceil(percentOfIncome / 100)} months na sahod mo 'to. ${daysOfWork.toFixed(0)} araw ng trabaho. ${savings > 0 ? `Kakailanganin mo ng ${monthsToSave} months na ipon.` : "Wala ka pang naipon. Simula muna tayo doon."} Breathe ka muna.`;
+    v="red";e="🪦";t="Pre, ano 'to.";s="Ilang buwan na sahod.";
+    m=`${Math.ceil(pct/100)} months na sahod mo 'to. ${savings > 0 ? `${mos} months ipon.` : "Wala ka pang ipon."} Breathe muna.`;
   }
-
-  return { verdict, daysOfWork, percentOfIncome, monthsToSave, emoji, title, subtitle, message };
+  return { verdict:v, daysOfWork:days, percentOfIncome:pct, monthsToSave:mos, emoji:e, title:t, subtitle:s, message:m };
 }
 
-function VerdictCard({ result, onTryAgain }: { result: VerdictResult; onTryAgain: () => void }) {
+function VerdictCard({ result, onTryAgain }: { result: VR; onTryAgain: () => void }) {
   const [show, setShow] = useState(false);
-
-  useEffect(() => {
-    const t = setTimeout(() => setShow(true), 80);
-    return () => clearTimeout(t);
-  }, []);
+  useEffect(() => { const t = setTimeout(() => setShow(true), 80); return () => clearTimeout(t); }, []);
 
   const bg = result.verdict === "green" ? "#00c853" : result.verdict === "yellow" ? "#FFB300" : "#D32F2F";
-  const textColor = result.verdict === "yellow" ? "#1a1a1a" : "#fff";
-  const subColor = result.verdict === "yellow" ? "rgba(26,26,26,0.5)" : "rgba(255,255,255,0.6)";
-  const dividerColor = result.verdict === "yellow" ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.2)";
-  const btnBg = result.verdict === "yellow" ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.15)";
-  const btnHover = result.verdict === "yellow" ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.25)";
+  const tc = result.verdict === "yellow" ? "#1a1a1a" : "#fff";
+  const sc = result.verdict === "yellow" ? "rgba(26,26,26,0.5)" : "rgba(255,255,255,0.6)";
+  const dc = result.verdict === "yellow" ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.2)";
+  const bb = result.verdict === "yellow" ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.15)";
+  const bh = result.verdict === "yellow" ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.25)";
 
   return (
-    <div className="flex flex-col items-center justify-center text-center px-6" style={{ perspective: "800px" }}>
-      <div
-        className="rounded-3xl px-6 py-10 sm:px-10 sm:py-12 w-full max-w-[520px] transition-all duration-500"
-        style={{
-          background: bg, color: textColor,
-          transform: show ? "scale(1) rotateX(0deg)" : "scale(0.85) rotateX(-12deg)",
-          opacity: show ? 1 : 0,
-        }}
-      >
-        {/* Emoji */}
-        <p className="text-[100px] sm:text-[120px] leading-none mb-2" style={{
-          transition: "transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
-          transform: show ? "scale(1)" : "scale(0.2)",
+    <div className="flex-1 flex flex-col items-center justify-center" style={{ perspective: "800px" }}>
+      <div className="rounded-3xl px-5 py-6 sm:px-8 sm:py-8 w-full max-w-[520px] text-center transition-all duration-500"
+        style={{ background: bg, color: tc,
+          transform: show ? "scale(1) rotateX(0deg)" : "scale(0.85) rotateX(-12deg)", opacity: show ? 1 : 0,
+        }}>
+
+        <p className="text-[72px] sm:text-[90px] leading-none mb-1" style={{
+          transition: "transform 0.6s cubic-bezier(0.34,1.56,0.64,1)", transform: show ? "scale(1)" : "scale(0.2)",
         }}>{result.emoji}</p>
 
-        {/* Title */}
-        <p className="text-4xl sm:text-6xl font-black tracking-tight leading-none mb-2" style={{
-          transition: "transform 0.5s 0.1s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s 0.1s",
+        <p className="text-3xl sm:text-5xl font-black tracking-tight leading-none mb-1" style={{
+          transition: "transform 0.5s 0.1s cubic-bezier(0.34,1.56,0.64,1), opacity 0.4s 0.1s",
           transform: show ? "translateY(0)" : "translateY(30px)", opacity: show ? 1 : 0,
         }}>{result.title}</p>
 
-        {/* Subtitle */}
-        <p className="text-lg sm:text-xl font-semibold mb-6" style={{
-          color: subColor, transition: "opacity 0.4s 0.2s", opacity: show ? 1 : 0,
-        }}>{result.subtitle}</p>
+        <p className="text-sm sm:text-base font-semibold mb-3" style={{ color: sc, transition: "opacity 0.4s 0.2s", opacity: show ? 1 : 0 }}>
+          {result.subtitle}
+        </p>
 
-        {/* Message */}
-        <p className="text-[14px] sm:text-[15px] leading-relaxed max-w-sm mx-auto mb-8" style={{
-          color: subColor, transition: "opacity 0.4s 0.3s", opacity: show ? 1 : 0,
-        }}>{result.message}</p>
+        <p className="text-xs sm:text-[13px] leading-relaxed max-w-sm mx-auto mb-5" style={{ color: sc, transition: "opacity 0.4s 0.3s", opacity: show ? 1 : 0 }}>
+          {result.message}
+        </p>
 
-        {/* Stats */}
-        <div className="flex justify-center gap-5 sm:gap-8 mb-8" style={{
-          transition: "opacity 0.4s 0.35s, transform 0.4s 0.35s",
-          opacity: show ? 1 : 0, transform: show ? "translateY(0)" : "translateY(10px)",
+        <div className="flex justify-center gap-4 sm:gap-6 mb-5" style={{
+          transition: "opacity 0.4s 0.35s, transform 0.4s 0.35s", opacity: show ? 1 : 0, transform: show ? "translateY(0)" : "translateY(10px)",
         }}>
           <div>
-            <p className="text-3xl sm:text-4xl font-black">{result.daysOfWork.toFixed(1)}</p>
-            <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: subColor }}>araw ng trabaho</p>
+            <p className="text-2xl sm:text-3xl font-black">{result.daysOfWork.toFixed(1)}</p>
+            <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color: sc }}>araw ng trabaho</p>
           </div>
-          <div style={{ width: 1, background: dividerColor, alignSelf: "stretch" }} />
+          <div style={{ width: 1, background: dc, alignSelf: "stretch" }} />
           <div>
-            <p className="text-3xl sm:text-4xl font-black">{result.percentOfIncome.toFixed(0)}%</p>
-            <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: subColor }}>ng sahod</p>
+            <p className="text-2xl sm:text-3xl font-black">{result.percentOfIncome.toFixed(0)}%</p>
+            <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color: sc }}>ng sahod</p>
           </div>
-          <div style={{ width: 1, background: dividerColor, alignSelf: "stretch" }} />
+          <div style={{ width: 1, background: dc, alignSelf: "stretch" }} />
           <div>
-            <p className="text-3xl sm:text-4xl font-black">{result.monthsToSave >= 999 ? "—" : result.monthsToSave}</p>
-            <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: subColor }}>months ipon</p>
+            <p className="text-2xl sm:text-3xl font-black">{result.monthsToSave >= 999 ? "—" : result.monthsToSave}</p>
+            <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color: sc }}>months ipon</p>
           </div>
         </div>
 
-        {/* Try again button */}
-        <button
-          onClick={onTryAgain}
-          className="px-8 py-3 rounded-full text-sm font-bold transition-colors"
-          style={{
-            background: btnBg, color: textColor,
-            transition: "opacity 0.4s 0.45s, background 0.2s",
-            opacity: show ? 1 : 0,
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.background = btnHover}
-          onMouseLeave={(e) => e.currentTarget.style.background = btnBg}
-        >
-          Try again ↻
-        </button>
+        <button onClick={onTryAgain}
+          className="px-6 py-2.5 rounded-full text-sm font-bold transition-colors"
+          style={{ background: bb, color: tc, transition: "opacity 0.4s 0.45s, background 0.2s", opacity: show ? 1 : 0 }}
+          onMouseEnter={(e) => e.currentTarget.style.background = bh}
+          onMouseLeave={(e) => e.currentTarget.style.background = bb}
+        >Try again ↻</button>
       </div>
     </div>
   );
@@ -156,153 +121,104 @@ export default function AffordCalculatorPage() {
   const [revealed, setRevealed] = useState(false);
 
   const isReady = income > 0 && price > 0 && savings > 0;
-  const result = useMemo(
-    () => isReady ? getVerdict(income, price, savings) : null,
-    [income, price, savings, isReady]
-  );
-
-  const incomePercent = (income / 200000) * 100;
-  const pricePercent = (price / 500000) * 100;
-  const savingsPercent = (savings / (income || 1)) * 100;
-
-  function handleReveal() {
-    if (isReady) setRevealed(true);
-  }
-
-  function handleTryAgain() {
-    setRevealed(false);
-    setIncome(0);
-    setPrice(0);
-    setSavings(0);
-  }
+  const result = useMemo(() => isReady ? getVerdict(income, price, savings) : null, [income, price, savings, isReady]);
 
   return (
-    <div className="min-h-screen bg-[#00c853] flex flex-col">
+    <div className="h-[100dvh] bg-[#f5f5f5] flex flex-col overflow-hidden">
       <style>{`
-        input[type="range"] {
-          -webkit-appearance: none; appearance: none;
-          width: 100%; height: 6px; border-radius: 999px; outline: none; cursor: pointer;
-        }
-        input[type="range"]::-webkit-slider-thumb {
-          -webkit-appearance: none; appearance: none;
-          width: 28px; height: 28px; border-radius: 50%; background: #fff;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.3); cursor: grab;
-        }
-        input[type="range"]::-webkit-slider-thumb:active { cursor: grabbing; transform: scale(1.15); }
-        input[type="range"]::-moz-range-thumb {
-          width: 28px; height: 28px; border-radius: 50%; background: #fff;
-          border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.3); cursor: grab;
-        }
-        @keyframes pulse-glow {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.4); }
-          50% { box-shadow: 0 0 0 12px rgba(255,255,255,0); }
-        }
+        input[type="range"] { -webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:999px;outline:none;cursor:pointer; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none;appearance:none;width:24px;height:24px;border-radius:50%;background:#1a1a1a;box-shadow:0 1px 4px rgba(0,0,0,0.15);cursor:grab; }
+        input[type="range"]::-webkit-slider-thumb:active { cursor:grabbing;transform:scale(1.15); }
+        input[type="range"]::-moz-range-thumb { width:24px;height:24px;border-radius:50%;background:#1a1a1a;border:none;box-shadow:0 1px 4px rgba(0,0,0,0.15);cursor:grab; }
+        @keyframes pulse-glow { 0%,100%{box-shadow:0 0 0 0 rgba(0,200,83,0.4)} 50%{box-shadow:0 0 0 10px rgba(0,200,83,0)} }
       `}</style>
 
       {/* Nav */}
-      <nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[520px] mx-auto w-full">
-        <Link href="/" className="text-xl font-extrabold tracking-tight text-white no-underline">
-          alkansya<span className="text-white/60">.ph</span>
+      <nav className="flex justify-between items-center px-4 py-2 max-w-[520px] mx-auto w-full shrink-0">
+        <Link href="/" className="text-lg font-extrabold tracking-tight text-[#1a1a1a] no-underline">
+          alkansya<span className="text-[#00c853]">.ph</span>
         </Link>
-        <NavMenu dark />
+        <NavMenu />
       </nav>
 
       {/* Content */}
-      <main className="flex-1 flex flex-col justify-center max-w-[520px] mx-auto px-6 sm:px-8 w-full pb-8">
+      <main className="flex-1 flex flex-col max-w-[520px] mx-auto px-5 w-full min-h-0">
 
         {!revealed ? (
           <>
             {/* Title */}
-            <div className="text-center mb-10">
-              <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight leading-none mb-2">
+            <div className="text-center pt-1 pb-3 shrink-0">
+              <h1 className="text-3xl sm:text-4xl font-black text-[#1a1a1a] tracking-tight leading-none">
                 Afford ko ba &apos;to?
               </h1>
-              <p className="text-sm text-white/60">Alamin bago bilhin.</p>
             </div>
 
             {/* 3 Sliders */}
-            <div className="space-y-7 mb-10">
+            <div className="flex-1 flex flex-col justify-center space-y-5 min-h-0">
               {/* Sahod */}
               <div className="text-center">
-                <p className="text-xs font-bold text-white/70 uppercase tracking-wider mb-1">Sahod mo per month</p>
-                <p className="text-3xl sm:text-4xl font-black text-white mb-3">
-                  {income === 0 ? <span className="text-white/30">₱—</span> : formatPeso(income)}
+                <p className="text-[10px] font-bold text-[#888] uppercase tracking-wider mb-0.5">Sahod mo per month</p>
+                <p className="text-2xl font-black text-[#1a1a1a] mb-1.5">
+                  {income === 0 ? <span className="text-[#ccc]">₱—</span> : formatPeso(income)}
                 </p>
-                <input
-                  type="range" min="0" max="200000" step="500" value={income}
+                <input type="range" min="0" max="200000" step="500" value={income}
                   onChange={(e) => setIncome(Number(e.target.value))}
-                  style={{ background: `linear-gradient(to right, #fff 0%, #fff ${incomePercent}%, rgba(0,0,0,0.12) ${incomePercent}%, rgba(0,0,0,0.12) 100%)` }}
+                  style={{ background: `linear-gradient(to right, #00c853 ${(income/200000)*100}%, #ddd ${(income/200000)*100}%)` }}
                 />
-                <div className="flex justify-between mt-1 px-0.5">
-                  <span className="text-[10px] text-white/40">₱0</span>
-                  <span className="text-[10px] text-white/40">₱200k</span>
+                <div className="flex justify-between mt-0.5">
+                  <span className="text-[9px] text-[#bbb]">₱0</span>
+                  <span className="text-[9px] text-[#bbb]">₱200k</span>
                 </div>
               </div>
 
               {/* Presyo */}
               <div className="text-center">
-                <p className="text-xs font-bold text-white/70 uppercase tracking-wider mb-1">Presyo ng gusto mo</p>
-                <p className="text-3xl sm:text-4xl font-black text-white mb-3">
-                  {price === 0 ? <span className="text-white/30">₱—</span> : formatPeso(price)}
+                <p className="text-[10px] font-bold text-[#888] uppercase tracking-wider mb-0.5">Presyo ng gusto mo</p>
+                <p className="text-2xl font-black text-[#1a1a1a] mb-1.5">
+                  {price === 0 ? <span className="text-[#ccc]">₱—</span> : formatPeso(price)}
                 </p>
-                <input
-                  type="range" min="0" max="500000" step="250" value={price}
+                <input type="range" min="0" max="500000" step="250" value={price}
                   onChange={(e) => setPrice(Number(e.target.value))}
-                  style={{ background: `linear-gradient(to right, #fff 0%, #fff ${pricePercent}%, rgba(0,0,0,0.12) ${pricePercent}%, rgba(0,0,0,0.12) 100%)` }}
+                  style={{ background: `linear-gradient(to right, #1a1a1a ${(price/500000)*100}%, #ddd ${(price/500000)*100}%)` }}
                 />
-                <div className="flex justify-between mt-1 px-0.5">
-                  <span className="text-[10px] text-white/40">₱0</span>
-                  <span className="text-[10px] text-white/40">₱500k</span>
+                <div className="flex justify-between mt-0.5">
+                  <span className="text-[9px] text-[#bbb]">₱0</span>
+                  <span className="text-[9px] text-[#bbb]">₱500k</span>
                 </div>
               </div>
 
               {/* Natitipid */}
               <div className="text-center">
-                <p className="text-xs font-bold text-white/70 uppercase tracking-wider mb-1">Natitipid mo kada buwan</p>
-                <p className="text-3xl sm:text-4xl font-black text-white mb-3">
-                  {savings === 0 ? <span className="text-white/30">₱—</span> : formatPeso(savings)}
+                <p className="text-[10px] font-bold text-[#888] uppercase tracking-wider mb-0.5">Natitipid mo kada buwan</p>
+                <p className="text-2xl font-black text-[#1a1a1a] mb-1.5">
+                  {savings === 0 ? <span className="text-[#ccc]">₱—</span> : formatPeso(savings)}
                 </p>
-                <input
-                  type="range" min="0" max={income || 100000} step="500" value={savings}
+                <input type="range" min="0" max={income || 100000} step="500" value={savings}
                   onChange={(e) => setSavings(Math.min(Number(e.target.value), income || 100000))}
-                  style={{ background: `linear-gradient(to right, #fff 0%, #fff ${savingsPercent}%, rgba(0,0,0,0.12) ${savingsPercent}%, rgba(0,0,0,0.12) 100%)` }}
+                  style={{ background: `linear-gradient(to right, #00c853 ${(savings/(income||1))*100}%, #ddd ${(savings/(income||1))*100}%)` }}
                 />
-                <div className="flex justify-between mt-1 px-0.5">
-                  <span className="text-[10px] text-white/40">₱0</span>
-                  <span className="text-[10px] text-white/40">{income > 0 ? formatPeso(income) : "—"}</span>
+                <div className="flex justify-between mt-0.5">
+                  <span className="text-[9px] text-[#bbb]">₱0</span>
+                  <span className="text-[9px] text-[#bbb]">{income > 0 ? formatPeso(income) : "—"}</span>
                 </div>
               </div>
             </div>
 
-            {/* Reveal button */}
-            <div className="text-center">
+            {/* Button */}
+            <div className="py-3 shrink-0">
               <button
-                onClick={handleReveal}
+                onClick={() => isReady && setRevealed(true)}
                 disabled={!isReady}
-                className={`px-10 py-4 rounded-full text-lg font-black tracking-tight transition-all ${
-                  isReady
-                    ? "bg-white text-[#00c853] hover:scale-105 active:scale-95"
-                    : "bg-white/20 text-white/40 cursor-not-allowed"
+                className={`w-full py-4 rounded-2xl text-base font-black tracking-tight transition-all ${
+                  isReady ? "bg-[#00c853] text-white active:scale-[0.97]" : "bg-[#e0e0e0] text-[#aaa] cursor-not-allowed"
                 }`}
                 style={isReady ? { animation: "pulse-glow 2s ease infinite" } : undefined}
-              >
-                Afford ko ba &apos;to?
-              </button>
-              {!isReady && (
-                <p className="text-xs text-white/40 mt-3">Set all 3 sliders to continue</p>
-              )}
+              >Afford ko ba &apos;to?</button>
             </div>
           </>
         ) : result ? (
-          <VerdictCard result={result} onTryAgain={handleTryAgain} />
+          <VerdictCard result={result} onTryAgain={() => { setRevealed(false); setIncome(0); setPrice(0); setSavings(0); }} />
         ) : null}
-
-        {/* Footer */}
-        <footer className="mt-10 text-center">
-          <p className="text-[10px] text-white/30 leading-relaxed">
-            Guide lang &apos;to, hindi financial advice. Mag-isip muna bago bumili.
-          </p>
-        </footer>
       </main>
     </div>
   );
