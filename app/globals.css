@@ -59,3 +59,15 @@ body {
 
 select:focus { outline: none; }
 select option { background: #fff; }
+
+@keyframes emojiFloat {
+  0%, 100% { transform: var(--base-rotate) translate(0, 0); }
+  25% { transform: var(--base-rotate) translate(3px, -6px); }
+  50% { transform: var(--base-rotate) translate(-2px, -3px); }
+  75% { transform: var(--base-rotate) translate(-4px, -8px); }
+}
+
+.emoji-float {
+  animation: emojiFloat var(--float-duration, 8s) ease-in-out infinite;
+  animation-delay: var(--float-delay, 0s);
+}
