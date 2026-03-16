@@ -283,16 +283,17 @@ function HistoryChart({ height = 220 }: { height?: number }) {
 // ─── Page ─────────────────────────────────────────────────────────
 
 export default function MP2CalculatorPage() {
-  const [monthly, setMonthly] = useState(5000);
-  const [years, setYears] = useState(5);
+  const [monthly, setMonthly] = useState<number | null>(null);
+  const [years, setYears] = useState<number | null>(null);
   const [rateMode, setRateMode] = useState<"latest" | "5yr" | "10yr">("latest");
 
   const rate = rateMode === "latest" ? MP2_HISTORY[MP2_HISTORY.length - 1].rate
     : rateMode === "5yr" ? AVG_5YR : AVG_10YR;
 
-  const result = useMemo(() => computeMP2(monthly, rate, years), [monthly, rate, years]);
+  const isReady = monthly !== null && monthly > 0 && years !== null;
+  const result = useMemo(() => isReady ? computeMP2(monthly, rate, years) : null, [monthly, rate, years, isReady]);
 
-  const interestPct = result.finalBalance > 0 ? ((result.totalInterest / result.finalBalance) * 100).toFixed(1) : "0";
+  const interestPct = result && result.finalBalance > 0 ? ((result.totalInterest / result.finalBalance) * 100).toFixed(1) : "0";
 
   return (
     <div className="min-h-screen bg-[#f5f5f5]">
@@ -328,7 +329,7 @@ export default function MP2CalculatorPage() {
                 <input
                   type="text"
                   inputMode="numeric"
-                  value={formatWithCommas(monthly)}
+                  value={formatWithCommas(monthly ?? 0)}
                   onChange={(e) => setMonthly(parseFormatted(e.target.value))}
                   className="flex-1 bg-transparent text-sm font-bold text-[#1a1a1a] outline-none"
                   placeholder="0"
@@ -373,7 +374,9 @@ export default function MP2CalculatorPage() {
           </div>
         </div>
 
-        {/* Hero result card */}
+        {/* Hero result card + Growth Chart — only when inputs selected */}
+        {isReady && result && (
+        <>
         <div className="bg-[#1565C0] rounded-[20px] p-6 sm:p-8 mb-3 relative overflow-hidden">
           {/* Scattered emojis */}
           <div className="absolute inset-0 pointer-events-none select-none" style={{ filter: "blur(2px)" }} aria-hidden="true">
@@ -432,6 +435,8 @@ export default function MP2CalculatorPage() {
             </div>
           </div>
         </div>
+        </>
+        )}
 
         {/* Historical Dividend Rates */}
         <div className="bg-white rounded-[20px] p-5 sm:p-6 mb-3">
