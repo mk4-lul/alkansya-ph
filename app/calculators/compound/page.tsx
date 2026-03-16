@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import Link from "next/link";
 import { formatPeso } from "@/lib/utils";
 import NavMenu from "@/components/NavMenu";
@@ -211,6 +211,14 @@ export default function CalculatorPage() {
   const [years, setYears] = useState<number | null>(null);
 
   const annualRate = rateInterval === "month" ? rate * 12 : rate;
+  const [rainRate, setRainRate] = useState(0);
+  const rainTimer = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => {
+    clearTimeout(rainTimer.current);
+    rainTimer.current = setTimeout(() => setRainRate(annualRate), 1500);
+    return () => clearTimeout(rainTimer.current);
+  }, [annualRate]);
   const isReady = initial !== null && monthly !== null && rate > 0 && years !== null;
   const result = useMemo(() => isReady ? computeGrowth(initial, monthly, annualRate, years) : null, [initial, monthly, annualRate, years, isReady]);
 
@@ -288,19 +296,19 @@ export default function CalculatorPage() {
           {/* Interest rate — SLIDER */}
           <div className="bg-white rounded-[20px] p-5 sm:p-6 relative overflow-hidden">
             {/* Raining emojis based on rate intensity */}
-            {annualRate > 0 && (() => {
+            {rainRate > 0 && (() => {
               const intensity =
-                annualRate <= 3 ? { emojis: ['🌱'], count: 1, speed: 5 }
-                : annualRate <= 6 ? { emojis: ['🌱','💰'], count: 2, speed: 4 }
-                : annualRate <= 10 ? { emojis: ['💰','📈','✨'], count: 3, speed: 3.5 }
-                : annualRate <= 20 ? { emojis: ['💰','📈','🔥','💎'], count: 5, speed: 3 }
-                : annualRate <= 40 ? { emojis: ['🔥','💎','🤑','🚀','⚡'], count: 8, speed: 2.5 }
-                : annualRate <= 70 ? { emojis: ['🚀','🤑','💎','🔥','⚡','💥'], count: 12, speed: 2 }
+                rainRate <= 3 ? { emojis: ['🌱'], count: 1, speed: 5 }
+                : rainRate <= 6 ? { emojis: ['🌱','💰'], count: 2, speed: 4 }
+                : rainRate <= 10 ? { emojis: ['💰','📈','✨'], count: 3, speed: 3.5 }
+                : rainRate <= 20 ? { emojis: ['💰','📈','🔥','💎'], count: 5, speed: 3 }
+                : rainRate <= 40 ? { emojis: ['🔥','💎','🤑','🚀','⚡'], count: 8, speed: 2.5 }
+                : rainRate <= 70 ? { emojis: ['🚀','🤑','💎','🔥','⚡','💥'], count: 12, speed: 2 }
                 : { emojis: ['🚀','🌕','💥','🤯','🔥','💎','⚡','🤑'], count: 18, speed: 1.5 };
               return (
                 <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
                   {Array.from({ length: intensity.count }).map((_, i) => (
-                    <span key={`${annualRate.toFixed(0)}-${i}`} className="absolute emoji-rain text-[18px] sm:text-[22px]" style={{
+                    <span key={`rain-${i}`} className="absolute emoji-rain text-[18px] sm:text-[22px]" style={{
                       left: `${(i * 37 + i * i * 7.3) % 95 + 2}%`,
                       '--rain-speed': `${intensity.speed + (i % 3) * 0.8}s`,
                       '--rain-delay': `${-((i * 0.7) % intensity.speed)}s`,
