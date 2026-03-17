@@ -337,16 +337,8 @@ export default function WhatIfPage() {
             <span style={{ borderBottom: "4px solid #2196F3" }}>{item.name}</span>
           </p>
 
-          {/* You'd have */}
-          <p className="text-2xl sm:text-[36px] font-black text-[#1a1a1a] leading-[1.15] tracking-tight mb-5">
-            meron ka sanang{" "}
-            <span style={{ borderBottom: "4px solid #00c853" }}>
-              {formatPeso(value)}
-            </span>
-          </p>
-
           {/* Item image */}
-          <div className="flex justify-center mb-4">
+          <div className="flex justify-center mb-3">
             <div className="w-[180px] h-[180px] sm:w-[200px] sm:h-[200px] flex items-center justify-center shrink-0">
               {!imgError ? (
                 <img
@@ -362,8 +354,16 @@ export default function WhatIfPage() {
             </div>
           </div>
 
-          {/* Details — single line */}
-          <p className="text-xs text-[#888] mb-4">
+          {/* You'd have — below image */}
+          <p className="text-2xl sm:text-[36px] font-black text-[#1a1a1a] leading-[1.15] tracking-tight mb-3 text-center">
+            meron ka sanang{" "}
+            <span style={{ borderBottom: "4px solid #00c853" }}>
+              {formatPeso(value)}
+            </span>
+          </p>
+
+          {/* Details — centered */}
+          <p className="text-xs text-[#888] mb-4 text-center">
             <span className="font-bold">₱{item.price.toLocaleString("en-PH")}</span> · {item.year} · {multiplier.toFixed(1)}× return
           </p>
         </div>
@@ -380,11 +380,12 @@ export default function WhatIfPage() {
         </button>
 
         {asset === "bitcoin" && (
-          <a href="https://www.binance.com/register?ref=ALKANSYA" target="_blank" rel="noopener noreferrer"
-            className="block text-center mt-3 text-sm font-bold text-[#888888] no-underline"
-            style={{ borderBottom: "none" }}>
-            <span style={{ borderBottom: "2px solid #FF9800" }}>Buy bitcoin</span>
-          </a>
+          <p className="text-center mt-2.5">
+            <a href="https://www.binance.com/register?ref=ALKANSYA" target="_blank" rel="noopener noreferrer"
+              className="text-[11px] font-normal text-[#888] no-underline border-b border-[#FF9800]/50 pb-px hover:text-[#FF9800] hover:border-[#FF9800] transition-colors">
+              Buy bitcoin
+            </a>
+          </p>
         )}
       </main>
 
