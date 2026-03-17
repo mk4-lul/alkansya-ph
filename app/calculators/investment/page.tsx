@@ -442,7 +442,7 @@ export default function InvestmentCalculatorPage() {
         {asset.id === "btc" && (
           <p className="text-center mb-3">
             <a href="https://www.binance.com/register?ref=ALKANSYA" target="_blank" rel="noopener noreferrer"
-              className="text-[11px] font-normal text-[#888] no-underline border-b border-[#FF9800]/50 pb-px hover:text-[#FF9800] hover:border-[#FF9800] transition-colors">
+              className="text-sm font-medium text-[#888] no-underline border-b border-[#FF9800]/50 pb-px hover:text-[#FF9800] hover:border-[#FF9800] transition-colors">
               Buy bitcoin
             </a>
           </p>
