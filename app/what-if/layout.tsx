@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Investment Calculator — What If You Invested? — Alkansya.ph",
-  description: "What if you invested in Bitcoin, gold, Apple, Nvidia, or Philippine stocks years ago? See your potential returns with 9 assets from 2015–2026.",
+  title: "What If Nag-Invest Ka Nalang? — Alkansya.ph",
+  description: "Kung bumili ka nalang ng gold o bitcoin instead of your old purchases, magkano na sana pera mo ngayon? Pang-guilt trip lang 'to.",
   openGraph: {
-    title: "What If You Invested? — Alkansya.ph",
-    description: "What if you invested in Bitcoin, gold, or stocks years ago? See your potential returns.",
-    url: "https://alkansya.ph/investment",
+    title: "What If Nag-Invest Ka Nalang? — Alkansya.ph",
+    description: "Kung bumili ka nalang ng gold o bitcoin instead... magkano na sana?",
+    url: "https://alkansya.ph/what-if",
   },
 };
 
