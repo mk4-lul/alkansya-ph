@@ -1,7 +1,18 @@
+import type { Metadata } from "next";
 import { getBanksWithRates, BankWithRates, TimeDepositRate } from "@/lib/supabase";
 import Dashboard from "@/components/Dashboard";
 import NavMenu from "@/components/NavMenu";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Compare Bank Interest Rates — Alkansya.ph",
+  description: "Compare savings and time deposit rates across 17 Philippine banks. Find the best rates from BDO, BPI, Maya, CIMB, Tonik, GoTyme, and more.",
+  openGraph: {
+    title: "Compare Bank Interest Rates — Alkansya.ph",
+    description: "Compare savings and time deposit rates across 17 Philippine banks.",
+    url: "https://alkansya.ph/rates",
+  },
+};
 
 export const revalidate = 3600;
 
