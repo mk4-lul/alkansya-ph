@@ -398,7 +398,7 @@ export default function InvestmentCalculatorPage() {
         ) : isReady && asset && startYear ? (
         <>
         {/* Hero result card */}
-        <div className="bg-[#FFD700] rounded-[20px] p-6 sm:p-8 mb-3 relative overflow-hidden">
+        <div className="bg-[#FF9800] rounded-[20px] p-6 sm:p-8 mb-3 relative overflow-hidden">
           <div className="absolute inset-0 pointer-events-none select-none" style={{ filter: "blur(2px)" }} aria-hidden="true">
             {['⚜️','₿','🤑','💎','📈'].map((e, i) => (
               <span key={i} className="absolute text-[28px] sm:text-[34px] emoji-float" style={{
@@ -438,6 +438,15 @@ export default function InvestmentCalculatorPage() {
             <p className="text-[12px] font-semibold text-white/70 mt-3">~{multiplier.toFixed(2)}x return in {CURRENT_YEAR - startYear} {CURRENT_YEAR - startYear === 1 ? "year" : "years"}</p>
           </div>
         </div>
+
+        {asset.id === "btc" && (
+          <p className="text-center mb-3">
+            <a href="https://www.binance.com/register?ref=ALKANSYA" target="_blank" rel="noopener noreferrer"
+              className="text-[11px] font-normal text-[#888] no-underline border-b border-[#FF9800]/50 pb-px hover:text-[#FF9800] hover:border-[#FF9800] transition-colors">
+              Buy bitcoin
+            </a>
+          </p>
+        )}
 
         {/* Chart */}
         <div className="bg-white rounded-[20px] p-5 sm:p-6 mb-3">
