@@ -11,6 +11,7 @@ const PAGES = [
   { label: "Pag-IBIG MP2 Calculator", href: "/calculators/mp2", description: "Tax-free government savings program" },
   { label: "Investment Calculator", href: "/calculators/investment", description: "What if you invested in Bitcoin, gold, stocks?" },
   { label: "Afford ko ba 'to?", href: "/calculators/afford", description: "Alamin bago bilhin" },
+  { label: "What if nag-invest ka nalang?", href: "/what-if", description: "Sana nag-invest ka nalang..." },
 ];
 
 export default function NavMenu({ dark = false }: { dark?: boolean }) {
