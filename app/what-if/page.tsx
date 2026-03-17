@@ -245,7 +245,7 @@ export default function WhatIfPage() {
       setIndex(next);
       setImgError(false);
       setShow(true);
-    }, 200);
+    }, 300);
   }, [index]);
 
   // Keyboard shortcut
@@ -260,110 +260,90 @@ export default function WhatIfPage() {
   const assetColor = asset === "gold" ? "#FFD600" : "#FF9800";
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="h-[100dvh] bg-white flex flex-col overflow-hidden">
       {/* Nav */}
-      <nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[720px] mx-auto w-full">
-        <Link href="/" className="text-xl font-extrabold tracking-tight text-[#1a1a1a] no-underline">
+      <nav className="flex justify-between items-center px-4 py-2 max-w-[600px] mx-auto w-full shrink-0">
+        <Link href="/" className="text-lg font-extrabold tracking-tight text-[#1a1a1a] no-underline">
           alkansya<span className="text-[#00c853]">.ph</span>
         </Link>
         <NavMenu />
       </nav>
 
       {/* Toggle */}
-      <div className="flex justify-center gap-1 mb-6">
+      <div className="flex justify-center gap-1 shrink-0 mb-2">
         <button onClick={() => setAsset("gold")}
-          className={`px-5 py-2 rounded-full text-sm font-bold transition-all ${
+          className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all ${
             asset === "gold" ? "bg-[#FFD600] text-[#1a1a1a]" : "bg-[#f0f0f0] text-[#888]"
           }`}>🥇 Gold</button>
         <button onClick={() => setAsset("bitcoin")}
-          className={`px-5 py-2 rounded-full text-sm font-bold transition-all ${
+          className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all ${
             asset === "bitcoin" ? "bg-[#FF9800] text-white" : "bg-[#f0f0f0] text-[#888]"
           }`}>₿ Bitcoin</button>
       </div>
 
       {/* Main content */}
-      <main className="flex-1 flex flex-col items-center justify-center max-w-[600px] mx-auto px-6 w-full">
-        <div className={`transition-all duration-200 ${show ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}>
+      <main className="flex-1 flex flex-col justify-center max-w-[600px] mx-auto px-5 w-full min-h-0">
+        <div className={`transition-opacity duration-300 ${show ? "opacity-100" : "opacity-0"}`}>
 
           {/* The text */}
-          <div className="mb-8">
-            <p className="text-3xl sm:text-[42px] font-black text-[#1a1a1a] leading-[1.15] tracking-tight">
-              kung binili mo ng{" "}
-              <span style={{ borderBottom: `4px solid ${assetColor}` }}>{assetLabel}</span>
-              {" "}instead of a frickin{" "}
-              <span style={{ borderBottom: "4px solid #2196F3" }}>{item.name}</span>
-            </p>
-          </div>
+          <p className="text-2xl sm:text-[36px] font-black text-[#1a1a1a] leading-[1.15] tracking-tight mb-4">
+            kung bumili ka nalang ng{" "}
+            <span style={{ borderBottom: `4px solid ${assetColor}` }}>{assetLabel}</span>
+            {" "}instead of a{" "}
+            <span style={{ borderBottom: "4px solid #2196F3" }}>{item.name}</span>
+          </p>
 
           {/* You'd have */}
-          <div className="mb-8">
-            <p className="text-3xl sm:text-[42px] font-black text-[#1a1a1a] leading-[1.15] tracking-tight">
-              meron ka sanang{" "}
-              <span style={{ borderBottom: `4px solid #00c853` }}>
-                {formatPeso(value)}
-              </span>
-            </p>
-          </div>
+          <p className="text-2xl sm:text-[36px] font-black text-[#1a1a1a] leading-[1.15] tracking-tight mb-5">
+            meron ka sanang{" "}
+            <span style={{ borderBottom: "4px solid #00c853" }}>
+              {formatPeso(value)}
+            </span>
+          </p>
 
           {/* Item image + asset amount */}
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-[100px] h-[100px] sm:w-[120px] sm:h-[120px] rounded-2xl flex items-center justify-center shrink-0 p-2"
-              style={{ border: `5px solid ${item.color}` }}>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-[140px] h-[140px] sm:w-[160px] sm:h-[160px] flex items-center justify-center shrink-0">
               {!imgError ? (
                 <img
                   src={`/items/${item.id}.png`}
                   alt={item.name}
                   className="w-full h-full object-contain"
+                  style={{ filter: `drop-shadow(2px 0 0 ${item.color}) drop-shadow(-2px 0 0 ${item.color}) drop-shadow(0 2px 0 ${item.color}) drop-shadow(0 -2px 0 ${item.color})` }}
                   onError={() => setImgError(true)}
                 />
               ) : (
-                <span className="text-4xl">{item.category.split(" ")[0]}</span>
+                <span className="text-5xl">{item.category.split(" ")[0]}</span>
               )}
             </div>
-            <span className="text-3xl font-black text-[#1a1a1a]">=</span>
-            <div className="text-center">
-              <p className="text-2xl sm:text-3xl font-black" style={{ color: assetColor }}>
+            <span className="text-2xl font-black text-[#1a1a1a]">=</span>
+            <div>
+              <p className="text-xl sm:text-2xl font-black" style={{ color: assetColor }}>
                 {calcAssetAmount(item, asset)}
               </p>
             </div>
           </div>
 
-          {/* Details */}
-          <div className="mb-8">
-            <p className="text-sm text-[#1a1a1a]">
-              <span className="font-bold">Original Price:</span> ₱{item.price.toLocaleString("en-PH")}
-            </p>
-            <p className="text-sm text-[#1a1a1a]">
-              <span className="font-bold">Year:</span> {item.year}
-            </p>
-            <p className="text-sm text-[#1a1a1a]">
-              <span className="font-bold">Return:</span> {multiplier.toFixed(1)}×
-            </p>
-          </div>
+          {/* Details — single line */}
+          <p className="text-xs text-[#888] mb-4">
+            <span className="font-bold">₱{item.price.toLocaleString("en-PH")}</span> · {item.year} · {multiplier.toFixed(1)}× return
+          </p>
         </div>
 
         {/* Shuffle button */}
         <button
           onClick={shuffle}
-          className="w-full max-w-[400px] py-4 rounded-2xl text-base font-black text-white transition-all active:scale-[0.97]"
+          className="w-full py-3.5 rounded-2xl text-sm font-black text-white transition-all active:scale-[0.97] shrink-0"
           style={{ background: assetColor }}
         >
           isa pa nga. 🔀
         </button>
-
-        <p className="text-[10px] text-[#ccc] mt-3">press space para mag-shuffle</p>
       </main>
 
       {/* Footer */}
-      <footer className="text-center py-4 px-4">
-        {prices.live && (
-          <p className="text-[10px] text-[#00c853] mb-1 font-semibold">
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#00c853] mr-1 animate-pulse" />
-            Live prices — Gold: ${prices.gold.toLocaleString()}/oz · BTC: ${prices.btc.toLocaleString()} · USD/PHP: {prices.usdphp}
-          </p>
-        )}
-        <p className="text-[10px] text-[#bbb] leading-relaxed max-w-md mx-auto">
-          Historical prices are yearly averages. {!prices.live && "Current prices are estimates. "}Hindi &apos;to financial advice — pang-guilt trip lang &apos;to.
+      <footer className="text-center py-2 px-4 shrink-0">
+        <p className="text-[9px] text-[#ccc]">
+          Pang-guilt trip lang &apos;to, hindi financial advice.
         </p>
       </footer>
     </div>
