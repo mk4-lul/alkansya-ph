@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useRef } from "react";
 import Link from "next/link";
 import { formatPeso } from "@/lib/utils";
 import NavMenu from "@/components/NavMenu";
@@ -194,14 +194,6 @@ function MiniChart({ data, height = 300 }: { data: { month: number; balance: num
   );
 }
 
-function getEmojiRain(annualRate: number): { emojis: string[]; count: number; speed: number; size: string } {
-  if (annualRate <= 3) return { emojis: ['🪙','💰'], count: 3, speed: 5, size: 'text-[16px]' };
-  if (annualRate <= 8) return { emojis: ['💰','💵','📈','✨'], count: 6, speed: 4, size: 'text-[18px]' };
-  if (annualRate <= 15) return { emojis: ['💵','💰','🤑','💎','📈','🔥'], count: 10, speed: 3.5, size: 'text-[20px]' };
-  if (annualRate <= 30) return { emojis: ['🔥','🚀','💎','🤑','💰','⚡','💵'], count: 15, speed: 2.5, size: 'text-[22px]' };
-  if (annualRate <= 50) return { emojis: ['🚀','🔥','💎','🤯','⚡','🌟','💰','🤑'], count: 20, speed: 2, size: 'text-[24px]' };
-  return { emojis: ['🚀','🔥','💎','🤯','⚡','🌟','💥','🏆','👑','🤑'], count: 30, speed: 1.5, size: 'text-[26px]' };
-}
 
 export default function CalculatorPage() {
   const [initial, setInitial] = useState<number | null>(null);
@@ -209,16 +201,10 @@ export default function CalculatorPage() {
   const [rate, setRate] = useState(0);
   const [rateInterval, setRateInterval] = useState<"year" | "month">("year");
   const [years, setYears] = useState<number | null>(null);
+  const [showInfo, setShowInfo] = useState(false);
 
   const annualRate = rateInterval === "month" ? rate * 12 : rate;
-  const [rainRate, setRainRate] = useState(0);
-  const rainTimer = useRef<ReturnType<typeof setTimeout>>();
 
-  useEffect(() => {
-    clearTimeout(rainTimer.current);
-    rainTimer.current = setTimeout(() => setRainRate(annualRate), 1500);
-    return () => clearTimeout(rainTimer.current);
-  }, [annualRate]);
   const isReady = initial !== null && monthly !== null && rate > 0 && years !== null;
   const result = useMemo(() => isReady ? computeGrowth(initial, monthly, annualRate, years) : null, [initial, monthly, annualRate, years, isReady]);
 
@@ -235,7 +221,24 @@ export default function CalculatorPage() {
       </nav>
 
       <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1a1a1a] tracking-tight mb-4">Compound interest calculator</h1>
+        <div className="flex items-center gap-2 mb-4">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1a1a1a] tracking-tight">Compound interest calculator</h1>
+          <div className="relative">
+            <button
+              onClick={() => setShowInfo(!showInfo)}
+              className="w-5 h-5 rounded-full border border-[#ccc] text-[10px] font-semibold text-[#888] hover:border-[#888] hover:text-[#1a1a1a] transition-colors flex items-center justify-center shrink-0"
+            >i</button>
+            {showInfo && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowInfo(false)} />
+                <div className="absolute z-50 top-full mt-1 left-1/2 -translate-x-1/2 bg-[#1a1a1a] text-white text-[11px] leading-relaxed rounded-xl p-3 shadow-lg w-[260px] sm:w-[300px]">
+                  <p className="font-bold mb-1">What is compound interest?</p>
+                  <p className="text-white/70">Interest earned on both your original money and the interest it has already earned. Your money grows faster over time because you&apos;re earning interest on top of interest.</p>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
 
         {/* Inputs */}
         <div className="space-y-3 mb-3">
@@ -294,33 +297,7 @@ export default function CalculatorPage() {
           </div>
 
           {/* Interest rate — SLIDER */}
-          <div className="bg-white rounded-[20px] p-5 sm:p-6 relative overflow-hidden">
-            {/* Raining emojis based on rate intensity */}
-            {rainRate > 0 && (() => {
-              const intensity =
-                rainRate <= 3 ? { emojis: ['🌱'], count: 1, speed: 5 }
-                : rainRate <= 6 ? { emojis: ['🌱','💰'], count: 2, speed: 4 }
-                : rainRate <= 10 ? { emojis: ['💰','📈','✨'], count: 3, speed: 3.5 }
-                : rainRate <= 20 ? { emojis: ['💰','📈','🔥','💎'], count: 5, speed: 3 }
-                : rainRate <= 40 ? { emojis: ['🔥','💎','🤑','🚀','⚡'], count: 8, speed: 2.5 }
-                : rainRate <= 70 ? { emojis: ['🚀','🤑','💎','🔥','⚡','💥'], count: 12, speed: 2 }
-                : { emojis: ['🚀','🌕','💥','🤯','🔥','💎','⚡','🤑'], count: 18, speed: 1.5 };
-              return (
-                <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-                  {Array.from({ length: intensity.count }).map((_, i) => (
-                    <span key={`rain-${i}`} className="absolute emoji-rain text-[18px] sm:text-[22px]" style={{
-                      left: `${(i * 37 + i * i * 7.3) % 95 + 2}%`,
-                      '--rain-speed': `${intensity.speed + (i % 3) * 0.8}s`,
-                      '--rain-delay': `${-((i * 0.7) % intensity.speed)}s`,
-                      '--rain-spin': `${(i % 2 === 0 ? 1 : -1) * (20 + i * 15)}deg`,
-                    } as React.CSSProperties}>
-                      {intensity.emojis[i % intensity.emojis.length]}
-                    </span>
-                  ))}
-                </div>
-              );
-            })()}
-            <div className="relative">
+          <div className="bg-white rounded-[20px] p-5 sm:p-6">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888]">Interest rate</p>
@@ -356,7 +333,6 @@ export default function CalculatorPage() {
             {rateInterval === "month" && rate > 0 && (
               <p className="text-[10px] text-[#aaa] mt-1 text-right">{(rate * 12).toFixed(1)}% per year</p>
             )}
-            </div>
           </div>
 
           {/* Time period */}
@@ -390,25 +366,6 @@ export default function CalculatorPage() {
               } as React.CSSProperties}>{e}</span>
             ))}
           </div>
-          {/* Emoji rain — intensity based on rate */}
-          {(() => {
-            const rain = getEmojiRain(annualRate);
-            return (
-              <div className="absolute inset-0 pointer-events-none select-none overflow-hidden" aria-hidden="true">
-                {Array.from({ length: rain.count }).map((_, i) => (
-                  <span key={`rain-${i}`} className={`absolute ${rain.size} emoji-rain`} style={{
-                    left: `${(i * 37 + 5) % 100}%`,
-                    '--rain-speed': `${rain.speed + (i % 3) * 0.8}s`,
-                    '--rain-delay': `${-((i * 0.7) % (rain.speed + 2))}s`,
-                    '--rain-spin': `${(i % 2 === 0 ? 1 : -1) * (30 + (i % 4) * 20)}deg`,
-                    opacity: annualRate > 30 ? 0.7 : 0.5,
-                  } as React.CSSProperties}>
-                    {rain.emojis[i % rain.emojis.length]}
-                  </span>
-                ))}
-              </div>
-            );
-          })()}
           <div className="relative text-center">
             <p className="text-[13px] font-bold uppercase tracking-[1px] text-[#1a1a1a]/60 mb-2">
               Your money after {years} {years === 1 ? "year" : "years"}
