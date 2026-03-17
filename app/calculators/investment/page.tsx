@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import Link from "next/link";
 import NavMenu from "@/components/NavMenu";
 import ScrollingPeso from "@/components/ScrollingPeso";
@@ -278,6 +278,7 @@ export default function InvestmentCalculatorPage() {
   const [startYear, setStartYear] = useState<number | null>(null);
   const [amount, setAmount] = useState<number | null>(null);
   const [showInfo, setShowInfo] = useState<string | null>(null);
+  const [revealed, setRevealed] = useState(false);
 
   const isReady = asset !== null && startYear !== null && amount !== null && amount > 0;
   const entryPrice = isReady ? asset.prices[startYear] : 0;
@@ -287,6 +288,18 @@ export default function InvestmentCalculatorPage() {
   const gain = currentValue - (amount ?? 0);
   const gainPct = ((multiplier - 1) * 100);
   const isPositive = gain >= 0;
+
+  // Auto-reveal when all inputs are filled
+  useEffect(() => {
+    if (isReady && !revealed) setRevealed(true);
+  }, [isReady, revealed]);
+
+  function handleTryAgain() {
+    setRevealed(false);
+    setAsset(null);
+    setStartYear(null);
+    setAmount(null);
+  }
 
   return (
     <div className="min-h-screen bg-[#f5f5f5]">
@@ -301,6 +314,8 @@ export default function InvestmentCalculatorPage() {
       <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">
         <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1a1a1a] tracking-tight mb-4">What if you invested?</h1>
 
+        {!revealed ? (
+        <>
         {/* Inputs */}
         <div className="space-y-3 mb-3">
           {/* Asset selector */}
@@ -376,9 +391,8 @@ export default function InvestmentCalculatorPage() {
             </div>
           </div>
         </div>
-
-        {/* Results — only when all inputs selected */}
-        {isReady && asset && startYear && (
+        </>
+        ) : isReady && asset && startYear ? (
         <>
         {/* Hero result card */}
         <div className="bg-[#FFD700] rounded-[20px] p-6 sm:p-8 mb-3 relative overflow-hidden">
@@ -434,8 +448,16 @@ export default function InvestmentCalculatorPage() {
           <p className="text-[10px] text-[#aaa] mb-4">{formatPeso(amount)} invested in {startYear} → today</p>
           <ComparisonBars startYear={startYear} amount={amount} />
         </div>
+
+        {/* Try again */}
+        <div className="text-center mt-2 mb-3">
+          <button
+            onClick={handleTryAgain}
+            className="px-6 py-2.5 rounded-full text-sm font-bold text-[#888] bg-white hover:bg-[#f0f0f0] transition-colors"
+          >Try again ↻</button>
+        </div>
         </>
-        )}
+        ) : null}
 
         {/* CTA */}
         <div className="mt-3 bg-white rounded-[20px] p-5 sm:p-6 text-center">
