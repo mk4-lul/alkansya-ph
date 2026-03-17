@@ -1,5 +1,16 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import NavMenu from "@/components/NavMenu";
+
+export const metadata: Metadata = {
+  title: "Alkansya.ph — Free Financial Tools for Filipinos",
+  description: "Compare bank interest rates, calculate compound interest, project Pag-IBIG MP2 dividends, and explore investment returns. Free tools built for Filipinos.",
+  openGraph: {
+    title: "Alkansya.ph — Free Financial Tools for Filipinos",
+    description: "Compare bank rates, calculate compound interest, and more. Built for Filipinos.",
+    url: "https://alkansya.ph",
+  },
+};
 
 const OTHER_TOOLS = [
   {
