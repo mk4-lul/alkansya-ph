@@ -228,7 +228,7 @@ function calcAssetAmount(item: Item, asset: "gold" | "bitcoin"): string {
 // ─── Component ───────────────────────────────────────────────────
 export default function WhatIfPage() {
   const [asset, setAsset] = useState<"gold" | "bitcoin">("gold");
-  const [index, setIndex] = useState(0);
+  const [index, setIndex] = useState(() => Math.floor(Math.random() * ITEMS.length));
   const [imgError, setImgError] = useState(false);
   const [show, setShow] = useState(true);
   const prices = useLivePrices();
@@ -239,13 +239,23 @@ export default function WhatIfPage() {
 
   const shuffle = useCallback(() => {
     setShow(false);
-    setTimeout(() => {
-      let next = index;
-      while (next === index) next = Math.floor(Math.random() * ITEMS.length);
+    let next = index;
+    while (next === index) next = Math.floor(Math.random() * ITEMS.length);
+    // Preload the next image before fading in
+    let revealed = false;
+    const reveal = () => {
+      if (revealed) return;
+      revealed = true;
       setIndex(next);
       setImgError(false);
       setShow(true);
-    }, 300);
+    };
+    const img = new Image();
+    img.onload = () => setTimeout(reveal, 200);
+    img.onerror = () => setTimeout(reveal, 200);
+    img.src = `/items/${ITEMS[next].id}.png`;
+    // Fallback if image takes too long
+    setTimeout(reveal, 600);
   }, [index]);
 
   // Keyboard shortcut
