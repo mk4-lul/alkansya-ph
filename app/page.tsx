@@ -35,21 +35,21 @@ function CountUp({ target, duration = 1000, suffix = "", decimals = 0 }: { targe
 
 const OTHER_TOOLS = [
   {
-    href: "/calculators/compound",
+    href: "/compound",
     emoji: "📈",
     title: "Compound Calculator",
     description: "See how your money grows with compound interest over time",
     tag: "calculator",
   },
   {
-    href: "/calculators/mp2",
+    href: "/mp2",
     emoji: "🏛️",
     title: "Pag-IBIG MP2",
     description: "Tax-free government savings — project your MP2 dividends",
     tag: "tax-free",
   },
   {
-    href: "/calculators/investment",
+    href: "/investment",
     emoji: "🔮",
     title: "Investment Calculator",
     description: "What if you invested in Bitcoin, gold, or stocks years ago?",
@@ -153,7 +153,7 @@ export default function HomePage() {
 
         {/* Meme tools — 2 columns */}
         <div className="grid grid-cols-2 gap-2 mt-2">
-          <Link href="/calculators/afford"
+          <Link href="/afford"
             className="block rounded-[20px] px-4 py-4 no-underline group hover:scale-[1.01] transition-transform overflow-hidden"
             style={{ background: "linear-gradient(135deg, #FF9800 0%, #FFB74D 50%, #fff 100%)" }}>
             <span className="text-2xl block mb-2">🛍️</span>
