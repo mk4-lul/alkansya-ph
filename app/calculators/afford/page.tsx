@@ -127,9 +127,15 @@ export default function AffordCalculatorPage() {
     <div className="h-[100dvh] bg-[#f5f5f5] flex flex-col overflow-hidden relative">
       <style>{`
         input[type="range"] { -webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:999px;outline:none;cursor:pointer; }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none;appearance:none;width:28px;height:28px;border-radius:50%;background:#1a1a1a;box-shadow:0 2px 8px rgba(0,0,0,0.2);cursor:grab; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none;appearance:none;width:28px;height:28px;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.2);cursor:grab; }
         input[type="range"]::-webkit-slider-thumb:active { cursor:grabbing;transform:scale(1.1); }
-        input[type="range"]::-moz-range-thumb { width:28px;height:28px;border-radius:50%;background:#1a1a1a;border:none;box-shadow:0 2px 8px rgba(0,0,0,0.2);cursor:grab; }
+        input[type="range"]::-moz-range-thumb { width:28px;height:28px;border-radius:50%;border:none;box-shadow:0 2px 8px rgba(0,0,0,0.2);cursor:grab; }
+        .slider-green::-webkit-slider-thumb { background:#00c853; }
+        .slider-green::-moz-range-thumb { background:#00c853; }
+        .slider-red::-webkit-slider-thumb { background:#E53935; }
+        .slider-red::-moz-range-thumb { background:#E53935; }
+        .slider-orange::-webkit-slider-thumb { background:#FF9800; }
+        .slider-orange::-moz-range-thumb { background:#FF9800; }
         @keyframes pulse-glow { 0%,100%{box-shadow:0 0 0 0 rgba(0,200,83,0.4)} 50%{box-shadow:0 0 0 10px rgba(0,200,83,0)} }
       `}</style>
 
@@ -173,8 +179,9 @@ export default function AffordCalculatorPage() {
                   {income === 0 ? <span className="text-[#ccc]">₱—</span> : formatPeso(income)}
                 </p>
                 <input type="range" min="0" max="100000" step="500" value={income}
+                  className="slider-green"
                   onChange={(e) => { const v = Number(e.target.value); setIncome(v); setPrice(p => Math.min(p, v * 20)); setSavings(s => Math.min(s, v)); }}
-                  style={{ background: `linear-gradient(to right, #00c853 ${(income/100000)*100}%, #ddd ${(income/100000)*100}%)` }}
+                  style={{ background: `linear-gradient(to right, #4cdf8b ${(income/100000)*100}%, #ddd ${(income/100000)*100}%)` }}
                 />
               </div>
 
@@ -185,8 +192,9 @@ export default function AffordCalculatorPage() {
                   {price === 0 ? <span className="text-[#ccc]">₱—</span> : formatPeso(price)}
                 </p>
                 <input type="range" min="0" max={income * 20 || 500000} step="250" value={price}
+                  className="slider-red"
                   onChange={(e) => setPrice(Number(e.target.value))}
-                  style={{ background: `linear-gradient(to right, #1a1a1a ${(price/(income * 20 || 500000))*100}%, #ddd ${(price/(income * 20 || 500000))*100}%)` }}
+                  style={{ background: `linear-gradient(to right, #ef5350 ${(price/(income * 20 || 500000))*100}%, #ddd ${(price/(income * 20 || 500000))*100}%)` }}
                 />
               </div>
 
@@ -197,8 +205,9 @@ export default function AffordCalculatorPage() {
                   {savings === 0 ? <span className="text-[#ccc]">₱—</span> : formatPeso(savings)}
                 </p>
                 <input type="range" min="0" max={income || 100000} step="500" value={savings}
+                  className="slider-orange"
                   onChange={(e) => setSavings(Math.min(Number(e.target.value), income || 100000))}
-                  style={{ background: `linear-gradient(to right, #00c853 ${(savings/(income||1))*100}%, #ddd ${(savings/(income||1))*100}%)` }}
+                  style={{ background: `linear-gradient(to right, #FFB74D ${(savings/(income||1))*100}%, #ddd ${(savings/(income||1))*100}%)` }}
                 />
               </div>
             </div>
