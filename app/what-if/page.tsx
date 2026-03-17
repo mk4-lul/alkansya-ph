@@ -213,16 +213,50 @@ function formatPeso(v: number): string {
   return `₱${v.toFixed(2)}`;
 }
 
-function calcAssetAmount(item: Item, asset: "gold" | "bitcoin"): string {
-  const usdphpThen = USDPHP[item.year] || 45;
-  const priceUsd = item.price / usdphpThen;
-  if (asset === "gold") {
-    const oz = priceUsd / (GOLD_USD[item.year] || 1300);
-    return `${oz.toFixed(oz >= 1 ? 2 : 4)} oz Gold`;
-  } else {
-    const btc = priceUsd / (BTC_USD[item.year] || 1000);
-    return `${btc.toFixed(btc >= 1 ? 2 : 4)} Bitcoin`;
-  }
+
+const BUTTON_TEXTS = [
+  "sige pa lods 🔀",
+  "isa pa beh 🔀",
+  "go next, iyak later 🔀",
+  "ano pa next kong L 🔀",
+  "sige pa, di pa ubos luha ko 🔀",
+  "next trauma drop pls 🔀",
+  "pakita mo pa katangahan ko 🔀",
+  "another L incoming 🔀",
+  "sige pa boss kaya pa to 🔀",
+  "more bad decisions pls 🔀",
+  "g pa, wala na akong pride 🔀",
+  "isa pa, pang character development 🔀",
+  "next item, next iyak 🔀",
+  "sige pa, di pa ako nadadala fr 🔀",
+  "sige pa, immune na ako 🔀",
+  "next katangahan reveal 🔀",
+  "ano pa yung dapat kong hindi binili 🔀",
+  "next heartbreak pls 🔀",
+  "go lang, wala na akong pera anyway 🔀",
+  "isa pa, pang psychological damage 🔀",
+  "sige pa, ginusto ko to 🔀",
+  "next, para tuloy-tuloy na sakit 🔀",
+  "ano pa next kong financial crime 🔀",
+  "next L pls, wag mo ko tipirin 🔀",
+  "isa pa, di pa ako tapos masaktan 🔀",
+  "sige pa, full send na to 🔀",
+  "next item, next regret agad 🔀",
+  "g lang, wala naman akong self-control 🔀",
+  "sige pa, wag ka mahiya 🔀",
+  "next, para mas kumpleto trauma 🔀",
+  "isa pa, pang final boss na sakit 🔀",
+  "sige pa, speedrun regrets 🔀",
+  "next L drop pls 🔀",
+  "next item, ubos na dignity ko 🔀",
+  "sige pa, tuluyan mo na ako 🔀",
+  "next, para wala nang atrasan 🔀",
+  "ano pa yung mas lalala pa 🔀",
+  "sige pa, all in na sa sakit 🔀",
+];
+
+function randomButtonText(): string {
+  return BUTTON_TEXTS[Math.floor(Math.random() * BUTTON_TEXTS.length)];
 }
 
 // ─── Component ───────────────────────────────────────────────────
@@ -231,6 +265,7 @@ export default function WhatIfPage() {
   const [index, setIndex] = useState(() => Math.floor(Math.random() * ITEMS.length));
   const [imgError, setImgError] = useState(false);
   const [show, setShow] = useState(true);
+  const [btnText, setBtnText] = useState(() => randomButtonText());
   const prices = useLivePrices();
 
   const item = ITEMS[index];
@@ -241,20 +276,19 @@ export default function WhatIfPage() {
     setShow(false);
     let next = index;
     while (next === index) next = Math.floor(Math.random() * ITEMS.length);
-    // Preload the next image before fading in
     let revealed = false;
     const reveal = () => {
       if (revealed) return;
       revealed = true;
       setIndex(next);
       setImgError(false);
+      setBtnText(randomButtonText());
       setShow(true);
     };
     const img = new Image();
     img.onload = () => setTimeout(reveal, 200);
     img.onerror = () => setTimeout(reveal, 200);
     img.src = `/items/${ITEMS[next].id}.png`;
-    // Fallback if image takes too long
     setTimeout(reveal, 600);
   }, [index]);
 
@@ -311,9 +345,9 @@ export default function WhatIfPage() {
             </span>
           </p>
 
-          {/* Item image + asset amount */}
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-[140px] h-[140px] sm:w-[160px] sm:h-[160px] flex items-center justify-center shrink-0">
+          {/* Item image */}
+          <div className="flex justify-center mb-4">
+            <div className="w-[180px] h-[180px] sm:w-[200px] sm:h-[200px] flex items-center justify-center shrink-0">
               {!imgError ? (
                 <img
                   src={`/items/${item.id}.png`}
@@ -323,14 +357,8 @@ export default function WhatIfPage() {
                   onError={() => setImgError(true)}
                 />
               ) : (
-                <span className="text-5xl">{item.category.split(" ")[0]}</span>
+                <span className="text-6xl">{item.category.split(" ")[0]}</span>
               )}
-            </div>
-            <span className="text-2xl font-black text-[#1a1a1a]">=</span>
-            <div>
-              <p className="text-xl sm:text-2xl font-black" style={{ color: assetColor }}>
-                {calcAssetAmount(item, asset)}
-              </p>
             </div>
           </div>
 
@@ -343,10 +371,12 @@ export default function WhatIfPage() {
         {/* Shuffle button */}
         <button
           onClick={shuffle}
-          className="w-full py-3.5 rounded-2xl text-sm font-black text-white transition-all active:scale-[0.97] shrink-0"
+          className={`w-full sm:max-w-[400px] sm:mx-auto sm:block py-3.5 rounded-2xl text-sm sm:text-lg font-black transition-all active:scale-[0.97] shrink-0 ${
+            asset === "gold" ? "text-[#1a1a1a]" : "text-white"
+          }`}
           style={{ background: assetColor }}
         >
-          isa pa nga. 🔀
+          {btnText}
         </button>
       </main>
 
