@@ -17,8 +17,23 @@ interface VR {
 }
 
 function getVerdict(income: number, price: number, savings: number): VR {
+  // Special case: no income
+  if (income === 0) {
+    return { verdict: "red", daysOfWork: 999, percentOfIncome: 999, monthsToSave: 999,
+      emoji: "🤡", title: "Ha???", subtitle: "Wala kang trabaho tapos gagastos ka?",
+      message: "Ayos ka lang? Maghanap ka muna ng pera bago mag-shopping. Priorities, pre." };
+  }
+
+  // Special case: no savings
+  if (savings === 0) {
+    const daily = income / 22, days = price / daily, pct = (price / income) * 100;
+    return { verdict: "red", daysOfWork: days, percentOfIncome: pct, monthsToSave: 999,
+      emoji: "🤦", title: "Seryoso ka?", subtitle: "Wala kang naiipon tapos gagastos ka?",
+      message: `${days.toFixed(0)} araw ng trabaho 'to — ${pct.toFixed(0)}% ng sahod mo. Tapos zero savings? Kupal ka?` };
+  }
+
   const daily = income / 22, days = price / daily, pct = (price / income) * 100;
-  const mos = savings > 0 ? Math.ceil(price / savings) : 999;
+  const mos = Math.ceil(price / savings);
   let v: Verdict, e: string, t: string, s: string, m: string;
 
   if (pct <= 10) {
@@ -41,10 +56,10 @@ function getVerdict(income: number, price: number, savings: number): VR {
     m=`${days.toFixed(0)} araw ng trabaho — ${pct.toFixed(0)}% ng sahod. Halos buong sweldo. ${mos <= 12 ? `${mos} months ipon pa.` : "Matagal pa, pero kaya yan!"}`;
   } else if (pct <= 200) {
     v="red";e="💀";t="Luh, grabe.";s="Mas mahal pa sa sahod mo.";
-    m=`${days.toFixed(0)} araw ng trabaho. Kahit di ka kumain, kulang pa rin. ${savings > 0 ? `${mos} months pa 'to.` : "Ipon-ipon muna."}`;
+    m=`${days.toFixed(0)} araw ng trabaho. Kahit di ka kumain, kulang pa rin. ${mos} months pa 'to.`;
   } else {
     v="red";e="🪦";t="Ok ka lang??";s="Ilang buwan na sahod to.";
-    m=`${Math.ceil(pct/100)} months na sahod mo 'to. ${savings > 0 ? `${mos} months ipon.` : "Wala ka pang ipon."} Gamitin ang brain.`;
+    m=`${Math.ceil(pct/100)} months na sahod mo 'to. ${mos} months ipon. Gamitin ang brain.`;
   }
   return { verdict:v, daysOfWork:days, percentOfIncome:pct, monthsToSave:mos, emoji:e, title:t, subtitle:s, message:m };
 }
@@ -120,7 +135,7 @@ export default function AffordCalculatorPage() {
   const [savings, setSavings] = useState(0);
   const [revealed, setRevealed] = useState(false);
 
-  const isReady = income > 0 && price > 0 && savings > 0;
+  const isReady = price > 0;
   const result = useMemo(() => isReady ? getVerdict(income, price, savings) : null, [income, price, savings, isReady]);
 
   return (
@@ -185,19 +200,6 @@ export default function AffordCalculatorPage() {
                 />
               </div>
 
-              {/* Presyo */}
-              <div className="text-center">
-                <p className="text-[10px] font-bold text-[#888] uppercase tracking-wider mb-1">Presyo ng gusto mo</p>
-                <p className="text-2xl sm:text-3xl font-black text-[#1a1a1a] mb-2">
-                  {price === 0 ? <span className="text-[#ccc]">₱—</span> : formatPeso(price)}
-                </p>
-                <input type="range" min="0" max={income * 20 || 500000} step="250" value={price}
-                  className="slider-red"
-                  onChange={(e) => setPrice(Number(e.target.value))}
-                  style={{ background: `linear-gradient(to right, #ef5350 ${(price/(income * 20 || 500000))*100}%, #ddd ${(price/(income * 20 || 500000))*100}%)` }}
-                />
-              </div>
-
               {/* Natitipid */}
               <div className="text-center">
                 <p className="text-[10px] font-bold text-[#888] uppercase tracking-wider mb-1">Natitipid mo kada buwan</p>
@@ -208,6 +210,19 @@ export default function AffordCalculatorPage() {
                   className="slider-orange"
                   onChange={(e) => setSavings(Math.min(Number(e.target.value), income || 100000))}
                   style={{ background: `linear-gradient(to right, #FFB74D ${(savings/(income||1))*100}%, #ddd ${(savings/(income||1))*100}%)` }}
+                />
+              </div>
+
+              {/* Presyo */}
+              <div className="text-center">
+                <p className="text-[10px] font-bold text-[#888] uppercase tracking-wider mb-1">Presyo ng gusto mo</p>
+                <p className="text-2xl sm:text-3xl font-black text-[#1a1a1a] mb-2">
+                  {price === 0 ? <span className="text-[#ccc]">₱—</span> : formatPeso(price)}
+                </p>
+                <input type="range" min="0" max={income * 20 || 500000} step="250" value={price}
+                  className="slider-red"
+                  onChange={(e) => setPrice(Number(e.target.value))}
+                  style={{ background: `linear-gradient(to right, #ef5350 ${(price/(income * 20 || 500000))*100}%, #ddd ${(price/(income * 20 || 500000))*100}%)` }}
                 />
               </div>
             </div>
