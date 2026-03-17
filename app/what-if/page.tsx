@@ -378,6 +378,14 @@ export default function WhatIfPage() {
         >
           {btnText}
         </button>
+
+        {asset === "bitcoin" && (
+          <a href="https://www.binance.com/register?ref=ALKANSYA" target="_blank" rel="noopener noreferrer"
+            className="block text-center mt-3 text-sm font-bold text-[#FF9800] no-underline"
+            style={{ borderBottom: "none" }}>
+            <span style={{ borderBottom: "2px solid #FF9800" }}>Buy bitcoin</span>
+          </a>
+        )}
       </main>
 
       {/* Footer */}
