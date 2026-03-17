@@ -261,7 +261,7 @@ function randomButtonText(): string {
 
 // ─── Component ───────────────────────────────────────────────────
 export default function WhatIfPage() {
-  const [asset, setAsset] = useState<"gold" | "bitcoin">("gold");
+  const [asset, setAsset] = useState<"gold" | "bitcoin">("bitcoin");
   const [index, setIndex] = useState(() => Math.floor(Math.random() * ITEMS.length));
   const [imgError, setImgError] = useState(false);
   const [show, setShow] = useState(true);
@@ -315,14 +315,14 @@ export default function WhatIfPage() {
 
       {/* Toggle */}
       <div className="flex justify-center gap-1 shrink-0 mb-2">
-        <button onClick={() => setAsset("gold")}
-          className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all ${
-            asset === "gold" ? "bg-[#FFD600] text-[#1a1a1a]" : "bg-[#f0f0f0] text-[#888]"
-          }`}>🥇 Gold</button>
         <button onClick={() => setAsset("bitcoin")}
           className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all ${
             asset === "bitcoin" ? "bg-[#FF9800] text-white" : "bg-[#f0f0f0] text-[#888]"
           }`}>₿ Bitcoin</button>
+        <button onClick={() => setAsset("gold")}
+          className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all ${
+            asset === "gold" ? "bg-[#FFD600] text-[#1a1a1a]" : "bg-[#f0f0f0] text-[#888]"
+          }`}>🥇 Gold</button>
       </div>
 
       {/* Main content */}
