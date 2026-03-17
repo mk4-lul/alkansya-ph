@@ -291,7 +291,10 @@ export default function InvestmentCalculatorPage() {
 
   // Auto-reveal when all inputs are filled
   useEffect(() => {
-    if (isReady && !revealed) setRevealed(true);
+    if (isReady && !revealed) {
+      setRevealed(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   }, [isReady, revealed]);
 
   function handleTryAgain() {
