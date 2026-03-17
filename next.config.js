@@ -7,6 +7,13 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  async rewrites() {
+    return [
+      { source: "/compound", destination: "/calculators/compound" },
+      { source: "/mp2", destination: "/calculators/mp2" },
+      { source: "/investment", destination: "/calculators/investment" },
+      { source: "/afford", destination: "/calculators/afford" },
+    ];
+  },
 }
-
 module.exports = nextConfig
