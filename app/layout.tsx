@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
+const inter = Inter({ subsets: ["latin"] });
+
 export const metadata: Metadata = {
-  title: "Alkansya.ph — Compare Philippine Bank Interest Rates",
+  title: "Alkansya.ph — Compare Philippine Interest Rates",
   description:
-    "Compare savings and time deposit rates across BDO, BPI, Metrobank, Maya, CIMB, Tonik, GoTyme, SeaBank and more. See how much more you could earn by switching banks.",
+    "Compare savings and time deposit rates across BDO, BPI, Metrobank, Maya, CIMB, Tonik, GoTyme, and more. See how much more you could earn by switching.",
   keywords: [
     "Philippine bank rates",
     "savings interest rate Philippines",
@@ -20,14 +23,14 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Alkansya.ph — Where Should You Park Your Money?",
     description:
-      "Traditional banks give you 0.0625%. Digital banks give you 50× more. Compare all PH bank rates in one place.",
+      "Traditional banks give you 0.0625%. Digital banks give you 50× more. Compare all PH rates in one place.",
     type: "website",
     locale: "en_PH",
     url: "https://alkansya.ph",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Alkansya.ph — Compare PH Bank Rates",
+    title: "Alkansya.ph — Compare PH Savings & Deposit Rates",
     description: "See exactly how much you're missing out on.",
   },
   robots: "index, follow",
@@ -40,7 +43,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className={inter.className}>{children}</body>
     </html>
   );
 }
