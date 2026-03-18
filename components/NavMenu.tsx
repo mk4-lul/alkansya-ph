@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -19,7 +18,6 @@ const PAGES = [
 export default function NavMenu({ dark = false }: { dark?: boolean }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-
   const lineColor = dark ? "bg-white" : "bg-[#1a1a1a]";
   const hoverBg = dark ? "hover:bg-white/10" : "hover:bg-[#f0f0f0]";
 
