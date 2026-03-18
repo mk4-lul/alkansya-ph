@@ -173,7 +173,7 @@ export default function GKKPage() {
           {/* Button */}
           <div className="text-center mt-6">
             <button
-              onClick={() => isReady && setRevealed(true)}
+              onClick={() => { if (isReady) { setRevealed(true); window.scrollTo({ top: 0, behavior: "smooth" }); } }}
               disabled={!isReady}
               className={`px-6 py-3 rounded-full text-sm font-bold tracking-tight transition-all ${
                 isReady ? "bg-[#1a1a1a] text-white active:scale-[0.97]" : "bg-[#e0e0e0] text-[#aaa] cursor-not-allowed"
