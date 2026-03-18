@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
 import NavMenu from "@/components/NavMenu";
 
@@ -11,7 +11,7 @@ const PERIODS = [
 { label: "1W", days: "7" },
 { label: "1M", days: "30" },
 { label: "1Y", days: "365" },
-{ label: "ALL", days: "max" },
+{ label: "ALL", days: "all" },
 ] as const;
 
 // --- Chart component ---------------------------------------------
@@ -259,7 +259,7 @@ style={{ display: "block" }}
 export default function UsdPhpPage() {
 const [rate, setRate] = useState(FALLBACK_RATE);
 const [live, setLive] = useState(false);
-const [chartData, setChartData] = useState<[number, number][]>([]);
+const [allData, setAllData] = useState<[number, number][]>([]);
 const [usd, setUsd] = useState("1");
 const [php, setPhp] = useState("");
 const [direction, setDirection] = useState<"usd" | "php">("usd");
@@ -285,27 +285,42 @@ const interval = setInterval(fetchRate, 60000);
 return () => clearInterval(interval);
 }, []);
 
-// Fetch chart data
+// Load chart history from API route (Vercel caches for 3 hours)
 useEffect(() => {
-async function fetchChart() {
+async function loadHistory() {
 try {
-const res = await fetch(`https://api.coingecko.com/api/v3/coins/tether/market_chart?vs_currency=php&days=${period}`);
+const res = await fetch("/api/usdphp-history");
+if (!res.ok) throw new Error(res.statusText);
 const data = await res.json();
-if (data?.prices) {
-const raw = data.prices as [number, number][];
+if (data?.prices?.length) {
+setAllData(data.prices as [number, number][]);
+}
+} catch { /* no chart data */ }
+}
+loadHistory();
+}, []);
+
+// Slice + sample from cached data based on selected period
+const chartData = useMemo(() => {
+if (allData.length === 0) return [];
+let pts: [number, number][];
+if (period === "all") {
+pts = allData;
+} else {
+const now = Date.now();
+const cutoff = now - Number(period) * 86400000;
+const sliced = allData.filter(d => d[0] >= cutoff);
+pts = sliced.length >= 2 ? sliced : allData.slice(-2);
+}
+// Downsample to ~150 points
 const maxPoints = 150;
-const step = Math.max(1, Math.floor(raw.length / maxPoints));
-const sampled = raw.filter((_: [number, number], i: number) => i % step === 0);
-// Always include the last point
-if (sampled.length > 0 && sampled[sampled.length - 1][0] !== raw[raw.length - 1][0]) {
-sampled.push(raw[raw.length - 1]);
+const step = Math.max(1, Math.floor(pts.length / maxPoints));
+const sampled = pts.filter((_, i) => i % step === 0);
+if (sampled.length > 0 && sampled[sampled.length - 1][0] !== pts[pts.length - 1][0]) {
+sampled.push(pts[pts.length - 1]);
 }
-setChartData(sampled);
-}
-} catch { /* no chart */ }
-}
-fetchChart();
-}, [period]);
+return sampled;
+}, [allData, period]);
 
 // Conversion
 useEffect(() => {
@@ -427,7 +442,7 @@ alkansya<span className="text-white/60">.ph</span>
         </>
       ) : (
         <div className="h-[200px] flex items-center justify-center">
-          <p className="text-sm text-white/30">Loading chart...</p>
+          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
         </div>
       )}
     </div>
