@@ -34,6 +34,13 @@ const OTHER_TOOLS = [
     description: "What if you invested in Bitcoin, gold, or stocks years ago?",
     tag: "9 assets",
   },
+  {
+    href: "/utang",
+    emoji: "💸",
+    title: "Magkano Nawawala Sa'yo?",
+    description: "Alamin ang totoong cost ng utang mo — credit card, 5-6, online lending",
+    tag: "utang",
+  },
 ];
 
 export default function HomePage() {
@@ -48,8 +55,21 @@ export default function HomePage() {
       </nav>
 
       <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">
-        {/* All tools */}
         <div className="space-y-2">
+          {/* USD/PHP — top card */}
+          <Link href="/usdphp"
+            className="flex items-center gap-4 bg-white rounded-[20px] px-5 py-5 no-underline hover:bg-[#fafafa] transition-colors group">
+            <span className="text-3xl shrink-0">💱</span>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-0.5">
+                <p className="text-[15px] font-bold text-[#1a1a1a]">USD / PHP</p>
+                <span className="text-[10px] font-semibold text-[#00c853] bg-[#00c853]/10 px-2 py-0.5 rounded-full">live</span>
+              </div>
+              <p className="text-[12px] text-[#888] leading-relaxed">Live exchange rate with historical chart — updated every minute</p>
+            </div>
+            <span className="text-[#ccc] text-lg group-hover:text-[#1a1a1a] transition-colors shrink-0">→</span>
+          </Link>
+
           {/* Compare Rates */}
           <Link href="/rates"
             className="flex items-center gap-4 bg-white rounded-[20px] px-5 py-5 no-underline hover:bg-[#fafafa] transition-colors group">
