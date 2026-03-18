@@ -18,16 +18,18 @@ const PERIODS = [
 function RateChart({ data }: { data: [number, number][] }) {
 const canvasRef = useRef<HTMLCanvasElement>(null);
 const [dotPos, setDotPos] = useState<{ x: number; y: number } | null>(null);
+const hoverIdxRef = useRef(-1);
+const rafRef = useRef<number>(0);
 
 useEffect(() => {
 const canvas = canvasRef.current;
 if (!canvas || data.length === 0) return;
+
 const ctx = canvas.getContext("2d")!;
 const dpr = window.devicePixelRatio || 1;
 const rect = canvas.getBoundingClientRect();
 canvas.width = rect.width * dpr;
 canvas.height = rect.height * dpr;
-ctx.scale(dpr, dpr);
 const w = rect.width, h = rect.height;
 
 const prices = data.map(d => d[1]);
@@ -38,84 +40,209 @@ const range = max - min || 1;
 const padTop = 20, padBot = 30, padLeft = 45, padRight = 10;
 const chartW = w - padLeft - padRight;
 const chartH = h - padTop - padBot;
+const totalDays = (data[data.length - 1][0] - data[0][0]) / 86400000;
 
-ctx.clearRect(0, 0, w, h);
+// Precompute point positions
+const points = data.map((d, i) => ({
+  x: padLeft + (i / (data.length - 1)) * chartW,
+  y: padTop + ((max - d[1]) / range) * chartH,
+}));
+const lastPt = points[points.length - 1];
 
-// Grid lines + labels
-ctx.font = "10px Inter, system-ui, sans-serif";
-ctx.textAlign = "right";
-const gridLines = 5;
-for (let i = 0; i <= gridLines; i++) {
-  const y = padTop + (chartH / gridLines) * i;
-  const val = max - (range / gridLines) * i;
+function formatDateLabel(date: Date) {
+  if (totalDays > 365) return `${date.getFullYear()}`;
+  if (totalDays > 60) return `${date.toLocaleString("en", { month: "short" })} ${date.getDate()}`;
+  return `${date.getMonth() + 1}/${date.getDate()}`;
+}
+
+function draw(progress: number) {
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+
+  // Grid lines + labels
+  ctx.font = "10px Inter, system-ui, sans-serif";
+  ctx.textAlign = "right";
+  const gridLines = 5;
+  for (let i = 0; i <= gridLines; i++) {
+    const y = padTop + (chartH / gridLines) * i;
+    const val = max - (range / gridLines) * i;
+    ctx.fillStyle = "rgba(255,255,255,0.4)";
+    ctx.fillText("₱" + val.toFixed(2), padLeft - 6, y + 3);
+    ctx.strokeStyle = "rgba(255,255,255,0.08)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(padLeft, y);
+    ctx.lineTo(w - padRight, y);
+    ctx.stroke();
+  }
+
+  // X-axis labels
+  ctx.textAlign = "center";
   ctx.fillStyle = "rgba(255,255,255,0.4)";
-  ctx.fillText("₱" + val.toFixed(2), padLeft - 6, y + 3);
-  ctx.strokeStyle = "rgba(255,255,255,0.08)";
-  ctx.lineWidth = 1;
+  const labelCount = Math.min(5, data.length);
+  for (let i = 0; i < labelCount; i++) {
+    const idx = Math.floor((i / (labelCount - 1)) * (data.length - 1));
+    ctx.fillText(formatDateLabel(new Date(data[idx][0])), points[idx].x, h - 8);
+  }
+
+  // Clip for draw-in animation
+  const clipX = padLeft + chartW * progress;
+  ctx.save();
   ctx.beginPath();
-  ctx.moveTo(padLeft, y);
-  ctx.lineTo(w - padRight, y);
+  ctx.rect(0, 0, clipX + 2, h);
+  ctx.clip();
+
+  // Line
+  ctx.beginPath();
+  ctx.strokeStyle = "#fff";
+  ctx.lineWidth = 2;
+  ctx.lineJoin = "round";
+  points.forEach((p, i) => {
+    if (i === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
+  });
   ctx.stroke();
+
+  // Fill under line
+  ctx.lineTo(lastPt.x, padTop + chartH);
+  ctx.lineTo(points[0].x, padTop + chartH);
+  ctx.closePath();
+  const grad = ctx.createLinearGradient(0, padTop, 0, padTop + chartH);
+  grad.addColorStop(0, "rgba(255,255,255,0.15)");
+  grad.addColorStop(1, "rgba(255,255,255,0.02)");
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  ctx.restore(); // end clip
+
+  if (progress < 1) return;
+
+  // End dot
+  ctx.beginPath();
+  ctx.arc(lastPt.x, lastPt.y, 4, 0, Math.PI * 2);
+  ctx.fillStyle = "#fff";
+  ctx.fill();
+
+  // Hover
+  const hi = hoverIdxRef.current;
+  if (hi >= 0 && hi < points.length) {
+    const hp = points[hi];
+    const hd = data[hi];
+    const date = new Date(hd[0]);
+
+    // Crosshair
+    ctx.strokeStyle = "rgba(255,255,255,0.3)";
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 3]);
+    ctx.beginPath();
+    ctx.moveTo(hp.x, padTop);
+    ctx.lineTo(hp.x, padTop + chartH);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Hover dot
+    ctx.beginPath();
+    ctx.arc(hp.x, hp.y, 5, 0, Math.PI * 2);
+    ctx.fillStyle = "#fff";
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255,255,255,0.3)";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Tooltip
+    const dateLabel = totalDays > 365
+      ? `${date.toLocaleString("en", { month: "short" })} ${date.getDate()}, ${date.getFullYear()}`
+      : `${date.toLocaleString("en", { month: "short" })} ${date.getDate()}`;
+    const priceLabel = "₱" + hd[1].toFixed(2);
+
+    const tw = 130, th = 52, tr = 10;
+    const flipX = hp.x > w * 0.65;
+    const tx = flipX ? hp.x - tw - 10 : hp.x + 10;
+    const ty = Math.max(padTop, Math.min(hp.y - th / 2, padTop + chartH - th));
+
+    ctx.fillStyle = "rgba(26,26,26,0.92)";
+    ctx.beginPath();
+    ctx.moveTo(tx + tr, ty);
+    ctx.lineTo(tx + tw - tr, ty);
+    ctx.arcTo(tx + tw, ty, tx + tw, ty + tr, tr);
+    ctx.lineTo(tx + tw, ty + th - tr);
+    ctx.arcTo(tx + tw, ty + th, tx + tw - tr, ty + th, tr);
+    ctx.lineTo(tx + tr, ty + th);
+    ctx.arcTo(tx, ty + th, tx, ty + th - tr, tr);
+    ctx.lineTo(tx, ty + tr);
+    ctx.arcTo(tx, ty, tx + tr, ty, tr);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.textAlign = "left";
+    ctx.font = "600 11px Inter, system-ui, sans-serif";
+    ctx.fillStyle = "rgba(255,255,255,0.5)";
+    ctx.fillText(dateLabel, tx + 12, ty + 20);
+    ctx.font = "800 15px Inter, system-ui, sans-serif";
+    ctx.fillStyle = "#fff";
+    ctx.fillText(priceLabel, tx + 12, ty + 40);
+  }
 }
 
-// X-axis labels
-ctx.textAlign = "center";
-ctx.fillStyle = "rgba(255,255,255,0.4)";
-const labelCount = Math.min(5, data.length);
-for (let i = 0; i < labelCount; i++) {
-  const idx = Math.floor((i / (labelCount - 1)) * (data.length - 1));
-  const x = padLeft + (idx / (data.length - 1)) * chartW;
-  const date = new Date(data[idx][0]);
-  // Show year for long timeframes, date for short
-  const totalDays = (data[data.length - 1][0] - data[0][0]) / 86400000;
-  const label = totalDays > 365
-    ? `${date.getFullYear()}`
-    : totalDays > 60
-      ? `${date.toLocaleString("en", { month: "short" })} ${date.getDate()}`
-      : `${date.getMonth() + 1}/${date.getDate()}`;
-  ctx.fillText(label, x, h - 8);
+// Animate draw-in
+setDotPos(null);
+hoverIdxRef.current = -1;
+const start = performance.now();
+const duration = 600;
+
+function tick(now: number) {
+  const elapsed = now - start;
+  const p = Math.min(elapsed / duration, 1);
+  const eased = 1 - Math.pow(1 - p, 3);
+  draw(eased);
+  if (p < 1) {
+    rafRef.current = requestAnimationFrame(tick);
+  } else {
+    setDotPos({ x: (lastPt.x / w) * 100, y: (lastPt.y / h) * 100 });
+  }
+}
+cancelAnimationFrame(rafRef.current);
+rafRef.current = requestAnimationFrame(tick);
+
+// Hover handlers
+function findClosest(clientX: number) {
+  const r = canvas!.getBoundingClientRect();
+  const relX = (clientX - r.left - padLeft) / chartW;
+  return Math.max(0, Math.min(data.length - 1, Math.round(relX * (data.length - 1))));
+}
+function onMove(clientX: number) {
+  hoverIdxRef.current = findClosest(clientX);
+  setDotPos(null);
+  draw(1);
+}
+function onLeave() {
+  hoverIdxRef.current = -1;
+  setDotPos({ x: (lastPt.x / w) * 100, y: (lastPt.y / h) * 100 });
+  draw(1);
 }
 
-// Line
-ctx.beginPath();
-ctx.strokeStyle = "#fff";
-ctx.lineWidth = 2;
-ctx.lineJoin = "round";
-data.forEach((d, i) => {
-  const x = padLeft + (i / (data.length - 1)) * chartW;
-  const y = padTop + ((max - d[1]) / range) * chartH;
-  if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-});
-ctx.stroke();
+const handleMouse = (e: MouseEvent) => onMove(e.clientX);
+const handleTouch = (e: TouchEvent) => { if (e.touches.length) onMove(e.touches[0].clientX); };
+const handleLeave = () => onLeave();
 
-// Fill under line
-const lastX = padLeft + chartW;
-const lastY = padTop + ((max - data[data.length - 1][1]) / range) * chartH;
-ctx.lineTo(lastX, padTop + chartH);
-ctx.lineTo(padLeft, padTop + chartH);
-ctx.closePath();
-const grad = ctx.createLinearGradient(0, padTop, 0, padTop + chartH);
-grad.addColorStop(0, "rgba(255,255,255,0.15)");
-grad.addColorStop(1, "rgba(255,255,255,0.02)");
-ctx.fillStyle = grad;
-ctx.fill();
+canvas.addEventListener("mousemove", handleMouse);
+canvas.addEventListener("touchmove", handleTouch);
+canvas.addEventListener("mouseleave", handleLeave);
+canvas.addEventListener("touchend", handleLeave);
 
-// Current rate dot
-ctx.beginPath();
-ctx.arc(lastX, lastY, 4, 0, Math.PI * 2);
-ctx.fillStyle = "#fff";
-ctx.fill();
-
-// Store position for pulsing HTML overlay
-setDotPos({ x: (lastX / w) * 100, y: (lastY / h) * 100 });
-
+return () => {
+  cancelAnimationFrame(rafRef.current);
+  canvas.removeEventListener("mousemove", handleMouse);
+  canvas.removeEventListener("touchmove", handleTouch);
+  canvas.removeEventListener("mouseleave", handleLeave);
+  canvas.removeEventListener("touchend", handleLeave);
+};
 }, [data]);
 
 return (
 <div className="relative">
 <canvas
 ref={canvasRef}
-className="w-full h-[200px] sm:h-[240px]"
+className="w-full h-[200px] sm:h-[240px] cursor-crosshair"
 style={{ display: "block" }}
 />
 {dotPos && (
