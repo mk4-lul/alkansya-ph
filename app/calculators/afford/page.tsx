@@ -76,7 +76,7 @@ function VerdictCard({ result, onTryAgain }: { result: VR; onTryAgain: () => voi
   const bh = result.verdict === "yellow" ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.25)";
 
   async function handleShare() {
-    const w = 600, h = 700;
+    const w = 600, h = 600;
     const canvas = document.createElement("canvas");
     canvas.width = w; canvas.height = h;
     const ctx = canvas.getContext("2d")!;
@@ -87,79 +87,88 @@ function VerdictCard({ result, onTryAgain }: { result: VR; onTryAgain: () => voi
     ctx.roundRect(0, 0, w, h, 32);
     ctx.fill();
 
-    // Emoji
-    ctx.font = "80px serif";
-    ctx.textAlign = "center";
-    ctx.fillText(result.emoji, w / 2, 100);
-
-    // Title
-    ctx.font = "bold 42px Inter, system-ui, sans-serif";
-    ctx.fillStyle = tc;
-    ctx.fillText(result.title, w / 2, 160);
-
-    // Subtitle
-    ctx.font = "600 18px Inter, system-ui, sans-serif";
-    ctx.fillStyle = result.verdict === "yellow" ? "rgba(26,26,26,0.5)" : "rgba(255,255,255,0.6)";
-    ctx.fillText(result.subtitle, w / 2, 195);
-
-    // Message — word wrap
+    // Measure message height first for centering
     ctx.font = "14px Inter, system-ui, sans-serif";
-    ctx.fillStyle = result.verdict === "yellow" ? "rgba(26,26,26,0.5)" : "rgba(255,255,255,0.6)";
     const words = result.message.split(" ");
-    let line = "", lineY = 235;
+    let msgLines: string[] = [];
+    let line = "";
     for (const word of words) {
       const test = line + word + " ";
-      if (ctx.measureText(test).width > w - 100) {
-        ctx.fillText(line.trim(), w / 2, lineY);
+      if (ctx.measureText(test).width > w - 120) {
+        msgLines.push(line.trim());
         line = word + " ";
-        lineY += 20;
       } else {
         line = test;
       }
     }
-    ctx.fillText(line.trim(), w / 2, lineY);
+    msgLines.push(line.trim());
+    const msgHeight = msgLines.length * 20;
+
+    // Total content height: emoji(70) + gap(15) + title(40) + gap(10) + subtitle(20) + gap(20) + message + gap(40) + stats(45)
+    const contentH = 70 + 15 + 40 + 10 + 20 + 20 + msgHeight + 40 + 45;
+    const brandingH = 50;
+    const startY = (h - brandingH - contentH) / 2;
+
+    ctx.textAlign = "center";
+
+    // Emoji
+    ctx.font = "70px serif";
+    ctx.fillText(result.emoji, w / 2, startY + 60);
+
+    // Title
+    ctx.font = "bold 38px Inter, system-ui, sans-serif";
+    ctx.fillStyle = tc;
+    ctx.fillText(result.title, w / 2, startY + 60 + 15 + 38);
+
+    // Subtitle
+    const subColor = result.verdict === "yellow" ? "rgba(26,26,26,0.5)" : "rgba(255,255,255,0.6)";
+    ctx.font = "600 16px Inter, system-ui, sans-serif";
+    ctx.fillStyle = subColor;
+    const subtitleY = startY + 60 + 15 + 38 + 10 + 18;
+    ctx.fillText(result.subtitle, w / 2, subtitleY);
+
+    // Message
+    ctx.font = "14px Inter, system-ui, sans-serif";
+    ctx.fillStyle = subColor;
+    let msgY = subtitleY + 30;
+    for (const l of msgLines) {
+      ctx.fillText(l, w / 2, msgY);
+      msgY += 20;
+    }
 
     // Stats
-    const statsY = lineY + 60;
-    ctx.fillStyle = tc;
+    const statsY = msgY + 35;
+    const col1 = w / 2 - 150;
+    const col2 = w / 2;
+    const col3 = w / 2 + 150;
 
-    // Days of work
-    ctx.font = "bold 32px Inter, system-ui, sans-serif";
-    ctx.fillText(result.daysOfWork >= 999 ? "—" : result.daysOfWork.toFixed(1), 150, statsY);
-    ctx.font = "bold 9px Inter, system-ui, sans-serif";
-    ctx.fillStyle = result.verdict === "yellow" ? "rgba(26,26,26,0.5)" : "rgba(255,255,255,0.6)";
-    ctx.fillText("ARAW NG TRABAHO", 150, statsY + 20);
-
-    // % ng sahod
     ctx.fillStyle = tc;
-    ctx.font = "bold 32px Inter, system-ui, sans-serif";
-    ctx.fillText(result.percentOfIncome >= 999 ? "—" : result.percentOfIncome.toFixed(0) + "%", w / 2, statsY);
-    ctx.font = "bold 9px Inter, system-ui, sans-serif";
-    ctx.fillStyle = result.verdict === "yellow" ? "rgba(26,26,26,0.5)" : "rgba(255,255,255,0.6)";
-    ctx.fillText("NG SAHOD", w / 2, statsY + 20);
+    ctx.font = "bold 30px Inter, system-ui, sans-serif";
+    ctx.fillText(result.daysOfWork >= 999 ? "—" : result.daysOfWork.toFixed(1), col1, statsY);
+    ctx.fillText(result.percentOfIncome >= 999 ? "—" : result.percentOfIncome.toFixed(0) + "%", col2, statsY);
+    ctx.fillText(result.monthsToSave >= 999 ? "—" : String(result.monthsToSave), col3, statsY);
 
-    // Months ipon
-    ctx.fillStyle = tc;
-    ctx.font = "bold 32px Inter, system-ui, sans-serif";
-    ctx.fillText(result.monthsToSave >= 999 ? "—" : String(result.monthsToSave), w - 150, statsY);
     ctx.font = "bold 9px Inter, system-ui, sans-serif";
-    ctx.fillStyle = result.verdict === "yellow" ? "rgba(26,26,26,0.5)" : "rgba(255,255,255,0.6)";
-    ctx.fillText("MONTHS IPON", w - 150, statsY + 20);
+    ctx.fillStyle = subColor;
+    ctx.fillText("ARAW NG TRABAHO", col1, statsY + 18);
+    ctx.fillText("NG SAHOD", col2, statsY + 18);
+    ctx.fillText("MONTHS IPON", col3, statsY + 18);
 
     // Dividers
     ctx.strokeStyle = result.verdict === "yellow" ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.2)";
     ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(250, statsY - 25); ctx.lineTo(250, statsY + 25); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(350, statsY - 25); ctx.lineTo(350, statsY + 25); ctx.stroke();
+    const divX1 = (col1 + col2) / 2;
+    const divX2 = (col2 + col3) / 2;
+    ctx.beginPath(); ctx.moveTo(divX1, statsY - 22); ctx.lineTo(divX1, statsY + 22); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(divX2, statsY - 22); ctx.lineTo(divX2, statsY + 22); ctx.stroke();
 
-    // Branding
+    // Branding — always at bottom
     ctx.font = "bold 16px Inter, system-ui, sans-serif";
     ctx.fillStyle = tc;
-    ctx.textAlign = "center";
-    ctx.fillText("alkansya.ph", w / 2, h - 40);
+    ctx.fillText("alkansya.ph", w / 2, h - 35);
     ctx.font = "11px Inter, system-ui, sans-serif";
     ctx.fillStyle = result.verdict === "yellow" ? "rgba(26,26,26,0.3)" : "rgba(255,255,255,0.3)";
-    ctx.fillText("Afford ko ba 'to?", w / 2, h - 20);
+    ctx.fillText("Afford ko ba 'to?", w / 2, h - 16);
 
     canvas.toBlob(async (blob) => {
       if (!blob) return;
