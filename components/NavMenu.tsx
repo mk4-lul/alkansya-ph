@@ -13,6 +13,7 @@ const PAGES = [
   { label: "Afford ko ba 'to?", href: "/afford", description: "Alamin bago bilhin" },
   { label: "Magkano nawawala sa'yo?", href: "/utang", description: "Alamin ang totoong cost ng utang mo" },
   { label: "What if nag-invest ka nalang?", href: "/what-if", description: "Sana nag-invest ka nalang..." },
+  { label: "Gaano ako kayaman?", href: "/gkk", description: "Nasaan ka sa income ranking ng mga Pilipino?" },
 ];
 
 export default function NavMenu({ dark = false }: { dark?: boolean }) {
