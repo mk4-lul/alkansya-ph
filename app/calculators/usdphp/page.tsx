@@ -375,64 +375,42 @@ alkansya<span className="text-white/60">.ph</span>
 
   <main className="max-w-[600px] mx-auto px-4 sm:px-6 pb-8">
 
-    {/* Big rate display */}
-    <div className="text-center mb-6">
-      <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-1">USD / PHP</p>
-      <p className="text-6xl sm:text-7xl font-black text-white tracking-tight leading-none mb-1">
-        <AnimatedRate value={rate} />
-      </p>
+    {/* Big converter */}
+    <div className="text-center mb-2">
+      <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-3">USD / PHP</p>
+      <div className="flex items-center justify-center gap-3">
+        <div className="flex items-center border border-white/30 rounded-2xl px-4 py-3">
+          <span className="text-3xl sm:text-5xl font-black text-white/50 mr-1">$</span>
+          <input
+            type="text"
+            inputMode="decimal"
+            value={usd}
+            onFocus={() => setDirection("usd")}
+            onChange={(e) => { setDirection("usd"); setUsd(e.target.value); }}
+            className="bg-transparent text-3xl sm:text-5xl font-black text-white outline-none placeholder-white/30 w-[4ch] text-center"
+            placeholder="1"
+          />
+        </div>
+        <span className="text-2xl sm:text-4xl font-black text-white/30">=</span>
+        <div className="flex items-center border border-white/30 rounded-2xl px-4 py-3">
+          <span className="text-3xl sm:text-5xl font-black text-white/50 mr-1">₱</span>
+          <input
+            type="text"
+            inputMode="decimal"
+            value={php}
+            onFocus={() => setDirection("php")}
+            onChange={(e) => { setDirection("php"); setPhp(e.target.value); }}
+            className="bg-transparent text-3xl sm:text-5xl font-black text-white outline-none placeholder-white/30 w-[5ch] text-center"
+            placeholder="0"
+          />
+        </div>
+      </div>
       {live && (
-        <p className="text-[11px] text-white/40">
+        <p className="text-[11px] text-white/40 mt-2">
           <span className="inline-block w-1.5 h-1.5 rounded-full bg-white/50 mr-1 animate-pulse" />
           Updated {lastUpdated}
         </p>
       )}
-    </div>
-
-    {/* Converter */}
-    <div className="bg-white/10 backdrop-blur-sm rounded-[20px] p-5 mb-4">
-      <div className="space-y-3">
-        {/* USD input */}
-        <div className="flex items-center gap-3">
-          <span className="text-2xl">🇺🇸</span>
-          <div className="flex-1 flex items-center bg-white/10 rounded-xl px-4 py-3">
-            <span className="text-sm font-bold text-white/50 mr-2">$</span>
-            <input
-              type="text"
-              inputMode="decimal"
-              value={usd}
-              onFocus={() => setDirection("usd")}
-              onChange={(e) => { setDirection("usd"); setUsd(e.target.value); }}
-              className="flex-1 bg-transparent text-lg font-bold text-white outline-none placeholder-white/30"
-              placeholder="0"
-            />
-            <span className="text-xs font-semibold text-white/40">USD</span>
-          </div>
-        </div>
-
-        {/* Swap indicator */}
-        <div className="text-center">
-          <span className="text-white/30 text-lg">↕</span>
-        </div>
-
-        {/* PHP input */}
-        <div className="flex items-center gap-3">
-          <span className="text-2xl">🇵🇭</span>
-          <div className="flex-1 flex items-center bg-white/10 rounded-xl px-4 py-3">
-            <span className="text-sm font-bold text-white/50 mr-2">₱</span>
-            <input
-              type="text"
-              inputMode="decimal"
-              value={php}
-              onFocus={() => setDirection("php")}
-              onChange={(e) => { setDirection("php"); setPhp(e.target.value); }}
-              className="flex-1 bg-transparent text-lg font-bold text-white outline-none placeholder-white/30"
-              placeholder="0"
-            />
-            <span className="text-xs font-semibold text-white/40">PHP</span>
-          </div>
-        </div>
-      </div>
     </div>
 
     <p className="text-center mb-4">
