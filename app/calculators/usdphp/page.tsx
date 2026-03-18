@@ -458,7 +458,7 @@ alkansya<span className="text-white/60">.ph</span>
     {/* Footer */}
     <footer className="text-center pt-4">
       <p className="text-[10px] text-white/25 leading-relaxed max-w-md mx-auto">
-        Rate derived from USDT/PHP via CoinGecko. May differ slightly from bank rates. Updated every minute.
+        Live rate from USDT/PHP via CoinGecko. Historical chart from ECB via Frankfurter. May differ slightly from bank rates.
       </p>
     </footer>
   </main>
