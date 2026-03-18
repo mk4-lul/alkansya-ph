@@ -11,6 +11,31 @@ const PERIODS = [
 { label: "ALL", days: "all" },
 ] as const;
 
+// --- Animated number for rate display ---
+function AnimatedRate({ value, decimals = 2, prefix = "₱" }: { value: number; decimals?: number; prefix?: string }) {
+  const [display, setDisplay] = useState(value);
+  const prev = useRef(value);
+  const raf = useRef<number>(0);
+
+  useEffect(() => {
+    const from = prev.current;
+    const to = value;
+    prev.current = value;
+    if (from === to) { setDisplay(to); return; }
+    const start = performance.now();
+    function tick(now: number) {
+      const p = Math.min((now - start) / 800, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setDisplay(from + (to - from) * eased);
+      if (p < 1) raf.current = requestAnimationFrame(tick);
+    }
+    raf.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf.current);
+  }, [value]);
+
+  return <span>{prefix}{display.toLocaleString("en-PH", { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}</span>;
+}
+
 // --- Chart component ---------------------------------------------
 function RateChart({ data }: { data: [number, number][] }) {
 const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -354,7 +379,7 @@ alkansya<span className="text-white/60">.ph</span>
     <div className="text-center mb-6">
       <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-1">USD / PHP</p>
       <p className="text-6xl sm:text-7xl font-black text-white tracking-tight leading-none mb-1">
-        ₱{rate.toFixed(2)}
+        <AnimatedRate value={rate} />
       </p>
       {live && (
         <p className="text-[11px] text-white/40">
@@ -410,6 +435,13 @@ alkansya<span className="text-white/60">.ph</span>
       </div>
     </div>
 
+    <p className="text-center mb-4">
+      <a href="https://www.binance.com/register?ref=ALKANSYA" target="_blank" rel="noopener noreferrer"
+        className="text-[11px] font-normal text-white/40 no-underline border-b border-white/20 pb-px hover:text-white/70 hover:border-white/40 transition-colors">
+        Buy USD and earn interest
+      </a>
+    </p>
+
     {/* Chart */}
     <div className="bg-white/10 backdrop-blur-sm rounded-[20px] p-5 mb-4">
       <div className="flex items-center justify-between mb-3">
@@ -449,7 +481,7 @@ alkansya<span className="text-white/60">.ph</span>
         {[1, 5, 10, 20, 50, 100, 500, 1000].map((v) => (
           <div key={v} className="flex justify-between text-sm py-1.5 border-b border-white/5 last:border-0">
             <span className="text-white/50 font-medium">${v}</span>
-            <span className="text-white font-bold">₱{(v * rate).toLocaleString("en-PH", { maximumFractionDigits: 2 })}</span>
+            <span className="text-white font-bold"><AnimatedRate value={v * rate} /></span>
           </div>
         ))}
       </div>
