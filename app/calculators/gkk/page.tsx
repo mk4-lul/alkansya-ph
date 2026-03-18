@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
 import NavMenu from "@/components/NavMenu";
 
@@ -34,7 +34,9 @@ const INCOME_CURVE: [number, number][] = [
   [90, 580000],     // estimated — entry to top 10% (~₱48k/mo)
   [95, 870000],     // estimated — entry to top 5% (~₱73k/mo)
   [99, 1700000],    // estimated — entry to top 1% (~₱142k/mo)
-  [100, 5000000],   // ceiling
+  [99.5, 3500000],   // estimated — top 0.5%
+  [99.9, 10000000],  // estimated — top 0.1%
+  [100, 50000000],   // ceiling
 ];
 
 function getPercentile(annualIncome: number): number {
@@ -62,16 +64,48 @@ function formatPeso(v: number): string {
   return `₱${v}`;
 }
 
+// ─── Animated percentile display ─────────────────────────────────
+function AnimatedPercentile({ value }: { value: number }) {
+  const [display, setDisplay] = useState(0);
+  const raf = useRef<number>(0);
+
+  useEffect(() => {
+    const start = performance.now();
+    const duration = 2500;
+    cancelAnimationFrame(raf.current);
+    function tick(now: number) {
+      const p = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setDisplay(eased * value);
+      if (p < 1) raf.current = requestAnimationFrame(tick);
+    }
+    raf.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf.current);
+  }, [value]);
+
+  return <>{display >= 99 ? display.toFixed(1) : Math.round(display)}%</>;
+}
+
 // ─── Component ───────────────────────────────────────────────────
 
 export default function GKKPage() {
   const [income, setIncome] = useState(0);
   const [revealed, setRevealed] = useState(false);
+  const [show, setShow] = useState(false);
 
   const annualIncome = income * 12;
-  const percentile = useMemo(() => getPercentile(annualIncome), [annualIncome]);
+  const percentile = useMemo(() => Math.min(99.9, getPercentile(annualIncome)), [annualIncome]);
 
   const isReady = income > 0;
+
+  // Trigger entrance animation on reveal
+  useEffect(() => {
+    if (revealed) {
+      setShow(false);
+      const t = setTimeout(() => setShow(true), 80);
+      return () => clearTimeout(t);
+    }
+  }, [revealed]);
 
   return (
     <div className="min-h-screen bg-[#f5f5f5]">
@@ -136,7 +170,7 @@ export default function GKKPage() {
           </div>
 
           {/* Button */}
-          <div className="text-center mt-4">
+          <div className="text-center mt-6 mb-4">
             <button
               onClick={() => isReady && setRevealed(true)}
               disabled={!isReady}
@@ -149,23 +183,29 @@ export default function GKKPage() {
         ) : (
         <>
           {/* Result card */}
-          <div className="bg-[#1a1a1a] rounded-[20px] p-6 sm:p-8 mb-3">
+          <div className="bg-[#1a1a1a] rounded-[20px] p-6 sm:p-8 mb-3 transition-all duration-700 ease-out"
+            style={{
+              transform: show ? "scale(1) translateY(0)" : "scale(0.92) translateY(20px)",
+              opacity: show ? 1 : 0,
+            }}>
             <div className="text-center">
-              <p className="text-[10px] font-semibold uppercase tracking-[1px] text-white/40 mb-1">
+              <p className="text-[10px] font-semibold uppercase tracking-[1px] text-white/40 mb-1 transition-all duration-500 delay-200"
+                style={{ opacity: show ? 1 : 0, transform: show ? "translateY(0)" : "translateY(10px)" }}>
                 Mas malaki ang income mo kaysa sa
               </p>
               <p className="text-7xl sm:text-8xl font-black tracking-tight text-white mb-1">
-                {Math.round(percentile)}%
+                {show ? <AnimatedPercentile value={percentile} /> : "0%"}
               </p>
-              <p className="text-sm font-semibold text-white/40 mb-5">
+              <p className="text-sm font-semibold text-white/40 mb-5 transition-all duration-500 delay-300"
+                style={{ opacity: show ? 1 : 0, transform: show ? "translateY(0)" : "translateY(10px)" }}>
                 ng mga pamilyang Pilipino
               </p>
 
               {/* Visual bar */}
               <div className="max-w-[400px] mx-auto mb-6">
                 <div className="h-3 rounded-full overflow-hidden bg-white/10">
-                  <div className="h-full rounded-full bg-[#00c853] transition-all duration-1000" style={{
-                    width: `${Math.max(2, percentile)}%`,
+                  <div className="h-full rounded-full bg-[#00c853] transition-all duration-[2500ms] ease-out" style={{
+                    width: show ? `${Math.max(2, percentile)}%` : "0%",
                   }} />
                 </div>
                 <div className="flex justify-between mt-1.5 text-[9px] font-semibold text-white/30">
@@ -176,7 +216,8 @@ export default function GKKPage() {
               </div>
 
               {/* Stats row */}
-              <div className="flex justify-center gap-4 sm:gap-6">
+              <div className="flex justify-center gap-4 sm:gap-6 transition-all duration-500 delay-500"
+                style={{ opacity: show ? 1 : 0, transform: show ? "translateY(0)" : "translateY(10px)" }}>
                 <div>
                   <p className="text-xl sm:text-2xl font-black text-white">₱{fmt(income)}</p>
                   <p className="text-[9px] font-bold uppercase tracking-wider text-white/40">per month</p>
@@ -188,7 +229,7 @@ export default function GKKPage() {
                 </div>
                 <div className="w-px bg-white/10 self-stretch" />
                 <div>
-                  <p className="text-xl sm:text-2xl font-black text-white">Top {Math.max(1, Math.round(100 - percentile))}%</p>
+                  <p className="text-xl sm:text-2xl font-black text-white">Top {(100 - percentile) < 1 ? (100 - percentile).toFixed(1) : Math.round(100 - percentile)}%</p>
                   <p className="text-[9px] font-bold uppercase tracking-wider text-white/40">rank</p>
                 </div>
               </div>
@@ -259,7 +300,7 @@ export default function GKKPage() {
           </div>
 
           {/* Try again */}
-          <div className="text-center mt-2 mb-3">
+          <div className="text-center mt-4 mb-4">
             <button
               onClick={() => { setRevealed(false); setIncome(0); }}
               className="px-6 py-2.5 rounded-full text-sm font-bold text-[#888] bg-white hover:bg-[#f0f0f0] transition-colors"
