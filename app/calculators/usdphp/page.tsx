@@ -285,9 +285,10 @@ const [historyData, setHistoryData] = useState<[number, number][]>([]);
 const [usd, setUsd] = useState("1");
 const [php, setPhp] = useState("");
 const [direction, setDirection] = useState<"usd" | "php">("usd");
-const [focusedField, setFocusedField] = useState<"usd" | "php" | null>(null);
 const [period, setPeriod] = useState("all");
 const [lastUpdated, setLastUpdated] = useState<string>("");
+const hasAnimated = useRef(false);
+const introRaf = useRef<number>(0);
 
 // Fetch live rate from CoinGecko
 useEffect(() => {
@@ -343,11 +344,27 @@ sampled.push(pts[pts.length - 1]);
 return sampled;
 }, [historyData, period]);
 
-// Conversion
+// Conversion — animate on first load, instant after
 useEffect(() => {
 if (direction === "usd") {
 const v = parseFloat(usd);
-setPhp(isNaN(v) || v === 0 ? "" : (v * rate).toFixed(2));
+if (isNaN(v) || v === 0) { setPhp(""); return; }
+const target = v * rate;
+
+if (!hasAnimated.current && rate !== FALLBACK_RATE) {
+  hasAnimated.current = true;
+  const start = performance.now();
+  cancelAnimationFrame(introRaf.current);
+  function tick(now: number) {
+    const p = Math.min((now - start) / 2500, 1);
+    const eased = 1 - Math.pow(1 - p, 3);
+    setPhp((target * eased).toFixed(2));
+    if (p < 1) introRaf.current = requestAnimationFrame(tick);
+  }
+  introRaf.current = requestAnimationFrame(tick);
+} else {
+  setPhp(target.toFixed(2));
+}
 }
 }, [usd, rate, direction]);
 
@@ -381,51 +398,35 @@ alkansya<span className="text-white/60">.ph</span>
       <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-3">USD / PHP</p>
       <div className="flex items-center justify-center gap-2 sm:gap-3">
         {/* USD box */}
-        <div className="relative flex items-center border border-white/30 rounded-2xl px-4 py-3 h-[60px] sm:h-[80px] w-[42%] overflow-hidden">
+        <div className="flex items-center border border-white/30 rounded-2xl px-4 py-3 h-[60px] sm:h-[80px] w-[42%] overflow-hidden">
           <span className="text-3xl sm:text-5xl font-black text-white/50 mr-1 shrink-0">$</span>
           <input
             type="text"
             inputMode="decimal"
             value={usd}
-            onFocus={() => { setDirection("usd"); setFocusedField("usd"); }}
-            onBlur={() => setFocusedField(null)}
+            onFocus={() => setDirection("usd")}
             onChange={(e) => { setDirection("usd"); setUsd(e.target.value); }}
-            className={`bg-transparent font-black outline-none placeholder-white/30 text-right min-w-0 flex-1 transition-[font-size] duration-200 ${
-              focusedField === "usd" ? "text-white" : "text-transparent"
-            } ${usd.length > 7 ? "text-base sm:text-xl" : usd.length > 5 ? "text-xl sm:text-2xl" : "text-3xl sm:text-5xl"}`}
+            className={`bg-transparent font-black text-white outline-none placeholder-white/30 text-right min-w-0 flex-1 transition-[font-size] duration-200 ${
+              usd.length > 7 ? "text-base sm:text-xl" : usd.length > 5 ? "text-xl sm:text-2xl" : "text-3xl sm:text-5xl"
+            }`}
             placeholder="1"
           />
-          {focusedField !== "usd" && (
-            <span className={`absolute right-4 font-black text-white pointer-events-none transition-[font-size] duration-200 ${
-              usd.length > 7 ? "text-base sm:text-xl" : usd.length > 5 ? "text-xl sm:text-2xl" : "text-3xl sm:text-5xl"
-            }`}>
-              <AnimatedRate value={parseFloat(usd) || 0} prefix="" />
-            </span>
-          )}
         </div>
         <span className="text-2xl sm:text-4xl font-black text-white/30 shrink-0">=</span>
         {/* PHP box */}
-        <div className="relative flex items-center border border-white/30 rounded-2xl px-4 py-3 h-[60px] sm:h-[80px] w-[42%] overflow-hidden">
+        <div className="flex items-center border border-white/30 rounded-2xl px-4 py-3 h-[60px] sm:h-[80px] w-[42%] overflow-hidden">
           <span className="text-3xl sm:text-5xl font-black text-white/50 mr-1 shrink-0">₱</span>
           <input
             type="text"
             inputMode="decimal"
             value={php}
-            onFocus={() => { setDirection("php"); setFocusedField("php"); }}
-            onBlur={() => setFocusedField(null)}
+            onFocus={() => setDirection("php")}
             onChange={(e) => { setDirection("php"); setPhp(e.target.value); }}
-            className={`bg-transparent font-black outline-none placeholder-white/30 text-right min-w-0 flex-1 transition-[font-size] duration-200 ${
-              focusedField === "php" ? "text-white" : "text-transparent"
-            } ${php.length > 8 ? "text-base sm:text-xl" : php.length > 6 ? "text-xl sm:text-2xl" : "text-3xl sm:text-5xl"}`}
+            className={`bg-transparent font-black text-white outline-none placeholder-white/30 text-right min-w-0 flex-1 transition-[font-size] duration-200 ${
+              php.length > 8 ? "text-base sm:text-xl" : php.length > 6 ? "text-xl sm:text-2xl" : "text-3xl sm:text-5xl"
+            }`}
             placeholder="0"
           />
-          {focusedField !== "php" && (
-            <span className={`absolute right-4 font-black text-white pointer-events-none transition-[font-size] duration-200 ${
-              php.length > 8 ? "text-base sm:text-xl" : php.length > 6 ? "text-xl sm:text-2xl" : "text-3xl sm:text-5xl"
-            }`}>
-              <AnimatedRate value={parseFloat(php) || 0} prefix="" />
-            </span>
-          )}
         </div>
       </div>
       {live && (
