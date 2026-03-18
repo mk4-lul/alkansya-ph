@@ -121,6 +121,7 @@ export default function GKKPage() {
 
         {!revealed ? (
         <>
+          <div className="min-h-[calc(100dvh-64px)] flex flex-col justify-center">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1a1a1a] tracking-tight mb-6">Gaano ako kayaman?</h1>
 
           {/* Input */}
@@ -170,7 +171,7 @@ export default function GKKPage() {
           </div>
 
           {/* Button */}
-          <div className="text-center mt-10 mb-10">
+          <div className="text-center mt-6">
             <button
               onClick={() => isReady && setRevealed(true)}
               disabled={!isReady}
@@ -178,6 +179,7 @@ export default function GKKPage() {
                 isReady ? "bg-[#1a1a1a] text-white active:scale-[0.97]" : "bg-[#e0e0e0] text-[#aaa] cursor-not-allowed"
               }`}
             >Gaano ako kayaman?</button>
+          </div>
           </div>
         </>
         ) : (
@@ -316,14 +318,12 @@ export default function GKKPage() {
           </p>
         </div>
 
-        {/* CTA */}
-        <div className="bg-white rounded-[20px] p-5 sm:p-6 text-center">
-          <p className="text-sm text-[#888] mb-3">Gusto mo palakihin ang pera mo?</p>
-          <Link href="/rates"
-            className="inline-block bg-[#00c853] text-white font-bold text-sm px-6 py-3 rounded-full hover:bg-[#00a844] transition-colors no-underline">
-            Tingnan ang best rates →
+        {/* Link */}
+        <p className="text-center mb-6">
+          <Link href="/" className="text-[12px] text-[#888] no-underline border-b border-[#ccc] pb-px hover:text-[#1a1a1a] hover:border-[#1a1a1a] transition-colors">
+            Check our other calculators
           </Link>
-        </div>
+        </p>
 
         {/* Footer */}
         <footer className="mt-8 pt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
