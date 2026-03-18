@@ -6,26 +6,35 @@ import NavMenu from "@/components/NavMenu";
 
 // ─── 2023 FIES Income Distribution Data ──────────────────────────
 //
-// Source: PSA 2023 FIES (~163,000 households)
-// 2018 exact decile averages scaled by published 2023 growth rates.
-// Validated against 2023 national average (₱353k) and median (₱241k).
+// Source: PSA 2023 FIES (~163,000 households, Gini 0.39)
+//
+// Confirmed anchor points:
+//   - 10.9th percentile = ₱166,476/yr (poverty threshold)
+//   - 50th percentile = ₱241,080/yr (median, PSA confirmed)
+//   - Mean = ₱353,230/yr (falls at ~72nd percentile)
+//   - Palma ratio = 1.15 (top 10% / bottom 40%)
+//
+// Remaining percentiles estimated by fitting a curve through
+// these anchors, consistent with Gini 0.39 and the Palma ratio.
+// These are BOUNDARY values (entry points), not decile averages.
 
 // [percentile, annual family income in PHP]
 const INCOME_CURVE: [number, number][] = [
-  [0, 50000],
-  [5, 135000],     // 1st decile avg
-  [15, 155000],    // 2nd decile avg
-  [25, 190000],    // 3rd decile avg
-  [35, 220000],    // 4th decile avg
-  [45, 230000],    // 5th decile avg
-  [50, 241000],    // median (PSA confirmed)
-  [55, 255000],    // 6th decile avg
-  [65, 340000],    // 7th decile avg
-  [75, 430000],    // 8th decile avg
-  [85, 585000],    // 9th decile avg
-  [95, 995000],    // 10th decile avg
-  [99, 1800000],   // estimated top 1%
-  [100, 5000000],  // estimated ceiling
+  [0, 30000],       // estimated floor
+  [5, 100000],      // estimated
+  [10, 145000],     // estimated, just below poverty line
+  [11, 166476],     // poverty threshold (PSA 2023, confirmed)
+  [20, 185000],     // estimated
+  [30, 205000],     // estimated
+  [40, 222000],     // estimated
+  [50, 241080],     // median (PSA 2023, confirmed)
+  [60, 280000],     // estimated
+  [70, 340000],     // estimated
+  [80, 420000],     // estimated
+  [90, 580000],     // estimated — entry to top 10% (~₱48k/mo)
+  [95, 870000],     // estimated — entry to top 5% (~₱73k/mo)
+  [99, 1700000],    // estimated — entry to top 1% (~₱142k/mo)
+  [100, 5000000],   // ceiling
 ];
 
 function getPercentile(annualIncome: number): number {
@@ -191,10 +200,12 @@ export default function GKKPage() {
             <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Reference points</p>
             <div className="space-y-2">
               {[
-                { label: "Poverty threshold (2023)", monthly: 13873, percentile: "~11%" },
-                { label: "Median family income", monthly: 20090, percentile: "50%" },
-                { label: "National average", monthly: 29436, percentile: "~62%" },
-                { label: "Top 10%", monthly: 82917, percentile: "90%" },
+                { label: "Poverty threshold (2023)", monthly: 13873, percentile: "11th" },
+                { label: "Median family income", monthly: 20090, percentile: "50th" },
+                { label: "National average", monthly: 29436, percentile: "~72nd" },
+                { label: "Top 10% entry", monthly: 48333, percentile: "90th" },
+                { label: "Top 5% entry", monthly: 72500, percentile: "95th" },
+                { label: "Top 1% entry", monthly: 141667, percentile: "99th" },
               ].map((ref) => {
                 const isAbove = income >= ref.monthly;
                 return (
@@ -218,16 +229,16 @@ export default function GKKPage() {
             <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Income distribution (2023 FIES)</p>
             <div className="space-y-1.5">
               {[
-                { label: "Bottom 10%", range: "< ₱11,250/mo", pct: 10 },
-                { label: "10th–20th", range: "₱11,250 – ₱12,917/mo", pct: 20 },
-                { label: "20th–30th", range: "₱12,917 – ₱15,833/mo", pct: 30 },
-                { label: "30th–40th", range: "₱15,833 – ₱18,333/mo", pct: 40 },
-                { label: "40th–50th", range: "₱18,333 – ₱20,083/mo", pct: 50 },
-                { label: "50th–60th", range: "₱20,083 – ₱21,250/mo", pct: 60 },
-                { label: "60th–70th", range: "₱21,250 – ₱28,333/mo", pct: 70 },
-                { label: "70th–80th", range: "₱28,333 – ₱35,833/mo", pct: 80 },
-                { label: "80th–90th", range: "₱35,833 – ₱48,750/mo", pct: 90 },
-                { label: "Top 10%", range: "> ₱48,750/mo", pct: 100 },
+                { label: "Bottom 10%", range: "< ₱12,083/mo", pct: 10 },
+                { label: "10th–20th", range: "₱12,083 – ₱15,417/mo", pct: 20 },
+                { label: "20th–30th", range: "₱15,417 – ₱17,083/mo", pct: 30 },
+                { label: "30th–40th", range: "₱17,083 – ₱18,500/mo", pct: 40 },
+                { label: "40th–50th", range: "₱18,500 – ₱20,090/mo", pct: 50 },
+                { label: "50th–60th", range: "₱20,090 – ₱23,333/mo", pct: 60 },
+                { label: "60th–70th", range: "₱23,333 – ₱28,333/mo", pct: 70 },
+                { label: "70th–80th", range: "₱28,333 – ₱35,000/mo", pct: 80 },
+                { label: "80th–90th", range: "₱35,000 – ₱48,333/mo", pct: 90 },
+                { label: "Top 10%", range: "> ₱48,333/mo", pct: 100 },
               ].map((band) => {
                 const isYou = percentile >= band.pct - 10 && percentile < band.pct;
                 const isTop = band.pct === 100 && percentile >= 90;
@@ -260,7 +271,7 @@ export default function GKKPage() {
         {/* Methodology */}
         <div className="mb-3 px-1">
           <p className="text-[10px] text-[#aaa] leading-relaxed">
-            <span className="font-semibold text-[#888]">Paano ito kina-calculate?</span> Based on 2023 FIES (PSA) — ~163,000 households surveyed. We scaled the published 2018 per-decile averages (₱107k–₱867k) using PSA&apos;s confirmed 2023 growth rates, validated against the 2023 national average (₱353k) and median (₱241k). Your percentile is interpolated between decile midpoints. FIES measures household income — if you entered individual income, this assumes a single-earner household. Approximation only; actual rank may vary by a few points.
+            <span className="font-semibold text-[#888]">Paano ito kina-calculate?</span> Based on 2023 FIES (PSA) — ~163,000 households, Gini 0.39. Calibrated using confirmed data points: poverty threshold ₱166,476/yr at 10.9th percentile, median ₱241,080/yr, mean ₱353,230/yr, and Palma ratio 1.15. Values between anchors are estimated via interpolation. FIES measures household income — if you entered individual income, this assumes a single-earner household. Approximation only; actual rank may vary by a few points.
           </p>
         </div>
 
@@ -277,7 +288,7 @@ export default function GKKPage() {
         <footer className="mt-8 pt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
           <span className="text-sm font-bold text-[#888]">alkansya<span className="text-[#00c853]">.ph</span></span>
           <p className="text-[10px] text-[#aaa] max-w-md sm:text-right leading-relaxed">
-            Based on 2023 FIES data (PSA). Estimates derived from published decile averages scaled to 2023 growth rates.
+            Based on 2023 FIES data (PSA). Percentile boundaries estimated from confirmed anchors (median, poverty threshold, Gini, Palma ratio).
           </p>
         </footer>
       </main>
