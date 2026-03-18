@@ -88,9 +88,9 @@ function draw(progress: number) {
   for (let i = 0; i <= gridLines; i++) {
     const y = padTop + (chartH / gridLines) * i;
     const val = max - (range / gridLines) * i;
-    ctx.fillStyle = "rgba(255,255,255,0.4)";
+    ctx.fillStyle = "rgba(26,26,26,0.4)";
     ctx.fillText("₱" + val.toFixed(2), padLeft - 6, y + 3);
-    ctx.strokeStyle = "rgba(255,255,255,0.08)";
+    ctx.strokeStyle = "rgba(26,26,26,0.08)";
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(padLeft, y);
@@ -100,7 +100,7 @@ function draw(progress: number) {
 
   // X-axis labels
   ctx.textAlign = "center";
-  ctx.fillStyle = "rgba(255,255,255,0.4)";
+  ctx.fillStyle = "rgba(26,26,26,0.4)";
   const labelCount = Math.min(5, data.length);
   for (let i = 0; i < labelCount; i++) {
     const idx = Math.floor((i / (labelCount - 1)) * (data.length - 1));
@@ -116,7 +116,7 @@ function draw(progress: number) {
 
   // Line
   ctx.beginPath();
-  ctx.strokeStyle = "#fff";
+  ctx.strokeStyle = "#1a1a1a";
   ctx.lineWidth = 2;
   ctx.lineJoin = "round";
   points.forEach((p, i) => {
@@ -129,8 +129,8 @@ function draw(progress: number) {
   ctx.lineTo(points[0].x, padTop + chartH);
   ctx.closePath();
   const grad = ctx.createLinearGradient(0, padTop, 0, padTop + chartH);
-  grad.addColorStop(0, "rgba(255,255,255,0.15)");
-  grad.addColorStop(1, "rgba(255,255,255,0.02)");
+  grad.addColorStop(0, "rgba(26,26,26,0.15)");
+  grad.addColorStop(1, "rgba(26,26,26,0.02)");
   ctx.fillStyle = grad;
   ctx.fill();
 
@@ -141,7 +141,7 @@ function draw(progress: number) {
   // End dot
   ctx.beginPath();
   ctx.arc(lastPt.x, lastPt.y, 4, 0, Math.PI * 2);
-  ctx.fillStyle = "#fff";
+  ctx.fillStyle = "#1a1a1a";
   ctx.fill();
 
   // Hover
@@ -152,7 +152,7 @@ function draw(progress: number) {
     const date = new Date(hd[0]);
 
     // Crosshair
-    ctx.strokeStyle = "rgba(255,255,255,0.3)";
+    ctx.strokeStyle = "rgba(26,26,26,0.3)";
     ctx.lineWidth = 1;
     ctx.setLineDash([4, 3]);
     ctx.beginPath();
@@ -164,9 +164,9 @@ function draw(progress: number) {
     // Hover dot
     ctx.beginPath();
     ctx.arc(hp.x, hp.y, 5, 0, Math.PI * 2);
-    ctx.fillStyle = "#fff";
+    ctx.fillStyle = "#1a1a1a";
     ctx.fill();
-    ctx.strokeStyle = "rgba(255,255,255,0.3)";
+    ctx.strokeStyle = "rgba(26,26,26,0.3)";
     ctx.lineWidth = 2;
     ctx.stroke();
 
@@ -269,8 +269,8 @@ style={{ display: "block" }}
 />
 {dotPos && (
 <span className="absolute pointer-events-none" style={{ left: `${dotPos.x}%`, top: `${dotPos.y}%`, transform: "translate(-50%, -50%)" }}>
-  <span className="block w-[8px] h-[8px] rounded-full bg-white" />
-  <span className="absolute inset-[-4px] rounded-full bg-white/40 animate-pulse-dot" />
+  <span className="block w-[8px] h-[8px] rounded-full bg-[#1a1a1a]" />
+  <span className="absolute inset-[-4px] rounded-full bg-[#1a1a1a]/40 animate-pulse-dot" />
 </span>
 )}
 </div>
@@ -395,7 +395,7 @@ alkansya<span className="text-white/60">.ph</span>
 
     {/* Big converter */}
     <div className="text-center mb-2">
-      <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-3">USD / PHP</p>
+      <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#1a1a1a]/50 mb-3">USD / PHP</p>
       <div className="flex items-center justify-center gap-2 sm:gap-3">
         {/* USD box */}
         <div className="flex items-center border border-white/30 rounded-2xl px-4 py-3 h-[60px] sm:h-[80px] w-[42%] overflow-hidden">
@@ -430,22 +430,22 @@ alkansya<span className="text-white/60">.ph</span>
         </div>
       </div>
       {live && (
-        <p className="text-[11px] text-white/40 mt-2">
-          <span className="inline-block w-1.5 h-1.5 rounded-full bg-white/50 mr-1 animate-pulse" />
+        <p className="text-[11px] text-[#1a1a1a]/40 mt-2">
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#1a1a1a]/50 mr-1 animate-pulse" />
           Updated {lastUpdated}
         </p>
       )}
     </div>
 
     {/* Chart */}
-    <div className="bg-white/20 backdrop-blur-sm rounded-[20px] p-5 mb-4">
+    <div className="bg-white/10 backdrop-blur-sm rounded-[20px] p-5 mb-4">
       <div className="flex items-center justify-between mb-3">
-        <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50">Historical rate</p>
+        <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#1a1a1a]/50">Historical rate</p>
         <div className="flex gap-1">
           {PERIODS.map((p) => (
             <button key={p.days} onClick={() => setPeriod(p.days)}
               className={`px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
-                period === p.days ? "bg-white text-[#00c853]" : "bg-white/10 text-white/50"
+                period === p.days ? "bg-[#1a1a1a] text-white" : "bg-[#1a1a1a]/10 text-[#1a1a1a]/50"
               }`}>{p.label}</button>
           ))}
         </div>
@@ -454,9 +454,9 @@ alkansya<span className="text-white/60">.ph</span>
       {chartData.length > 0 ? (
         <>
           <RateChart data={chartData} />
-          <div className="flex justify-between mt-3 text-[10px] text-white/40">
+          <div className="flex justify-between mt-3 text-[10px] text-[#1a1a1a]/40">
             <span>Low: ₱{chartMin.toFixed(2)}</span>
-            <span className={chartChange >= 0 ? "text-white/70" : "text-red-300"}>
+            <span className={chartChange >= 0 ? "text-[#1a1a1a]/70" : "text-red-600"}>
               {chartChange >= 0 ? "+" : ""}{chartChange.toFixed(2)}%
             </span>
             <span>High: ₱{chartMax.toFixed(2)}</span>
@@ -464,26 +464,26 @@ alkansya<span className="text-white/60">.ph</span>
         </>
       ) : (
         <div className="h-[200px] flex items-center justify-center">
-          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          <div className="w-5 h-5 border-2 border-[#1a1a1a]/30 border-t-[#1a1a1a] rounded-full animate-spin" />
         </div>
       )}
     </div>
 
     <p className="text-center mb-4">
       <a href="https://www.binance.com/register?ref=ALKANSYA" target="_blank" rel="noopener noreferrer"
-        className="text-[11px] font-normal text-white/40 no-underline border-b border-white/20 pb-px hover:text-white/70 hover:border-white/40 transition-colors">
+        className="text-[11px] font-normal text-[#1a1a1a]/40 no-underline border-b border-[#1a1a1a]/20 pb-px hover:text-[#1a1a1a]/70 hover:border-[#1a1a1a]/40 transition-colors">
         Buy USD and earn interest
       </a>
     </p>
 
     {/* Quick reference */}
-    <div className="bg-white/20 backdrop-blur-sm rounded-[20px] p-5 mb-4">
-      <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-3">Quick reference</p>
+    <div className="bg-white/10 backdrop-blur-sm rounded-[20px] p-5 mb-4">
+      <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#1a1a1a]/50 mb-3">Quick reference</p>
       <div className="grid grid-cols-2 gap-2">
         {[1, 5, 10, 20, 50, 100, 500, 1000].map((v) => (
-          <div key={v} className="flex justify-between text-sm py-1.5 border-b border-white/5 last:border-0">
-            <span className="text-white/50 font-medium">${v}</span>
-            <span className="text-white font-bold"><AnimatedRate value={v * rate} /></span>
+          <div key={v} className="flex justify-between text-sm py-1.5 border-b border-[#1a1a1a]/5 last:border-0">
+            <span className="text-[#1a1a1a]/50 font-medium">${v}</span>
+            <span className="text-[#1a1a1a] font-bold"><AnimatedRate value={v * rate} /></span>
           </div>
         ))}
       </div>
@@ -491,7 +491,7 @@ alkansya<span className="text-white/60">.ph</span>
 
     {/* Footer */}
     <footer className="text-center pt-4">
-      <p className="text-[10px] text-white/25 leading-relaxed max-w-md mx-auto">
+      <p className="text-[10px] text-[#1a1a1a]/25 leading-relaxed max-w-md mx-auto">
         Live rate from USDT/PHP via CoinGecko. Historical chart from ECB via Frankfurter. May differ slightly from bank rates.
       </p>
     </footer>
