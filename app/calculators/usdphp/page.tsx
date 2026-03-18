@@ -285,6 +285,7 @@ const [historyData, setHistoryData] = useState<[number, number][]>([]);
 const [usd, setUsd] = useState("1");
 const [php, setPhp] = useState("");
 const [direction, setDirection] = useState<"usd" | "php">("usd");
+const [focusedField, setFocusedField] = useState<"usd" | "php" | null>(null);
 const [period, setPeriod] = useState("all");
 const [lastUpdated, setLastUpdated] = useState<string>("");
 
@@ -346,14 +347,14 @@ return sampled;
 useEffect(() => {
 if (direction === "usd") {
 const v = parseFloat(usd);
-setPhp(isNaN(v) ? "" : (v * rate).toFixed(2));
+setPhp(isNaN(v) || v === 0 ? "" : (v * rate).toFixed(2));
 }
 }, [usd, rate, direction]);
 
 useEffect(() => {
 if (direction === "php") {
 const v = parseFloat(php);
-setUsd(isNaN(v) ? "" : (v / rate).toFixed(2));
+setUsd(isNaN(v) || v === 0 ? "" : (v / rate).toFixed(2));
 }
 }, [php, rate, direction]);
 
@@ -379,34 +380,52 @@ alkansya<span className="text-white/60">.ph</span>
     <div className="text-center mb-2">
       <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-3">USD / PHP</p>
       <div className="flex items-center justify-center gap-2 sm:gap-3">
-        <div className="flex items-center border border-white/30 rounded-2xl px-3 sm:px-4 py-3 min-w-0">
-          <span className={`font-black text-white/50 mr-1 ${usd.length > 6 ? "text-lg sm:text-2xl" : usd.length > 4 ? "text-xl sm:text-3xl" : "text-3xl sm:text-5xl"}`}>$</span>
+        {/* USD box */}
+        <div className="relative flex items-center border border-white/30 rounded-2xl px-4 py-3 h-[60px] sm:h-[80px] w-[42%] overflow-hidden">
+          <span className="text-3xl sm:text-5xl font-black text-white/50 mr-1 shrink-0">$</span>
           <input
             type="text"
             inputMode="decimal"
             value={usd}
-            onFocus={() => setDirection("usd")}
+            onFocus={() => { setDirection("usd"); setFocusedField("usd"); }}
+            onBlur={() => setFocusedField(null)}
             onChange={(e) => { setDirection("usd"); setUsd(e.target.value); }}
-            className={`bg-transparent font-black text-white outline-none placeholder-white/30 text-center min-w-0 ${
-              usd.length > 6 ? "text-lg sm:text-2xl w-[7ch]" : usd.length > 4 ? "text-xl sm:text-3xl w-[5ch]" : "text-3xl sm:text-5xl w-[4ch]"
-            }`}
+            className={`bg-transparent font-black outline-none placeholder-white/30 text-right min-w-0 flex-1 transition-[font-size] duration-200 ${
+              focusedField === "usd" ? "text-white" : "text-transparent"
+            } ${usd.length > 7 ? "text-base sm:text-xl" : usd.length > 5 ? "text-xl sm:text-2xl" : "text-3xl sm:text-5xl"}`}
             placeholder="1"
           />
+          {focusedField !== "usd" && (
+            <span className={`absolute right-4 font-black text-white pointer-events-none transition-[font-size] duration-200 ${
+              usd.length > 7 ? "text-base sm:text-xl" : usd.length > 5 ? "text-xl sm:text-2xl" : "text-3xl sm:text-5xl"
+            }`}>
+              <AnimatedRate value={parseFloat(usd) || 0} prefix="" />
+            </span>
+          )}
         </div>
-        <span className={`font-black text-white/30 shrink-0 ${usd.length > 6 || php.length > 8 ? "text-lg sm:text-2xl" : "text-2xl sm:text-4xl"}`}>=</span>
-        <div className="flex items-center border border-white/30 rounded-2xl px-3 sm:px-4 py-3 min-w-0">
-          <span className={`font-black text-white/50 mr-1 ${php.length > 8 ? "text-lg sm:text-2xl" : php.length > 6 ? "text-xl sm:text-3xl" : "text-3xl sm:text-5xl"}`}>₱</span>
+        <span className="text-2xl sm:text-4xl font-black text-white/30 shrink-0">=</span>
+        {/* PHP box */}
+        <div className="relative flex items-center border border-white/30 rounded-2xl px-4 py-3 h-[60px] sm:h-[80px] w-[42%] overflow-hidden">
+          <span className="text-3xl sm:text-5xl font-black text-white/50 mr-1 shrink-0">₱</span>
           <input
             type="text"
             inputMode="decimal"
             value={php}
-            onFocus={() => setDirection("php")}
+            onFocus={() => { setDirection("php"); setFocusedField("php"); }}
+            onBlur={() => setFocusedField(null)}
             onChange={(e) => { setDirection("php"); setPhp(e.target.value); }}
-            className={`bg-transparent font-black text-white outline-none placeholder-white/30 text-center min-w-0 ${
-              php.length > 8 ? "text-lg sm:text-2xl w-[9ch]" : php.length > 6 ? "text-xl sm:text-3xl w-[7ch]" : "text-3xl sm:text-5xl w-[5ch]"
-            }`}
+            className={`bg-transparent font-black outline-none placeholder-white/30 text-right min-w-0 flex-1 transition-[font-size] duration-200 ${
+              focusedField === "php" ? "text-white" : "text-transparent"
+            } ${php.length > 8 ? "text-base sm:text-xl" : php.length > 6 ? "text-xl sm:text-2xl" : "text-3xl sm:text-5xl"}`}
             placeholder="0"
           />
+          {focusedField !== "php" && (
+            <span className={`absolute right-4 font-black text-white pointer-events-none transition-[font-size] duration-200 ${
+              php.length > 8 ? "text-base sm:text-xl" : php.length > 6 ? "text-xl sm:text-2xl" : "text-3xl sm:text-5xl"
+            }`}>
+              <AnimatedRate value={parseFloat(php) || 0} prefix="" />
+            </span>
+          )}
         </div>
       </div>
       {live && (
