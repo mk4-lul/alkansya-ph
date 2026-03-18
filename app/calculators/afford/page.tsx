@@ -75,6 +75,110 @@ function VerdictCard({ result, onTryAgain }: { result: VR; onTryAgain: () => voi
   const bb = result.verdict === "yellow" ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.15)";
   const bh = result.verdict === "yellow" ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.25)";
 
+  async function handleShare() {
+    const w = 600, h = 700;
+    const canvas = document.createElement("canvas");
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext("2d")!;
+
+    // Background
+    ctx.fillStyle = bg;
+    ctx.beginPath();
+    ctx.roundRect(0, 0, w, h, 32);
+    ctx.fill();
+
+    // Emoji
+    ctx.font = "80px serif";
+    ctx.textAlign = "center";
+    ctx.fillText(result.emoji, w / 2, 100);
+
+    // Title
+    ctx.font = "bold 42px Inter, system-ui, sans-serif";
+    ctx.fillStyle = tc;
+    ctx.fillText(result.title, w / 2, 160);
+
+    // Subtitle
+    ctx.font = "600 18px Inter, system-ui, sans-serif";
+    ctx.fillStyle = result.verdict === "yellow" ? "rgba(26,26,26,0.5)" : "rgba(255,255,255,0.6)";
+    ctx.fillText(result.subtitle, w / 2, 195);
+
+    // Message — word wrap
+    ctx.font = "14px Inter, system-ui, sans-serif";
+    ctx.fillStyle = result.verdict === "yellow" ? "rgba(26,26,26,0.5)" : "rgba(255,255,255,0.6)";
+    const words = result.message.split(" ");
+    let line = "", lineY = 235;
+    for (const word of words) {
+      const test = line + word + " ";
+      if (ctx.measureText(test).width > w - 100) {
+        ctx.fillText(line.trim(), w / 2, lineY);
+        line = word + " ";
+        lineY += 20;
+      } else {
+        line = test;
+      }
+    }
+    ctx.fillText(line.trim(), w / 2, lineY);
+
+    // Stats
+    const statsY = lineY + 60;
+    ctx.fillStyle = tc;
+
+    // Days of work
+    ctx.font = "bold 32px Inter, system-ui, sans-serif";
+    ctx.fillText(result.daysOfWork >= 999 ? "—" : result.daysOfWork.toFixed(1), 150, statsY);
+    ctx.font = "bold 9px Inter, system-ui, sans-serif";
+    ctx.fillStyle = result.verdict === "yellow" ? "rgba(26,26,26,0.5)" : "rgba(255,255,255,0.6)";
+    ctx.fillText("ARAW NG TRABAHO", 150, statsY + 20);
+
+    // % ng sahod
+    ctx.fillStyle = tc;
+    ctx.font = "bold 32px Inter, system-ui, sans-serif";
+    ctx.fillText(result.percentOfIncome >= 999 ? "—" : result.percentOfIncome.toFixed(0) + "%", w / 2, statsY);
+    ctx.font = "bold 9px Inter, system-ui, sans-serif";
+    ctx.fillStyle = result.verdict === "yellow" ? "rgba(26,26,26,0.5)" : "rgba(255,255,255,0.6)";
+    ctx.fillText("NG SAHOD", w / 2, statsY + 20);
+
+    // Months ipon
+    ctx.fillStyle = tc;
+    ctx.font = "bold 32px Inter, system-ui, sans-serif";
+    ctx.fillText(result.monthsToSave >= 999 ? "—" : String(result.monthsToSave), w - 150, statsY);
+    ctx.font = "bold 9px Inter, system-ui, sans-serif";
+    ctx.fillStyle = result.verdict === "yellow" ? "rgba(26,26,26,0.5)" : "rgba(255,255,255,0.6)";
+    ctx.fillText("MONTHS IPON", w - 150, statsY + 20);
+
+    // Dividers
+    ctx.strokeStyle = result.verdict === "yellow" ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.2)";
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(250, statsY - 25); ctx.lineTo(250, statsY + 25); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(350, statsY - 25); ctx.lineTo(350, statsY + 25); ctx.stroke();
+
+    // Branding
+    ctx.font = "bold 16px Inter, system-ui, sans-serif";
+    ctx.fillStyle = tc;
+    ctx.textAlign = "center";
+    ctx.fillText("alkansya.ph", w / 2, h - 40);
+    ctx.font = "11px Inter, system-ui, sans-serif";
+    ctx.fillStyle = result.verdict === "yellow" ? "rgba(26,26,26,0.3)" : "rgba(255,255,255,0.3)";
+    ctx.fillText("Afford ko ba 'to?", w / 2, h - 20);
+
+    canvas.toBlob(async (blob) => {
+      if (!blob) return;
+      const file = new File([blob], "afford-ko-ba-to.png", { type: "image/png" });
+
+      if (navigator.share && navigator.canShare?.({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], title: "Afford ko ba 'to?", text: "alkansya.ph/afford" });
+        } catch {}
+      } else {
+        // Fallback: download
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = "afford-ko-ba-to.png"; a.click();
+        URL.revokeObjectURL(url);
+      }
+    }, "image/png");
+  }
+
   return (
     <div className="flex-1 flex flex-col items-center justify-center" style={{ perspective: "800px" }}>
       <div className="rounded-3xl px-5 py-6 sm:px-8 sm:py-8 w-full max-w-[520px] text-center transition-all duration-500"
@@ -118,12 +222,20 @@ function VerdictCard({ result, onTryAgain }: { result: VR; onTryAgain: () => voi
           </div>
         </div>
 
-        <button onClick={onTryAgain}
-          className="px-6 py-2.5 rounded-full text-sm font-bold transition-colors"
-          style={{ background: bb, color: tc, transition: "opacity 0.4s 0.45s, background 0.2s", opacity: show ? 1 : 0 }}
-          onMouseEnter={(e) => e.currentTarget.style.background = bh}
-          onMouseLeave={(e) => e.currentTarget.style.background = bb}
-        >Try again ↻</button>
+        <div className="flex justify-center gap-2" style={{ transition: "opacity 0.4s 0.45s", opacity: show ? 1 : 0 }}>
+          <button onClick={onTryAgain}
+            className="px-5 py-2.5 rounded-full text-sm font-bold transition-colors"
+            style={{ background: bb, color: tc }}
+            onMouseEnter={(e) => e.currentTarget.style.background = bh}
+            onMouseLeave={(e) => e.currentTarget.style.background = bb}
+          >Try again ↻</button>
+          <button onClick={handleShare}
+            className="px-5 py-2.5 rounded-full text-sm font-bold transition-colors"
+            style={{ background: bb, color: tc }}
+            onMouseEnter={(e) => e.currentTarget.style.background = bh}
+            onMouseLeave={(e) => e.currentTarget.style.background = bb}
+          >Share 📤</button>
+        </div>
       </div>
     </div>
   );
