@@ -13,6 +13,7 @@ const nextConfig = {
       { source: "/mp2", destination: "/calculators/mp2" },
       { source: "/investment", destination: "/calculators/investment" },
       { source: "/afford", destination: "/calculators/afford" },
+      { source: "/utang", destination: "/calculators/utang" },
     ];
   },
 }
