@@ -16,30 +16,30 @@ const OTHER_TOOLS = [
   {
     href: "/compound",
     emoji: "📈",
-    title: "Compound Calculator",
+    title: "Compounding Calculator",
     description: "See how your money grows with compound interest over time",
     tag: "calculator",
   },
   {
     href: "/mp2",
     emoji: "🏛️",
-    title: "Pag-IBIG MP2",
+    title: "Pag-IBIG MP2 Income Calculator",
     description: "Tax-free government savings — project your MP2 dividends",
-    tag: "tax-free",
+    tag: "calculator",
   },
   {
     href: "/investment",
     emoji: "🔮",
-    title: "Investment Calculator",
+    title: "Historical Investment Calculator",
     description: "What if you invested in Bitcoin, gold, or stocks years ago?",
     tag: "9 assets",
   },
   {
     href: "/utang",
     emoji: "💸",
-    title: "Magkano Nawawala Sa'yo?",
+    title: "Magkano Ang Nawawala Mo Sa Pag-Utang",
     description: "Alamin ang totoong cost ng utang mo — credit card, 5-6, online lending",
-    tag: "utang",
+    tag: "calculator",
   },
 ];
 
@@ -62,8 +62,8 @@ export default function HomePage() {
             <span className="text-3xl shrink-0">💱</span>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-0.5">
-                <p className="text-[15px] font-bold text-[#1a1a1a]">USD / PHP</p>
-                <span className="text-[10px] font-semibold text-[#00c853] bg-[#00c853]/10 px-2 py-0.5 rounded-full">live</span>
+                <p className="text-[15px] font-bold text-[#1a1a1a]">USD to PHP Converter</p>
+                <span className="text-[10px] font-semibold text-[#00c853] bg-[#00c853]/10 px-2 py-0.5 rounded-full">forex</span>
               </div>
               <p className="text-[12px] text-[#888] leading-relaxed">Live exchange rate with historical chart — updated every minute</p>
             </div>
@@ -76,7 +76,7 @@ export default function HomePage() {
             <span className="text-3xl shrink-0">💰</span>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-0.5">
-                <p className="text-[15px] font-bold text-[#1a1a1a]">Compare Rates</p>
+                <p className="text-[15px] font-bold text-[#1a1a1a]">Compare Bank Interest Rates</p>
                 <span className="text-[10px] font-semibold text-[#00c853] bg-[#00c853]/10 px-2 py-0.5 rounded-full">17 banks</span>
               </div>
               <p className="text-[12px] text-[#888] leading-relaxed">Find the best savings and time deposit rates across Philippine banks</p>
@@ -109,19 +109,19 @@ export default function HomePage() {
             {
               href: "/afford", emoji: "🛍️", title: "Afford ko ba 'to?",
               description: "Alamin kung kaya mo ba bago bilhin",
-              tag: "sahod check",
+              tag: "calculator",
               gradient: "linear-gradient(135deg, #FF9800 0%, #FFE0B2 100%)",
             },
             {
               href: "/what-if", emoji: "🥇", title: "What if nag-invest ka nalang?",
               description: "Sana nag-invest ka nalang...",
-              tag: "guilt trip",
+              tag: "data",
               gradient: "linear-gradient(135deg, #FFD600 0%, #FFF9C4 100%)",
             },
             {
               href: "/gkk", emoji: "💰", title: "Gaano ako kayaman?",
               description: "Nasaan ka sa income ranking ng mga Pilipino?",
-              tag: "2023 FIES",
+              tag: "data",
               gradient: "linear-gradient(135deg, #00c853 0%, #B9F6CA 100%)",
             },
           ].map((tool) => (
