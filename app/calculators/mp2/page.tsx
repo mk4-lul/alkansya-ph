@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import Link from "next/link";
 import { formatPeso } from "@/lib/utils";
 import NavMenu from "@/components/NavMenu";
@@ -292,6 +292,17 @@ export default function MP2CalculatorPage() {
 
   const isReady = monthly !== null && monthly > 0 && years !== null;
   const result = useMemo(() => isReady ? computeMP2(monthly, rate, years) : null, [monthly, rate, years, isReady]);
+  const [showResult, setShowResult] = useState(false);
+
+  useEffect(() => {
+    if (isReady && result) {
+      setShowResult(false);
+      const t = setTimeout(() => setShowResult(true), 80);
+      return () => clearTimeout(t);
+    } else {
+      setShowResult(false);
+    }
+  }, [isReady, result]);
 
   const interestPct = result && result.finalBalance > 0 ? ((result.totalInterest / result.finalBalance) * 100).toFixed(1) : "0";
 
@@ -309,7 +320,8 @@ export default function MP2CalculatorPage() {
         {/* Page title */}
         <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1a1a1a] tracking-tight mb-4">Pag-IBIG MP2 Calculator</h1>
 
-        {/* Inputs */}
+        {/* Inputs — hidden when result is showing */}
+        {!(isReady && result) && (
         <div className="space-y-3 mb-3">
           {/* Monthly contribution */}
           <div className="bg-white rounded-[20px] p-5 sm:p-6">
@@ -373,11 +385,27 @@ export default function MP2CalculatorPage() {
             <p className="text-[10px] text-[#aaa] mt-2">MP2 has a 5-year lock-in. You can renew for another 5 years.</p>
           </div>
         </div>
+        )}
 
         {/* Hero result card + Growth Chart — only when inputs selected */}
         {isReady && result && (
         <>
-        <div className="bg-[#1565C0] rounded-[20px] p-6 sm:p-8 mb-3 relative overflow-hidden">
+        {/* Input summary + edit */}
+        <div className="flex items-center justify-between mb-3 px-1">
+          <p className="text-[12px] text-[#888]">
+            ₱{formatWithCommas(monthly!)}/mo · {rate.toFixed(2)}% rate · {years}yr
+          </p>
+          <button
+            onClick={() => setYears(null)}
+            className="text-[12px] font-semibold text-[#00c853] hover:text-[#00a844] transition-colors"
+          >Change ↻</button>
+        </div>
+
+        <div className="bg-[#1565C0] rounded-[20px] p-6 sm:p-8 mb-3 relative overflow-hidden transition-all duration-700 ease-out"
+          style={{
+            transform: showResult ? "scale(1) translateY(0)" : "scale(0.92) translateY(20px)",
+            opacity: showResult ? 1 : 0,
+          }}>
           {/* Scattered emojis */}
           <div className="absolute inset-0 pointer-events-none select-none" style={{ filter: "blur(2px)" }} aria-hidden="true">
             {['💵','🏠','🏡','🏦','🏛️','❤️'].map((e, i) => (
@@ -392,13 +420,15 @@ export default function MP2CalculatorPage() {
             ))}
           </div>
           <div className="relative text-center">
-            <p className="text-[13px] font-bold uppercase tracking-[1px] text-white/80 mb-2">
+            <p className="text-[13px] font-bold uppercase tracking-[1px] text-white/80 mb-2 transition-all duration-500 delay-200"
+              style={{ opacity: showResult ? 1 : 0, transform: showResult ? "translateY(0)" : "translateY(10px)" }}>
               Your savings after {years} {years === 1 ? "year" : "years"}
             </p>
             <p className="text-5xl sm:text-6xl font-extrabold tracking-tight text-white">
               <ScrollingPeso value={result.finalBalance} />
             </p>
-            <div className="flex justify-center mt-4">
+            <div className="flex justify-center mt-4 transition-all duration-500 delay-300"
+              style={{ opacity: showResult ? 1 : 0, transform: showResult ? "translateY(0)" : "translateY(10px)" }}>
               <div className="bg-white/15 backdrop-blur-md rounded-2xl px-6 py-4 flex gap-8">
                 <div className="text-center">
                   <p className="text-[12px] font-semibold text-white/70 uppercase tracking-[0.5px]">Contributed</p>
@@ -411,9 +441,10 @@ export default function MP2CalculatorPage() {
               </div>
             </div>
             {/* Progress bar */}
-            <div className="mt-4 max-w-[300px] mx-auto">
+            <div className="mt-4 max-w-[300px] mx-auto transition-all duration-500 delay-500"
+              style={{ opacity: showResult ? 1 : 0 }}>
               <div className="h-2 rounded-full bg-white/20 overflow-hidden">
-                <div className="h-full rounded-full bg-white transition-all duration-500" style={{ width: `${interestPct}%` }} />
+                <div className="h-full rounded-full bg-white transition-all duration-[2000ms] ease-out" style={{ width: showResult ? `${interestPct}%` : "0%" }} />
               </div>
               <p className="text-[12px] font-semibold text-white/80 mt-1">{interestPct}% of your total is from dividends</p>
             </div>
