@@ -14,7 +14,7 @@ const PERIODS = [
 { label: "ALL", days: "max" },
 ] as const;
 
-// ─── Chart component ─────────────────────────────────────────────
+// --- Chart component ---------------------------------------------
 function RateChart({ data }: { data: [number, number][] }) {
 const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -49,7 +49,7 @@ for (let i = 0; i <= gridLines; i++) {
   const y = padTop + (chartH / gridLines) * i;
   const val = max - (range / gridLines) * i;
   ctx.fillStyle = "rgba(255,255,255,0.4)";
-  ctx.fillText(`₱${val.toFixed(2)}`, padLeft - 6, y + 3);
+  ctx.fillText(`\u20B1${val.toFixed(2)}`, padLeft - 6, y + 3);
   ctx.strokeStyle = "rgba(255,255,255,0.08)";
   ctx.lineWidth = 1;
   ctx.beginPath();
@@ -118,7 +118,7 @@ style={{ display: "block" }}
 );
 }
 
-// ─── Page ────────────────────────────────────────────────────────
+// --- Page --------------------------------------------------------
 export default function UsdPhpPage() {
 const [rate, setRate] = useState(FALLBACK_RATE);
 const [live, setLive] = useState(false);
