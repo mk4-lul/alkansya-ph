@@ -29,7 +29,6 @@ canvas.height = rect.height * dpr;
 ctx.scale(dpr, dpr);
 const w = rect.width, h = rect.height;
 
-```
 const prices = data.map(d => d[1]);
 const min = Math.min(...prices) * 0.999;
 const max = Math.max(...prices) * 1.001;
@@ -49,7 +48,7 @@ for (let i = 0; i <= gridLines; i++) {
   const y = padTop + (chartH / gridLines) * i;
   const val = max - (range / gridLines) * i;
   ctx.fillStyle = "rgba(255,255,255,0.4)";
-  ctx.fillText(`\u20B1${val.toFixed(2)}`, padLeft - 6, y + 3);
+  ctx.fillText("₱" + val.toFixed(2), padLeft - 6, y + 3);
   ctx.strokeStyle = "rgba(255,255,255,0.08)";
   ctx.lineWidth = 1;
   ctx.beginPath();
@@ -105,7 +104,6 @@ ctx.beginPath();
 ctx.arc(lastX, lastY, 4, 0, Math.PI * 2);
 ctx.fillStyle = "#fff";
 ctx.fill();
-```
 
 }, [data]);
 
@@ -201,7 +199,6 @@ alkansya<span className="text-white/60">.ph</span>
 <NavMenu dark />
 </nav>
 
-```
   <main className="max-w-[600px] mx-auto px-4 sm:px-6 pb-8">
 
     {/* Big rate display */}
@@ -317,7 +314,6 @@ alkansya<span className="text-white/60">.ph</span>
     </footer>
   </main>
 </div>
-```
 
 );
 }
