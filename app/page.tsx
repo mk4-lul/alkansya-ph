@@ -103,7 +103,7 @@ export default function HomePage() {
           ))}
         </div>
 
-        {/* Meme tools — 2 columns */}
+        {/* Meme tools — 2 columns + full width */}
         <div className="grid grid-cols-2 gap-2 mt-2">
           <Link href="/afford"
             className="flex items-center gap-3 rounded-[20px] px-4 py-4 no-underline group hover:scale-[1.01] transition-transform overflow-hidden"
@@ -118,6 +118,12 @@ export default function HomePage() {
             <p className="text-[13px] font-bold text-[#1a1a1a] leading-tight">What if nag-invest ka nalang?</p>
           </Link>
         </div>
+        <Link href="/gkk"
+          className="flex items-center gap-3 rounded-[20px] px-4 py-4 mt-2 no-underline group hover:scale-[1.01] transition-transform overflow-hidden"
+          style={{ background: "linear-gradient(135deg, #00c853 0%, #69F0AE 50%, #fff 100%)" }}>
+          <span className="text-2xl shrink-0">💰</span>
+          <p className="text-[13px] font-bold text-[#1a1a1a] leading-tight">Gaano ako kayaman?</p>
+        </Link>
 
         {/* Footer */}
         <footer className="mt-8 pt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
