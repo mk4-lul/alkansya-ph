@@ -437,15 +437,8 @@ alkansya<span className="text-white/60">.ph</span>
       )}
     </div>
 
-    <p className="text-center mb-4">
-      <a href="https://www.binance.com/register?ref=ALKANSYA" target="_blank" rel="noopener noreferrer"
-        className="text-[11px] font-normal text-white/40 no-underline border-b border-white/20 pb-px hover:text-white/70 hover:border-white/40 transition-colors">
-        Buy USD and earn interest
-      </a>
-    </p>
-
     {/* Chart */}
-    <div className="bg-white/10 backdrop-blur-sm rounded-[20px] p-5 mb-4">
+    <div className="bg-white/20 backdrop-blur-sm rounded-[20px] p-5 mb-4">
       <div className="flex items-center justify-between mb-3">
         <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50">Historical rate</p>
         <div className="flex gap-1">
@@ -476,8 +469,15 @@ alkansya<span className="text-white/60">.ph</span>
       )}
     </div>
 
+    <p className="text-center mb-4">
+      <a href="https://www.binance.com/register?ref=ALKANSYA" target="_blank" rel="noopener noreferrer"
+        className="text-[11px] font-normal text-white/40 no-underline border-b border-white/20 pb-px hover:text-white/70 hover:border-white/40 transition-colors">
+        Buy USD and earn interest
+      </a>
+    </p>
+
     {/* Quick reference */}
-    <div className="bg-white/10 backdrop-blur-sm rounded-[20px] p-5 mb-4">
+    <div className="bg-white/20 backdrop-blur-sm rounded-[20px] p-5 mb-4">
       <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-3">Quick reference</p>
       <div className="grid grid-cols-2 gap-2">
         {[1, 5, 10, 20, 50, 100, 500, 1000].map((v) => (
