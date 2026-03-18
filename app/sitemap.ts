@@ -14,5 +14,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/afford`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
     { url: `${base}/utang`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
     { url: `${base}/what-if`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
+    { url: `${base}/gkk`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
   ];
 }
