@@ -24,7 +24,7 @@ function AnimatedRate({ value, decimals = 2, prefix = "₱" }: { value: number; 
     if (from === to) { setDisplay(to); return; }
     const start = performance.now();
     function tick(now: number) {
-      const p = Math.min((now - start) / 800, 1);
+      const p = Math.min((now - start) / 2500, 1);
       const eased = 1 - Math.pow(1 - p, 3);
       setDisplay(from + (to - from) * eased);
       if (p < 1) raf.current = requestAnimationFrame(tick);
@@ -378,29 +378,33 @@ alkansya<span className="text-white/60">.ph</span>
     {/* Big converter */}
     <div className="text-center mb-2">
       <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-3">USD / PHP</p>
-      <div className="flex items-center justify-center gap-3">
-        <div className="flex items-center border border-white/30 rounded-2xl px-4 py-3">
-          <span className="text-3xl sm:text-5xl font-black text-white/50 mr-1">$</span>
+      <div className="flex items-center justify-center gap-2 sm:gap-3">
+        <div className="flex items-center border border-white/30 rounded-2xl px-3 sm:px-4 py-3 min-w-0">
+          <span className={`font-black text-white/50 mr-1 ${usd.length > 6 ? "text-lg sm:text-2xl" : usd.length > 4 ? "text-xl sm:text-3xl" : "text-3xl sm:text-5xl"}`}>$</span>
           <input
             type="text"
             inputMode="decimal"
             value={usd}
             onFocus={() => setDirection("usd")}
             onChange={(e) => { setDirection("usd"); setUsd(e.target.value); }}
-            className="bg-transparent text-3xl sm:text-5xl font-black text-white outline-none placeholder-white/30 w-[4ch] text-center"
+            className={`bg-transparent font-black text-white outline-none placeholder-white/30 text-center min-w-0 ${
+              usd.length > 6 ? "text-lg sm:text-2xl w-[7ch]" : usd.length > 4 ? "text-xl sm:text-3xl w-[5ch]" : "text-3xl sm:text-5xl w-[4ch]"
+            }`}
             placeholder="1"
           />
         </div>
-        <span className="text-2xl sm:text-4xl font-black text-white/30">=</span>
-        <div className="flex items-center border border-white/30 rounded-2xl px-4 py-3">
-          <span className="text-3xl sm:text-5xl font-black text-white/50 mr-1">₱</span>
+        <span className={`font-black text-white/30 shrink-0 ${usd.length > 6 || php.length > 8 ? "text-lg sm:text-2xl" : "text-2xl sm:text-4xl"}`}>=</span>
+        <div className="flex items-center border border-white/30 rounded-2xl px-3 sm:px-4 py-3 min-w-0">
+          <span className={`font-black text-white/50 mr-1 ${php.length > 8 ? "text-lg sm:text-2xl" : php.length > 6 ? "text-xl sm:text-3xl" : "text-3xl sm:text-5xl"}`}>₱</span>
           <input
             type="text"
             inputMode="decimal"
             value={php}
             onFocus={() => setDirection("php")}
             onChange={(e) => { setDirection("php"); setPhp(e.target.value); }}
-            className="bg-transparent text-3xl sm:text-5xl font-black text-white outline-none placeholder-white/30 w-[5ch] text-center"
+            className={`bg-transparent font-black text-white outline-none placeholder-white/30 text-center min-w-0 ${
+              php.length > 8 ? "text-lg sm:text-2xl w-[9ch]" : php.length > 6 ? "text-xl sm:text-3xl w-[7ch]" : "text-3xl sm:text-5xl w-[5ch]"
+            }`}
             placeholder="0"
           />
         </div>
