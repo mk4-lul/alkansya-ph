@@ -7,9 +7,6 @@ import NavMenu from "@/components/NavMenu";
 const FALLBACK_RATE = 57;
 
 const PERIODS = [
-{ label: "1D", days: "1" },
-{ label: "1W", days: "7" },
-{ label: "1M", days: "30" },
 { label: "1Y", days: "365" },
 { label: "ALL", days: "all" },
 ] as const;
@@ -259,14 +256,14 @@ style={{ display: "block" }}
 export default function UsdPhpPage() {
 const [rate, setRate] = useState(FALLBACK_RATE);
 const [live, setLive] = useState(false);
-const [allData, setAllData] = useState<[number, number][]>([]);
+const [historyData, setHistoryData] = useState<[number, number][]>([]);
 const [usd, setUsd] = useState("1");
 const [php, setPhp] = useState("");
 const [direction, setDirection] = useState<"usd" | "php">("usd");
-const [period, setPeriod] = useState("30");
+const [period, setPeriod] = useState("all");
 const [lastUpdated, setLastUpdated] = useState<string>("");
 
-// Fetch live rate
+// Fetch live rate from CoinGecko
 useEffect(() => {
 async function fetchRate() {
 try {
@@ -285,34 +282,32 @@ const interval = setInterval(fetchRate, 60000);
 return () => clearInterval(interval);
 }, []);
 
-// Load chart history from API route (Vercel caches for 3 hours)
+// Historical data from Frankfurter via API route (1999–today, Vercel caches 3hr)
 useEffect(() => {
 async function loadHistory() {
 try {
 const res = await fetch("/api/usdphp-history");
 if (!res.ok) throw new Error(res.statusText);
 const data = await res.json();
-if (data?.prices?.length) {
-setAllData(data.prices as [number, number][]);
-}
-} catch { /* no chart data */ }
+if (data?.prices?.length) setHistoryData(data.prices as [number, number][]);
+} catch { /* no history data */ }
 }
 loadHistory();
 }, []);
 
-// Slice + sample from cached data based on selected period
+// Slice + sample based on period
 const chartData = useMemo(() => {
-if (allData.length === 0) return [];
+if (historyData.length === 0) return [];
+
 let pts: [number, number][];
 if (period === "all") {
-pts = allData;
+pts = historyData;
 } else {
 const now = Date.now();
 const cutoff = now - Number(period) * 86400000;
-const sliced = allData.filter(d => d[0] >= cutoff);
-pts = sliced.length >= 2 ? sliced : allData.slice(-2);
+const sliced = historyData.filter(d => d[0] >= cutoff);
+pts = sliced.length >= 2 ? sliced : historyData.slice(-10);
 }
-// Downsample to ~150 points
 const maxPoints = 150;
 const step = Math.max(1, Math.floor(pts.length / maxPoints));
 const sampled = pts.filter((_, i) => i % step === 0);
@@ -320,7 +315,7 @@ if (sampled.length > 0 && sampled[sampled.length - 1][0] !== pts[pts.length - 1]
 sampled.push(pts[pts.length - 1]);
 }
 return sampled;
-}, [allData, period]);
+}, [historyData, period]);
 
 // Conversion
 useEffect(() => {
