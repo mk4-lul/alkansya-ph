@@ -1,17 +1,17 @@
-“use client”;
+"use client";
 
-import { useState, useEffect, useRef } from “react”;
-import Link from “next/link”;
-import NavMenu from “@/components/NavMenu”;
+import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import NavMenu from "@/components/NavMenu";
 
 const FALLBACK_RATE = 57;
 
 const PERIODS = [
-{ label: “1D”, days: “1” },
-{ label: “1W”, days: “7” },
-{ label: “1M”, days: “30” },
-{ label: “1Y”, days: “365” },
-{ label: “ALL”, days: “max” },
+{ label: "1D", days: "1" },
+{ label: "1W", days: "7" },
+{ label: "1M", days: "30" },
+{ label: "1Y", days: "365" },
+{ label: "ALL", days: "max" },
 ] as const;
 
 // ─── Chart component ─────────────────────────────────────────────
@@ -21,7 +21,7 @@ const canvasRef = useRef<HTMLCanvasElement>(null);
 useEffect(() => {
 const canvas = canvasRef.current;
 if (!canvas || data.length === 0) return;
-const ctx = canvas.getContext(“2d”)!;
+const ctx = canvas.getContext("2d")!;
 const dpr = window.devicePixelRatio || 1;
 const rect = canvas.getBoundingClientRect();
 canvas.width = rect.width * dpr;
@@ -112,8 +112,8 @@ ctx.fill();
 return (
 <canvas
 ref={canvasRef}
-className=“w-full h-[200px] sm:h-[240px]”
-style={{ display: “block” }}
+className="w-full h-[200px] sm:h-[240px]"
+style={{ display: "block" }}
 />
 );
 }
@@ -123,23 +123,23 @@ export default function UsdPhpPage() {
 const [rate, setRate] = useState(FALLBACK_RATE);
 const [live, setLive] = useState(false);
 const [chartData, setChartData] = useState<[number, number][]>([]);
-const [usd, setUsd] = useState(“1”);
-const [php, setPhp] = useState(””);
-const [direction, setDirection] = useState<“usd” | “php”>(“usd”);
-const [period, setPeriod] = useState(“30”);
-const [lastUpdated, setLastUpdated] = useState<string>(””);
+const [usd, setUsd] = useState("1");
+const [php, setPhp] = useState("");
+const [direction, setDirection] = useState<"usd" | "php">("usd");
+const [period, setPeriod] = useState("30");
+const [lastUpdated, setLastUpdated] = useState<string>("");
 
 // Fetch live rate
 useEffect(() => {
 async function fetchRate() {
 try {
-const res = await fetch(“https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=php”);
+const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=php");
 const data = await res.json();
 const r = data?.tether?.php;
 if (r) {
 setRate(r);
 setLive(true);
-setLastUpdated(new Date().toLocaleTimeString(“en-PH”, { hour: “2-digit”, minute: “2-digit” }));
+setLastUpdated(new Date().toLocaleTimeString("en-PH", { hour: "2-digit", minute: "2-digit" }));
 }
 } catch { /* fallback */ }
 }
@@ -172,16 +172,16 @@ fetchChart();
 
 // Conversion
 useEffect(() => {
-if (direction === “usd”) {
+if (direction === "usd") {
 const v = parseFloat(usd);
-setPhp(isNaN(v) ? “” : (v * rate).toFixed(2));
+setPhp(isNaN(v) ? "" : (v * rate).toFixed(2));
 }
 }, [usd, rate, direction]);
 
 useEffect(() => {
-if (direction === “php”) {
+if (direction === "php") {
 const v = parseFloat(php);
-setUsd(isNaN(v) ? “” : (v / rate).toFixed(2));
+setUsd(isNaN(v) ? "" : (v / rate).toFixed(2));
 }
 }, [php, rate, direction]);
 
