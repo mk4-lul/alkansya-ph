@@ -6,36 +6,13 @@ import NavMenu from "@/components/NavMenu";
 
 // ─── 2023 FIES Income Distribution Data ──────────────────────────
 //
-// HOW THIS WAS CALCULATED:
-//
-// Source: Philippine Statistics Authority (PSA), 2023 Family Income
-// and Expenditure Survey (FIES) — the official nationwide survey of
-// ~163,000 households conducted in July 2023 and January 2024.
-//
-// The PSA published the 2018 FIES with exact average annual family
-// income per decile (₱107k for the 1st decile through ₱867k for
-// the 10th decile). For 2023, PSA published:
-//   - National average: ₱353,230/year
-//   - Median family income: ₱241,080/year
-//   - Bottom deciles grew ~25-26%, top grew ~10-12%
-//   - Total families surveyed: ~27.4 million
-//
-// We scaled the 2018 decile averages using these published growth
-// rates and validated against the 2023 average and median.
-//
-// Each decile average represents the midpoint of that 10% band:
-//   1st decile avg → ~5th percentile
-//   2nd decile avg → ~15th percentile
-//   ...
-//   10th decile avg → ~95th percentile
-//
-// We interpolate linearly between these points to estimate your
-// percentile. This is an approximation — your actual rank may vary
-// by a few percentage points.
+// Source: PSA 2023 FIES (~163,000 households)
+// 2018 exact decile averages scaled by published 2023 growth rates.
+// Validated against 2023 national average (₱353k) and median (₱241k).
 
 // [percentile, annual family income in PHP]
 const INCOME_CURVE: [number, number][] = [
-  [0, 50000],      // estimated floor
+  [0, 50000],
   [5, 135000],     // 1st decile avg
   [15, 155000],    // 2nd decile avg
   [25, 190000],    // 3rd decile avg
@@ -66,56 +43,6 @@ function getPercentile(annualIncome: number): number {
   return 100;
 }
 
-// ─── Verdicts ────────────────────────────────────────────────────
-
-interface Verdict {
-  emoji: string;
-  title: string;
-  subtitle: string;
-  message: string;
-  color: string;    // bg color
-  textColor: string;
-  subColor: string;
-}
-
-function getVerdict(percentile: number, monthlyIncome: number): Verdict {
-  if (percentile >= 95) return {
-    emoji: "👑", title: "Nako, boss ka talaga.", subtitle: "Top 5% ka sa Pilipinas.",
-    message: `₱${fmt(monthlyIncome)}/buwan? Mas malaki kita mo kaysa sa 95% ng mga pamilyang Pilipino. Sana all.`,
-    color: "#FFD600", textColor: "#1a1a1a", subColor: "rgba(26,26,26,0.5)",
-  };
-  if (percentile >= 85) return {
-    emoji: "🤑", title: "Mayaman ka na, pre.", subtitle: "Top 15% ka.",
-    message: `Mas malaki kita mo kaysa sa ${Math.round(percentile)}% ng mga pamilya. Hindi ka pa naka-yacht pero pwede na.`,
-    color: "#00c853", textColor: "#fff", subColor: "rgba(255,255,255,0.6)",
-  };
-  if (percentile >= 70) return {
-    emoji: "😎", title: "Okay ka na.", subtitle: "Above average ka.",
-    message: `Mas malaki kita mo kaysa sa ${Math.round(percentile)}% ng mga pamilya. Comfortable — basta wag mag-lifestyle creep.`,
-    color: "#00c853", textColor: "#fff", subColor: "rgba(255,255,255,0.6)",
-  };
-  if (percentile >= 50) return {
-    emoji: "🙂", title: "Sakto lang.", subtitle: "Around average ka.",
-    message: `Nasa gitna ka — ${Math.round(percentile)}% ng mga pamilya ang mas mababa ang kita. Hindi mayaman, hindi mahirap. Pwede pa mag-level up.`,
-    color: "#FF9800", textColor: "#fff", subColor: "rgba(255,255,255,0.6)",
-  };
-  if (percentile >= 30) return {
-    emoji: "😬", title: "Below average, pre.", subtitle: "Kailangan mo ng plano.",
-    message: `${Math.round(100 - percentile)}% ng mga pamilya ang mas malaki ang kita kaysa sa'yo. Aral ng budgeting at mag-ipon.`,
-    color: "#FF9800", textColor: "#fff", subColor: "rgba(255,255,255,0.6)",
-  };
-  if (percentile >= 15) return {
-    emoji: "😓", title: "Mahirap talaga.", subtitle: "Laban lang.",
-    message: `Nasa lower ${Math.round(percentile)}% ka ng mga pamilyang Pilipino. Napakahirap, pero may paraan palagi.`,
-    color: "#D32F2F", textColor: "#fff", subColor: "rgba(255,255,255,0.6)",
-  };
-  return {
-    emoji: "🥺", title: "Grabe ang hirap.", subtitle: "Hindi ka nag-iisa.",
-    message: `Nasa bottom ${Math.round(percentile)}% ka. Mahirap ang sitwasyon, pero may mga programa ng gobyerno na pwedeng makatulong.`,
-    color: "#D32F2F", textColor: "#fff", subColor: "rgba(255,255,255,0.6)",
-  };
-}
-
 function fmt(n: number): string {
   return Math.round(n).toLocaleString("en-PH");
 }
@@ -128,14 +55,12 @@ function formatPeso(v: number): string {
 
 // ─── Component ───────────────────────────────────────────────────
 
-export default function RichPage() {
+export default function GKKPage() {
   const [income, setIncome] = useState(0);
   const [revealed, setRevealed] = useState(false);
-  const [showMethod, setShowMethod] = useState(false);
 
   const annualIncome = income * 12;
   const percentile = useMemo(() => getPercentile(annualIncome), [annualIncome]);
-  const verdict = useMemo(() => getVerdict(percentile, income), [percentile, income]);
 
   const isReady = income > 0;
 
@@ -157,8 +82,8 @@ export default function RichPage() {
 
           {/* Input */}
           <div className="bg-white rounded-[20px] p-5 sm:p-6 mb-3">
-            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-1">Monthly household income</p>
-            <p className="text-[10px] text-[#aaa] mb-4">Lahat ng kinikita ng pamilya mo per month — sahod, negosyo, remittance, etc.</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-1">Monthly income</p>
+            <p className="text-[10px] text-[#aaa] mb-4">Magkano kinikita mo per month — sahod, negosyo, freelance, etc.</p>
 
             <p className="text-center text-3xl sm:text-4xl font-black text-[#1a1a1a] mb-4">
               {income === 0 ? <span className="text-[#ccc]">₱—</span> : `₱${fmt(income)}`}
@@ -215,81 +140,107 @@ export default function RichPage() {
         ) : (
         <>
           {/* Result card */}
-          <div className="rounded-[20px] p-6 sm:p-8 mb-3" style={{ background: verdict.color, color: verdict.textColor }}>
+          <div className="bg-[#1a1a1a] rounded-[20px] p-6 sm:p-8 mb-3">
             <div className="text-center">
-              <p className="text-[72px] leading-none mb-2">{verdict.emoji}</p>
-              <p className="text-3xl sm:text-4xl font-black tracking-tight leading-none mb-1">{verdict.title}</p>
-              <p className="text-sm font-semibold mb-4" style={{ color: verdict.subColor }}>{verdict.subtitle}</p>
-
-              {/* Big percentile */}
-              <p className="text-[10px] font-semibold uppercase tracking-[1px] mb-1" style={{ color: verdict.subColor }}>
-                Mas malaki kita mo kaysa sa
+              <p className="text-[10px] font-semibold uppercase tracking-[1px] text-white/40 mb-1">
+                Mas malaki ang income mo kaysa sa
               </p>
-              <p className="text-6xl sm:text-7xl font-black tracking-tight mb-1">
+              <p className="text-7xl sm:text-8xl font-black tracking-tight text-white mb-1">
                 {Math.round(percentile)}%
               </p>
-              <p className="text-sm font-semibold mb-5" style={{ color: verdict.subColor }}>
+              <p className="text-sm font-semibold text-white/40 mb-5">
                 ng mga pamilyang Pilipino
               </p>
 
               {/* Visual bar */}
-              <div className="max-w-[400px] mx-auto mb-5">
-                <div className="h-3 rounded-full overflow-hidden" style={{ background: verdict.textColor === "#fff" ? "rgba(255,255,255,0.2)" : "rgba(26,26,26,0.1)" }}>
-                  <div className="h-full rounded-full transition-all duration-1000" style={{
+              <div className="max-w-[400px] mx-auto mb-6">
+                <div className="h-3 rounded-full overflow-hidden bg-white/10">
+                  <div className="h-full rounded-full bg-[#00c853] transition-all duration-1000" style={{
                     width: `${Math.max(2, percentile)}%`,
-                    background: verdict.textColor === "#fff" ? "#fff" : "#1a1a1a",
                   }} />
                 </div>
-                <div className="flex justify-between mt-1 text-[9px] font-semibold" style={{ color: verdict.subColor }}>
-                  <span>Pinakamahirap</span>
-                  <span>Pinakamayaman</span>
+                <div className="flex justify-between mt-1.5 text-[9px] font-semibold text-white/30">
+                  <span>0%</span>
+                  <span>50%</span>
+                  <span>100%</span>
                 </div>
               </div>
 
-              {/* Message */}
-              <p className="text-xs leading-relaxed max-w-sm mx-auto mb-5" style={{ color: verdict.subColor }}>
-                {verdict.message}
-              </p>
-
-              {/* Stats */}
-              <div className="flex justify-center gap-4 sm:gap-6 mb-4">
+              {/* Stats row */}
+              <div className="flex justify-center gap-4 sm:gap-6">
                 <div>
-                  <p className="text-xl sm:text-2xl font-black">₱{fmt(income)}</p>
-                  <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color: verdict.subColor }}>per month</p>
+                  <p className="text-xl sm:text-2xl font-black text-white">₱{fmt(income)}</p>
+                  <p className="text-[9px] font-bold uppercase tracking-wider text-white/40">per month</p>
                 </div>
-                <div style={{ width: 1, background: verdict.textColor === "#fff" ? "rgba(255,255,255,0.2)" : "rgba(26,26,26,0.1)", alignSelf: "stretch" }} />
+                <div className="w-px bg-white/10 self-stretch" />
                 <div>
-                  <p className="text-xl sm:text-2xl font-black">{formatPeso(annualIncome)}</p>
-                  <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color: verdict.subColor }}>per year</p>
+                  <p className="text-xl sm:text-2xl font-black text-white">{formatPeso(annualIncome)}</p>
+                  <p className="text-[9px] font-bold uppercase tracking-wider text-white/40">per year</p>
                 </div>
-                <div style={{ width: 1, background: verdict.textColor === "#fff" ? "rgba(255,255,255,0.2)" : "rgba(26,26,26,0.1)", alignSelf: "stretch" }} />
+                <div className="w-px bg-white/10 self-stretch" />
                 <div>
-                  <p className="text-xl sm:text-2xl font-black">Top {Math.max(1, Math.round(100 - percentile))}%</p>
-                  <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color: verdict.subColor }}>rank</p>
+                  <p className="text-xl sm:text-2xl font-black text-white">Top {Math.max(1, Math.round(100 - percentile))}%</p>
+                  <p className="text-[9px] font-bold uppercase tracking-wider text-white/40">rank</p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Context card */}
+          {/* Reference points */}
           <div className="bg-white rounded-[20px] p-5 sm:p-6 mb-3">
-            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Paano ka kumompara</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Reference points</p>
             <div className="space-y-2">
               {[
-                { label: "Poverty threshold", monthly: 13873, note: "Minimum para hindi considered na mahirap" },
-                { label: "Median na pamilya", monthly: 20090, note: "Kalahati ng mga pamilya ang mas mababa dito" },
-                { label: "Average na pamilya", monthly: 29436, note: "National average — pero misleading dahil sa mga sobrang yaman" },
-                { label: "Top 10% na pamilya", monthly: 82917, note: "Kung nandito ka, isa ka sa pinakamayaman" },
+                { label: "Poverty threshold (2023)", monthly: 13873, percentile: "~11%" },
+                { label: "Median family income", monthly: 20090, percentile: "50%" },
+                { label: "National average", monthly: 29436, percentile: "~62%" },
+                { label: "Top 10%", monthly: 82917, percentile: "90%" },
               ].map((ref) => {
                 const isAbove = income >= ref.monthly;
                 return (
-                  <div key={ref.label} className="flex items-center gap-3 py-2 border-b border-black/5 last:border-0">
-                    <span className="text-lg">{isAbove ? "✅" : "❌"}</span>
-                    <div className="flex-1">
-                      <p className="text-sm font-bold text-[#1a1a1a]">{ref.label}</p>
-                      <p className="text-[10px] text-[#888]">{ref.note}</p>
+                  <div key={ref.label} className="flex items-center justify-between py-2.5 border-b border-black/5 last:border-0">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-2 h-2 rounded-full ${isAbove ? "bg-[#00c853]" : "bg-[#e0e0e0]"}`} />
+                      <div>
+                        <p className="text-sm font-bold text-[#1a1a1a]">{ref.label}</p>
+                        <p className="text-[10px] text-[#aaa]">{ref.percentile} percentile</p>
+                      </div>
                     </div>
                     <p className={`text-sm font-extrabold ${isAbove ? "text-[#00c853]" : "text-[#888]"}`}>₱{fmt(ref.monthly)}/mo</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Income distribution */}
+          <div className="bg-white rounded-[20px] p-5 sm:p-6 mb-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Income distribution (2023 FIES)</p>
+            <div className="space-y-1.5">
+              {[
+                { label: "Bottom 10%", range: "< ₱11,250/mo", pct: 10 },
+                { label: "10th–20th", range: "₱11,250 – ₱12,917/mo", pct: 20 },
+                { label: "20th–30th", range: "₱12,917 – ₱15,833/mo", pct: 30 },
+                { label: "30th–40th", range: "₱15,833 – ₱18,333/mo", pct: 40 },
+                { label: "40th–50th", range: "₱18,333 – ₱20,083/mo", pct: 50 },
+                { label: "50th–60th", range: "₱20,083 – ₱21,250/mo", pct: 60 },
+                { label: "60th–70th", range: "₱21,250 – ₱28,333/mo", pct: 70 },
+                { label: "70th–80th", range: "₱28,333 – ₱35,833/mo", pct: 80 },
+                { label: "80th–90th", range: "₱35,833 – ₱48,750/mo", pct: 90 },
+                { label: "Top 10%", range: "> ₱48,750/mo", pct: 100 },
+              ].map((band) => {
+                const isYou = percentile >= band.pct - 10 && percentile < band.pct;
+                const isTop = band.pct === 100 && percentile >= 90;
+                const active = isYou || isTop;
+                return (
+                  <div key={band.label} className={`flex items-center justify-between py-2 px-3 rounded-xl transition-colors ${
+                    active ? "bg-[#00c853]/10" : ""
+                  }`}>
+                    <div className="flex items-center gap-2">
+                      {active && <span className="w-1.5 h-1.5 rounded-full bg-[#00c853]" />}
+                      <span className={`text-[12px] font-bold ${active ? "text-[#1a1a1a]" : "text-[#888]"}`}>{band.label}</span>
+                    </div>
+                    <span className={`text-[11px] ${active ? "font-bold text-[#1a1a1a]" : "text-[#aaa]"}`}>{band.range}</span>
                   </div>
                 );
               })}
@@ -306,35 +257,11 @@ export default function RichPage() {
         </>
         )}
 
-        {/* Methodology — always visible */}
-        <div className="bg-white rounded-[20px] p-5 sm:p-6 mb-3">
-          <button
-            onClick={() => setShowMethod(!showMethod)}
-            className="w-full flex items-center justify-between"
-          >
-            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888]">Paano ito kina-calculate?</p>
-            <span className="text-[#888] text-sm">{showMethod ? "−" : "+"}</span>
-          </button>
-
-          {showMethod && (
-            <div className="mt-4 space-y-3 text-[13px] text-[#666] leading-relaxed animate-fade-in">
-              <p>
-                <span className="font-bold text-[#1a1a1a]">Data source.</span> 2023 Family Income and Expenditure Survey (FIES) by the Philippine Statistics Authority (PSA) — the official nationwide survey of ~163,000 households.
-              </p>
-              <p>
-                <span className="font-bold text-[#1a1a1a]">What we used.</span> PSA published exact per-decile average annual family income from the 2018 FIES (₱107k for the poorest 10% to ₱867k for the richest 10%). For 2023, PSA confirmed: national average ₱353,230/year, median ₱241,080/year, and that bottom deciles grew ~25-26% while top deciles grew ~10-12%.
-              </p>
-              <p>
-                <span className="font-bold text-[#1a1a1a]">How we estimated.</span> We scaled each 2018 decile using the published growth rates, then validated that our estimates produce the correct 2023 average (₱353k) and median (₱241k). Your percentile is calculated by linear interpolation between these decile midpoints.
-              </p>
-              <p>
-                <span className="font-bold text-[#1a1a1a]">What this measures.</span> This compares your total <span className="font-bold">household</span> income (everyone in your family combined) against all ~27.4 million Filipino families. If you live alone, your personal income is your household income.
-              </p>
-              <p>
-                <span className="font-bold text-[#1a1a1a]">Limitations.</span> This is an approximation — actual percentile may vary by a few points. The data is from 2023 and doesn&apos;t reflect 2024-2026 changes. Income distribution within each decile is not uniform, so interpolation introduces small errors. The top 1% and beyond are estimated since FIES undersamples the ultra-rich.
-              </p>
-            </div>
-          )}
+        {/* Methodology */}
+        <div className="mb-3 px-1">
+          <p className="text-[10px] text-[#aaa] leading-relaxed">
+            <span className="font-semibold text-[#888]">Paano ito kina-calculate?</span> Based on 2023 FIES (PSA) — ~163,000 households surveyed. We scaled the published 2018 per-decile averages (₱107k–₱867k) using PSA&apos;s confirmed 2023 growth rates, validated against the 2023 national average (₱353k) and median (₱241k). Your percentile is interpolated between decile midpoints. FIES measures household income — if you entered individual income, this assumes a single-earner household. Approximation only; actual rank may vary by a few points.
+          </p>
         </div>
 
         {/* CTA */}
@@ -350,7 +277,7 @@ export default function RichPage() {
         <footer className="mt-8 pt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
           <span className="text-sm font-bold text-[#888]">alkansya<span className="text-[#00c853]">.ph</span></span>
           <p className="text-[10px] text-[#aaa] max-w-md sm:text-right leading-relaxed">
-            Based on 2023 FIES data (PSA). Estimates derived from published decile averages scaled to 2023 growth rates. Hindi &apos;to financial advice — pang-curious lang.
+            Based on 2023 FIES data (PSA). Estimates derived from published decile averages scaled to 2023 growth rates.
           </p>
         </footer>
       </main>
