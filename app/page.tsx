@@ -103,27 +103,44 @@ export default function HomePage() {
           ))}
         </div>
 
-        {/* Meme tools — 2 columns + full width */}
+        {/* Meme tools — 2 columns */}
         <div className="grid grid-cols-2 gap-2 mt-2">
-          <Link href="/afford"
-            className="flex items-center gap-3 rounded-[20px] px-4 py-4 no-underline group hover:scale-[1.01] transition-transform overflow-hidden"
-            style={{ background: "linear-gradient(135deg, #FF9800 0%, #FFB74D 50%, #fff 100%)" }}>
-            <span className="text-2xl shrink-0">🛍️</span>
-            <p className="text-[13px] font-bold text-[#1a1a1a] leading-tight">Afford ko ba &apos;to?</p>
-          </Link>
-          <Link href="/what-if"
-            className="flex items-center gap-3 rounded-[20px] px-4 py-4 no-underline group hover:scale-[1.01] transition-transform overflow-hidden"
-            style={{ background: "linear-gradient(135deg, #FFD600 0%, #FFF176 50%, #fff 100%)" }}>
-            <span className="text-2xl shrink-0">🥇</span>
-            <p className="text-[13px] font-bold text-[#1a1a1a] leading-tight">What if nag-invest ka nalang?</p>
-          </Link>
+          {[
+            {
+              href: "/afford", emoji: "🛍️", title: "Afford ko ba 'to?",
+              description: "Alamin kung kaya mo ba bago bilhin",
+              tag: "sahod check",
+              gradient: "linear-gradient(135deg, #FF9800 0%, #FFE0B2 100%)",
+            },
+            {
+              href: "/what-if", emoji: "🥇", title: "What if nag-invest ka nalang?",
+              description: "Sana nag-invest ka nalang...",
+              tag: "guilt trip",
+              gradient: "linear-gradient(135deg, #FFD600 0%, #FFF9C4 100%)",
+            },
+            {
+              href: "/gkk", emoji: "💰", title: "Gaano ako kayaman?",
+              description: "Nasaan ka sa income ranking ng mga Pilipino?",
+              tag: "2023 FIES",
+              gradient: "linear-gradient(135deg, #00c853 0%, #B9F6CA 100%)",
+            },
+          ].map((tool) => (
+            <Link
+              key={tool.href}
+              href={tool.href}
+              className="flex items-start gap-3 rounded-[20px] px-4 py-4 no-underline group hover:scale-[1.01] transition-transform overflow-hidden"
+              style={{ background: tool.gradient }}>
+              <span className="text-2xl shrink-0 mt-0.5">{tool.emoji}</span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
+                  <p className="text-[13px] font-bold text-[#1a1a1a] leading-tight">{tool.title}</p>
+                  <span className="text-[9px] font-semibold text-[#1a1a1a]/50 bg-[#1a1a1a]/10 px-1.5 py-0.5 rounded-full">{tool.tag}</span>
+                </div>
+                <p className="text-[11px] text-[#1a1a1a]/50 leading-snug">{tool.description}</p>
+              </div>
+            </Link>
+          ))}
         </div>
-        <Link href="/gkk"
-          className="flex items-center gap-3 rounded-[20px] px-4 py-4 mt-2 no-underline group hover:scale-[1.01] transition-transform overflow-hidden"
-          style={{ background: "linear-gradient(135deg, #00c853 0%, #69F0AE 50%, #fff 100%)" }}>
-          <span className="text-2xl shrink-0">💰</span>
-          <p className="text-[13px] font-bold text-[#1a1a1a] leading-tight">Gaano ako kayaman?</p>
-        </Link>
 
         {/* Footer */}
         <footer className="mt-8 pt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
