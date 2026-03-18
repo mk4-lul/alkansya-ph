@@ -170,7 +170,7 @@ export default function GKKPage() {
           </div>
 
           {/* Button */}
-          <div className="text-center mt-6 mb-4">
+          <div className="text-center mt-10 mb-10">
             <button
               onClick={() => isReady && setRevealed(true)}
               disabled={!isReady}
@@ -300,7 +300,7 @@ export default function GKKPage() {
           </div>
 
           {/* Try again */}
-          <div className="text-center mt-4 mb-4">
+          <div className="text-center mt-10 mb-10">
             <button
               onClick={() => { setRevealed(false); setIncome(0); }}
               className="px-6 py-2.5 rounded-full text-sm font-bold text-[#888] bg-white hover:bg-[#f0f0f0] transition-colors"
