@@ -369,10 +369,10 @@ export default function WhatIfPage() {
         </div>
 
         {/* Buttons row */}
-        <div className="flex gap-2 sm:max-w-[400px] sm:mx-auto shrink-0">
+        <div className="flex gap-2 max-w-[340px] mx-auto shrink-0">
           <button
             onClick={shuffle}
-            className={`flex-1 py-3.5 rounded-2xl text-sm sm:text-lg font-black transition-all active:scale-[0.97] ${
+            className={`flex-1 py-3.5 rounded-2xl text-sm font-black transition-all active:scale-[0.97] ${
               asset === "gold" ? "text-[#1a1a1a]" : "text-white"
             }`}
             style={{ background: assetColor }}
@@ -530,7 +530,7 @@ export default function WhatIfPage() {
                 }
               }, "image/png");
             }}
-            className={`w-14 shrink-0 py-3.5 rounded-2xl text-lg transition-all active:scale-[0.97] ${
+            className={`w-12 shrink-0 py-3.5 rounded-2xl text-base transition-all active:scale-[0.97] ${
               asset === "gold" ? "text-[#1a1a1a]" : "text-white"
             }`}
             style={{ background: assetColor }}
@@ -540,14 +540,16 @@ export default function WhatIfPage() {
           </button>
         </div>
 
-        {asset === "bitcoin" && (
-          <p className="text-center mt-2.5">
-            <a href="https://www.binance.com/register?ref=ALKANSYA" target="_blank" rel="noopener noreferrer"
-              className="text-[11px] font-normal text-[#888] no-underline border-b border-[#FF9800]/50 pb-px hover:text-[#FF9800] hover:border-[#FF9800] transition-colors">
-              Buy bitcoin
-            </a>
-          </p>
-        )}
+        <p className="text-center mt-2.5">
+          <a href="https://www.binance.com/register?ref=ALKANSYA" target="_blank" rel="noopener noreferrer"
+            className={`text-[11px] font-normal text-[#888] no-underline border-b pb-px transition-colors ${
+              asset === "gold"
+                ? "border-[#FFD600]/50 hover:text-[#c8a600] hover:border-[#c8a600]"
+                : "border-[#FF9800]/50 hover:text-[#FF9800] hover:border-[#FF9800]"
+            }`}>
+            Buy {assetLabel} on Binance
+          </a>
+        </p>
       </main>
 
       {/* Footer */}
