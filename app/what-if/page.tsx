@@ -266,6 +266,7 @@ export default function WhatIfPage() {
   const [imgError, setImgError] = useState(false);
   const [show, setShow] = useState(true);
   const [btnText, setBtnText] = useState(() => randomButtonText());
+  const [shareCopied, setShareCopied] = useState(false);
   const prices = useLivePrices();
 
   const item = ITEMS[index];
@@ -368,16 +369,37 @@ export default function WhatIfPage() {
           </p>
         </div>
 
-        {/* Shuffle button */}
-        <button
-          onClick={shuffle}
-          className={`w-full sm:max-w-[400px] sm:mx-auto sm:block py-3.5 rounded-2xl text-sm sm:text-lg font-black transition-all active:scale-[0.97] shrink-0 ${
-            asset === "gold" ? "text-[#1a1a1a]" : "text-white"
-          }`}
-          style={{ background: assetColor }}
-        >
-          {btnText}
-        </button>
+        {/* Buttons row */}
+        <div className="flex gap-2 sm:max-w-[400px] sm:mx-auto shrink-0">
+          <button
+            onClick={shuffle}
+            className={`flex-1 py-3.5 rounded-2xl text-sm sm:text-lg font-black transition-all active:scale-[0.97] ${
+              asset === "gold" ? "text-[#1a1a1a]" : "text-white"
+            }`}
+            style={{ background: assetColor }}
+          >
+            {btnText}
+          </button>
+          <button
+            onClick={async () => {
+              const text = `Kung bumili ko nalang ng ${assetLabel} instead of a ${item.name} (₱${item.price.toLocaleString("en-PH")}, ${item.year}), meron sana akong ${formatPeso(value)} — ${multiplier.toFixed(1)}× return\n\nalkansya.ph/what-if`;
+              if (navigator.share) {
+                try { await navigator.share({ text }); } catch {}
+              } else {
+                await navigator.clipboard.writeText(text);
+                setShareCopied(true);
+                setTimeout(() => setShareCopied(false), 2000);
+              }
+            }}
+            className={`w-14 shrink-0 py-3.5 rounded-2xl text-lg transition-all active:scale-[0.97] ${
+              asset === "gold" ? "text-[#1a1a1a]" : "text-white"
+            }`}
+            style={{ background: assetColor }}
+            title="Share"
+          >
+            {shareCopied ? "✓" : "↗"}
+          </button>
+        </div>
 
         {asset === "bitcoin" && (
           <p className="text-center mt-2.5">
