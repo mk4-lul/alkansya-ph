@@ -381,16 +381,16 @@ export default function WhatIfPage() {
           </button>
           <button
             onClick={async () => {
-              const w = 600, h = 900;
+              const w = 600, h = 800;
               const canvas = document.createElement("canvas");
               canvas.width = w; canvas.height = h;
               const ctx = canvas.getContext("2d")!;
+              const pad = 50;
+              const maxW = w - pad * 2;
 
               // Background
               ctx.fillStyle = "#f5f5f5";
               ctx.beginPath(); ctx.roundRect(0, 0, w, h, 32); ctx.fill();
-
-              ctx.textAlign = "center";
 
               // Load item image
               const img = new Image();
@@ -398,73 +398,120 @@ export default function WhatIfPage() {
               img.src = `/items/${item.id}.png`;
               await new Promise<void>((res) => { img.onload = () => res(); img.onerror = () => res(); setTimeout(() => res(), 2000); });
 
-              // Top text — "kung bumili ka nalang ng"
-              const topY = 80;
-              ctx.font = "900 28px Inter, system-ui, sans-serif";
-              ctx.fillStyle = "#1a1a1a";
-              ctx.fillText("kung bumili ka nalang ng", w / 2, topY);
+              // ─── Helper: draw flowing text with underlined segments ───
+              const fontSize = 32;
+              const lineH = fontSize * 1.2;
+              ctx.font = `900 ${fontSize}px Inter, system-ui, sans-serif`;
+              ctx.textBaseline = "top";
 
-              // Asset name with underline
-              const assetY = topY + 42;
-              ctx.font = "900 32px Inter, system-ui, sans-serif";
-              ctx.fillStyle = "#1a1a1a";
-              const assetW = ctx.measureText(assetLabel).width;
-              ctx.fillText(assetLabel, w / 2, assetY);
-              ctx.fillStyle = assetColor;
-              ctx.fillRect(w / 2 - assetW / 2, assetY + 4, assetW, 4);
+              type Segment = { text: string; underline?: string };
+              const segments: Segment[] = [
+                { text: "kung bumili ka nalang ng " },
+                { text: assetLabel, underline: assetColor },
+                { text: " instead of a " },
+                { text: item.name, underline: "#2196F3" },
+              ];
 
-              // "instead of a"
-              const insteadY = assetY + 42;
-              ctx.font = "900 28px Inter, system-ui, sans-serif";
-              ctx.fillStyle = "#1a1a1a";
-              ctx.fillText("instead of a", w / 2, insteadY);
-
-              // Item name with underline
-              const itemY = insteadY + 42;
-              ctx.font = "900 32px Inter, system-ui, sans-serif";
-              ctx.fillStyle = "#1a1a1a";
-              const itemW = ctx.measureText(item.name).width;
-              ctx.fillText(item.name, w / 2, itemY);
-              ctx.fillStyle = "#2196F3";
-              ctx.fillRect(w / 2 - itemW / 2, itemY + 4, itemW, 4);
-
-              // Item image
-              if (img.complete && img.naturalWidth > 0) {
-                const imgSize = 200;
-                const imgX = (w - imgSize) / 2;
-                const imgYPos = itemY + 30;
-                ctx.drawImage(img, imgX, imgYPos, imgSize, imgSize);
+              // Break into words with their styling
+              type Word = { word: string; underline?: string };
+              const words: Word[] = [];
+              for (const seg of segments) {
+                const parts = seg.text.split(/(\s+)/);
+                for (const p of parts) {
+                  if (p.length > 0) words.push({ word: p, underline: p.trim() ? seg.underline : undefined });
+                }
               }
 
-              // "meron ka sanang"
-              const meronY = itemY + 260;
-              ctx.font = "900 28px Inter, system-ui, sans-serif";
-              ctx.fillStyle = "#1a1a1a";
-              ctx.fillText("meron ka sanang", w / 2, meronY);
+              // Measure and wrap
+              type Line = { words: Word[]; y: number };
+              const lines: Line[] = [];
+              let curLine: Word[] = [];
+              let curW = 0;
 
-              // Value with underline
-              const valY = meronY + 48;
-              ctx.font = "900 40px Inter, system-ui, sans-serif";
-              ctx.fillStyle = "#1a1a1a";
+              for (const w2 of words) {
+                const ww = ctx.measureText(w2.word).width;
+                if (curW + ww > maxW && curLine.length > 0) {
+                  lines.push({ words: curLine, y: 0 });
+                  curLine = []; curW = 0;
+                }
+                curLine.push(w2); curW += ww;
+              }
+              if (curLine.length > 0) lines.push({ words: curLine, y: 0 });
+
+              const topTextH = lines.length * lineH;
+              const imgSize = 200;
+              const imgGap = 20;
+              const bottomFontSize = 32;
+              const bottomLineH = bottomFontSize * 1.2;
+              const detailH = 20;
+              const brandH = 60;
+
+              // Total content
+              const totalH = topTextH + imgGap + imgSize + imgGap + bottomLineH + 8 + detailH;
+              const startY = (h - brandH - totalH) / 2;
+
+              // ─── Draw top text (left-aligned) ───
+              ctx.font = `900 ${fontSize}px Inter, system-ui, sans-serif`;
+              ctx.textAlign = "left";
+              ctx.textBaseline = "top";
+
+              for (let i = 0; i < lines.length; i++) {
+                const ly = startY + i * lineH;
+                let x = pad;
+                for (const w2 of lines[i].words) {
+                  const ww = ctx.measureText(w2.word).width;
+                  ctx.fillStyle = "#1a1a1a";
+                  ctx.fillText(w2.word, x, ly);
+                  if (w2.underline && w2.word.trim()) {
+                    ctx.fillStyle = w2.underline;
+                    ctx.fillRect(x, ly + fontSize + 2, ww, 4);
+                  }
+                  x += ww;
+                }
+              }
+
+              // ─── Draw image (centered) ───
+              const imgY = startY + topTextH + imgGap;
+              if (img.complete && img.naturalWidth > 0) {
+                ctx.drawImage(img, (w - imgSize) / 2, imgY, imgSize, imgSize);
+              }
+
+              // ─── "meron ka sanang ₱X" (centered) ───
+              const meronY = imgY + imgSize + imgGap;
+              ctx.font = `900 ${bottomFontSize}px Inter, system-ui, sans-serif`;
+              ctx.textAlign = "center";
+              ctx.textBaseline = "top";
+
+              const meronText = "meron ka sanang ";
               const valText = formatPeso(value);
-              const valW = ctx.measureText(valText).width;
-              ctx.fillText(valText, w / 2, valY);
-              ctx.fillStyle = "#00c853";
-              ctx.fillRect(w / 2 - valW / 2, valY + 6, valW, 5);
+              const fullMeron = meronText + valText;
+              const fullW2 = ctx.measureText(fullMeron).width;
+              const startX = w / 2 - fullW2 / 2;
 
-              // Details
-              const detY = valY + 50;
-              ctx.font = "600 16px Inter, system-ui, sans-serif";
+              ctx.fillStyle = "#1a1a1a";
+              ctx.textAlign = "left";
+              ctx.fillText(meronText, startX, meronY);
+              const valX = startX + ctx.measureText(meronText).width;
+              ctx.fillText(valText, valX, meronY);
+              const valW = ctx.measureText(valText).width;
+              ctx.fillStyle = "#00c853";
+              ctx.fillRect(valX, meronY + bottomFontSize + 2, valW, 4);
+
+              // ─── Details (centered) ───
+              const detY = meronY + bottomLineH + 12;
+              ctx.textAlign = "center";
+              ctx.font = "600 14px Inter, system-ui, sans-serif";
               ctx.fillStyle = "#888";
               ctx.fillText(`₱${item.price.toLocaleString("en-PH")} · ${item.year} · ${multiplier.toFixed(1)}× return`, w / 2, detY);
 
-              // Branding
-              ctx.font = "800 20px Inter, system-ui, sans-serif";
+              // ─── Branding (bottom) ───
+              ctx.textAlign = "center";
+              ctx.font = "800 18px Inter, system-ui, sans-serif";
               ctx.fillStyle = "#1a1a1a";
-              ctx.fillText("alkansya.ph/what-if", w / 2, h - 40);
-              ctx.font = "500 12px Inter, system-ui, sans-serif";
-              ctx.fillStyle = "#aaa";
-              ctx.fillText("Pang-guilt trip lang 'to, hindi financial advice.", w / 2, h - 18);
+              ctx.fillText("alkansya.ph/what-if", w / 2, h - 52);
+              ctx.font = "500 11px Inter, system-ui, sans-serif";
+              ctx.fillStyle = "#bbb";
+              ctx.fillText("Pang-guilt trip lang 'to, hindi financial advice.", w / 2, h - 30);
 
               canvas.toBlob(async (blob) => {
                 if (!blob) return;
