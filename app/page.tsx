@@ -109,7 +109,10 @@ export default function HomePage() {
 
         {/* Trending — horizontal scroll */}
         <div className="mb-6">
-          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-2 px-4 sm:px-6">Trending</p>
+          <div className="flex items-center justify-between mb-2 px-4 sm:px-6">
+            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888]">Explore</p>
+            <p className="text-[11px] text-[#ccc]">← swipe →</p>
+          </div>
           <div className="flex gap-3 overflow-x-auto px-4 sm:px-6 pb-2 snap-x snap-mandatory" style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
             {TRENDING.map((item) => (
               <Link
