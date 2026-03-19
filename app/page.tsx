@@ -12,7 +12,45 @@ export const metadata: Metadata = {
   },
 };
 
-const OTHER_TOOLS = [
+const TRENDING = [
+  {
+    href: "/gkk",
+    title: "Gaano ako kayaman?",
+    description: "Nasaan ka sa income ranking ng mga Pilipino?",
+    tag: "data",
+    image: "/cards/gkk.png",
+  },
+  {
+    href: "/what-if",
+    title: "What if nag-invest ka nalang?",
+    description: "Sana nag-invest ka nalang...",
+    tag: "data",
+    image: "/cards/whatif.png",
+  },
+  {
+    href: "/afford",
+    title: "Afford ko ba 'to?",
+    description: "Alamin kung kaya mo ba bago bilhin",
+    tag: "calculator",
+    image: "/cards/afford.png",
+  },
+];
+
+const TOOLS = [
+  {
+    href: "/usdphp",
+    emoji: "💱",
+    title: "USD to PHP Converter",
+    description: "Live exchange rate with historical chart — updated every minute",
+    tag: "forex",
+  },
+  {
+    href: "/rates",
+    emoji: "💰",
+    title: "Compare Bank Interest Rates",
+    description: "Find the best savings and time deposit rates across Philippine banks",
+    tag: "17 banks",
+  },
   {
     href: "/compound",
     emoji: "📈",
@@ -45,111 +83,96 @@ const OTHER_TOOLS = [
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-[#f5f5f5]">
+    <div className="min-h-screen bg-[#f5f5f5] relative overflow-hidden">
+      {/* Green radial glow */}
+      <div
+        className="absolute pointer-events-none"
+        style={{
+          width: 600,
+          height: 600,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(0,200,83,0.16) 0%, transparent 55%)",
+          top: -350,
+          right: -150,
+        }}
+      />
+
       {/* Nav */}
-      <nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[720px] mx-auto">
+      <nav className="relative z-10 flex justify-between items-center px-4 sm:px-6 py-4 max-w-[720px] mx-auto">
         <span className="text-xl font-extrabold tracking-tight text-[#1a1a1a]">
           alkansya<span className="text-[#00c853]">.ph</span>
         </span>
         <NavMenu />
       </nav>
 
-      <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">
-        <div className="space-y-2">
-          {/* USD/PHP — top card */}
-          <Link href="/usdphp"
-            className="flex items-center gap-4 bg-white rounded-[20px] px-5 py-5 no-underline hover:bg-[#fafafa] transition-colors group">
-            <span className="text-3xl shrink-0">💱</span>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-0.5">
-                <p className="text-[15px] font-bold text-[#1a1a1a]">USD to PHP Converter</p>
-                <span className="text-[10px] font-semibold text-[#00c853] bg-[#00c853]/10 px-2 py-0.5 rounded-full">forex</span>
-              </div>
-              <p className="text-[12px] text-[#888] leading-relaxed">Live exchange rate with historical chart — updated every minute</p>
-            </div>
-            <span className="text-[#ccc] text-lg group-hover:text-[#1a1a1a] transition-colors shrink-0">→</span>
-          </Link>
+      <main className="relative z-10 max-w-[720px] mx-auto pb-8">
 
-          {/* Compare Rates */}
-          <Link href="/rates"
-            className="flex items-center gap-4 bg-white rounded-[20px] px-5 py-5 no-underline hover:bg-[#fafafa] transition-colors group">
-            <span className="text-3xl shrink-0">💰</span>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-0.5">
-                <p className="text-[15px] font-bold text-[#1a1a1a]">Compare Bank Interest Rates</p>
-                <span className="text-[10px] font-semibold text-[#00c853] bg-[#00c853]/10 px-2 py-0.5 rounded-full">17 banks</span>
-              </div>
-              <p className="text-[12px] text-[#888] leading-relaxed">Find the best savings and time deposit rates across Philippine banks</p>
-            </div>
-            <span className="text-[#ccc] text-lg group-hover:text-[#1a1a1a] transition-colors shrink-0">→</span>
-          </Link>
-
-          {/* Other tools */}
-          {OTHER_TOOLS.map((tool) => (
-            <Link
-              key={tool.href}
-              href={tool.href}
-              className="flex items-center gap-4 bg-white rounded-[20px] px-5 py-5 no-underline hover:bg-[#fafafa] transition-colors group">
-              <span className="text-3xl shrink-0">{tool.emoji}</span>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <p className="text-[15px] font-bold text-[#1a1a1a]">{tool.title}</p>
-                  <span className="text-[10px] font-semibold text-[#00c853] bg-[#00c853]/10 px-2 py-0.5 rounded-full">{tool.tag}</span>
+        {/* Trending — horizontal scroll */}
+        <div className="mb-6">
+          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-2 px-4 sm:px-6">Trending</p>
+          <div className="flex gap-3 overflow-x-auto px-4 sm:px-6 pb-2 snap-x snap-mandatory" style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
+            {TRENDING.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="snap-start min-w-[220px] sm:min-w-[240px] h-[300px] sm:h-[320px] rounded-[20px] shrink-0 relative overflow-hidden no-underline group hover:scale-[1.02] transition-transform"
+              >
+                {/* Background image */}
+                <img
+                  src={item.image}
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+                {/* Bottom gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                {/* Content at bottom */}
+                <div className="absolute bottom-0 left-0 right-0 p-5">
+                  <span className="text-[9px] font-semibold uppercase tracking-[0.5px] text-white/50 bg-white/15 px-2 py-0.5 rounded-full backdrop-blur-sm">{item.tag}</span>
+                  <p className="text-[17px] sm:text-[18px] font-extrabold text-white leading-tight mt-2 tracking-tight">{item.title}</p>
+                  <p className="text-[11px] text-white/60 mt-1 leading-snug">{item.description}</p>
                 </div>
-                <p className="text-[12px] text-[#888] leading-relaxed">{tool.description}</p>
-              </div>
-              <span className="text-[#ccc] text-lg group-hover:text-[#1a1a1a] transition-colors shrink-0">→</span>
-            </Link>
-          ))}
+              </Link>
+            ))}
+          </div>
         </div>
 
-        {/* Meme tools — 2 columns */}
-        <div className="grid grid-cols-2 gap-2 mt-2">
-          {[
-            {
-              href: "/afford", emoji: "🛍️", title: "Afford ko ba 'to?",
-              description: "Alamin kung kaya mo ba bago bilhin",
-              tag: "calculator",
-              gradient: "linear-gradient(135deg, #FF9800 0%, #FFE0B2 100%)",
-            },
-            {
-              href: "/what-if", emoji: "🥇", title: "What if nag-invest ka nalang?",
-              description: "Sana nag-invest ka nalang...",
-              tag: "data",
-              gradient: "linear-gradient(135deg, #FFD600 0%, #FFF9C4 100%)",
-            },
-            {
-              href: "/gkk", emoji: "💰", title: "Gaano ako kayaman?",
-              description: "Nasaan ka sa income ranking ng mga Pilipino?",
-              tag: "data",
-              gradient: "linear-gradient(135deg, #00c853 0%, #B9F6CA 100%)",
-            },
-          ].map((tool) => (
-            <Link
-              key={tool.href}
-              href={tool.href}
-              className="flex items-start gap-3 rounded-[20px] px-4 py-4 no-underline group hover:scale-[1.01] transition-transform overflow-hidden"
-              style={{ background: tool.gradient }}>
-              <span className="text-2xl shrink-0 mt-0.5">{tool.emoji}</span>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
-                  <p className="text-[13px] font-bold text-[#1a1a1a] leading-tight">{tool.title}</p>
-                  <span className="text-[9px] font-semibold text-[#1a1a1a]/50 bg-[#1a1a1a]/10 px-1.5 py-0.5 rounded-full">{tool.tag}</span>
+        {/* Tools */}
+        <div className="px-4 sm:px-6">
+          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-2">Tools</p>
+          <div className="space-y-2">
+            {TOOLS.map((tool) => (
+              <Link
+                key={tool.href}
+                href={tool.href}
+                className="flex items-center gap-4 bg-white rounded-[20px] px-5 py-5 no-underline hover:bg-[#fafafa] transition-colors group"
+              >
+                <span className="text-3xl shrink-0">{tool.emoji}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <p className="text-[15px] font-bold text-[#1a1a1a]">{tool.title}</p>
+                    <span className="text-[10px] font-semibold text-[#00c853] bg-[#00c853]/10 px-2 py-0.5 rounded-full">{tool.tag}</span>
+                  </div>
+                  <p className="text-[12px] text-[#888] leading-relaxed">{tool.description}</p>
                 </div>
-                <p className="text-[11px] text-[#1a1a1a]/50 leading-snug">{tool.description}</p>
-              </div>
-            </Link>
-          ))}
+                <span className="text-[#ccc] text-lg group-hover:text-[#1a1a1a] transition-colors shrink-0">→</span>
+              </Link>
+            ))}
+          </div>
         </div>
 
         {/* Footer */}
-        <footer className="mt-8 pt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+        <footer className="mt-8 pt-4 px-4 sm:px-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
           <span className="text-sm font-bold text-[#888]">alkansya<span className="text-[#00c853]">.ph</span></span>
           <p className="text-[10px] text-[#aaa] max-w-md sm:text-right leading-relaxed">
             Independent financial tools for Filipinos. Not a financial advisor, broker, or bank.
           </p>
         </footer>
       </main>
+
+      {/* Hide scrollbar */}
+      <style>{`
+        .snap-x::-webkit-scrollbar { display: none; }
+      `}</style>
     </div>
   );
 }
