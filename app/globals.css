@@ -23,6 +23,20 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.glow-bg::before {
+  content: '';
+  position: fixed;
+  width: 1000px;
+  height: 1000px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,200,83,0.16) 0%, transparent 55%);
+  top: var(--glow-y, 60%);
+  left: var(--glow-x, 50%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
 * { box-sizing: border-box; }
 
 ::-webkit-scrollbar { width: 6px; }
