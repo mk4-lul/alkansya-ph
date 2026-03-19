@@ -88,12 +88,12 @@ export default function HomePage() {
       <div
         className="absolute pointer-events-none"
         style={{
-          width: 800,
-          height: 800,
+          width: 1000,
+          height: 1000,
           borderRadius: "50%",
           background: "radial-gradient(circle, rgba(0,200,83,0.16) 0%, transparent 55%)",
-          bottom: -400,
-          right: -250,
+          bottom: -300,
+          right: -100,
         }}
       />
 
