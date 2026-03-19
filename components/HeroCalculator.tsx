@@ -5,8 +5,8 @@ import { BankWithRates } from "@/lib/supabase";
 import { formatPeso, calcInterest, getRateForAmount, AMOUNT_BRACKETS } from "@/lib/utils";
 
 function AnimatedNumber({ value, prefix = "", suffix = "", decimals = 2 }: { value: number; prefix?: string; suffix?: string; decimals?: number }) {
-  const [display, setDisplay] = useState(value);
-  const prevValue = useRef(value);
+  const [display, setDisplay] = useState(0);
+  const prevValue = useRef(0);
   const raf = useRef<number>(0);
 
   useEffect(() => {
