@@ -279,6 +279,7 @@ export default function InvestmentCalculatorPage() {
   const [amount, setAmount] = useState<number | null>(null);
   const [showInfo, setShowInfo] = useState<string | null>(null);
   const [revealed, setRevealed] = useState(false);
+  const [showResult, setShowResult] = useState(false);
 
   const isReady = asset !== null && startYear !== null && amount !== null && amount > 0;
   const entryPrice = isReady ? asset.prices[startYear] : 0;
@@ -293,6 +294,8 @@ export default function InvestmentCalculatorPage() {
   useEffect(() => {
     if (isReady && !revealed) {
       setRevealed(true);
+      setShowResult(false);
+      setTimeout(() => setShowResult(true), 80);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [isReady, revealed]);
@@ -398,7 +401,11 @@ export default function InvestmentCalculatorPage() {
         ) : isReady && asset && startYear ? (
         <>
         {/* Hero result card */}
-        <div className="bg-[#FF9800] rounded-[20px] p-6 sm:p-8 mb-3 relative overflow-hidden">
+        <div className="bg-[#FF9800] rounded-[20px] p-6 sm:p-8 mb-3 relative overflow-hidden transition-all duration-700 ease-out"
+          style={{
+            transform: showResult ? "scale(1) translateY(0)" : "scale(0.92) translateY(20px)",
+            opacity: showResult ? 1 : 0,
+          }}>
           <div className="absolute inset-0 pointer-events-none select-none" style={{ filter: "blur(2px)" }} aria-hidden="true">
             {['⚜️','₿','🤑','💎','📈'].map((e, i) => (
               <span key={i} className="absolute text-[28px] sm:text-[34px] emoji-float" style={{
@@ -412,10 +419,12 @@ export default function InvestmentCalculatorPage() {
             ))}
           </div>
           <div className="relative text-center">
-            <p className="text-[13px] font-bold uppercase tracking-[1px] text-white/80 mb-2">
+            <p className="text-[13px] font-bold uppercase tracking-[1px] text-white/80 mb-2 transition-all duration-500 delay-200"
+              style={{ opacity: showResult ? 1 : 0, transform: showResult ? "translateY(0)" : "translateY(10px)" }}>
               {formatPeso(amount)} in {asset.name} since {startYear}
             </p>
-            <p className="text-[12px] font-semibold text-white/50 mb-1">you&apos;d have around</p>
+            <p className="text-[12px] font-semibold text-white/50 mb-1 transition-all duration-500 delay-300"
+              style={{ opacity: showResult ? 1 : 0 }}>you&apos;d have around</p>
             <p className="text-5xl sm:text-6xl font-extrabold tracking-tight text-white">
               <ScrollingPeso value={currentValue} />
             </p>
