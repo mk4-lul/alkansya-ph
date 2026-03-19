@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import NavMenu from "@/components/NavMenu";
+import ScrollingPeso from "@/components/ScrollingPeso";
 
 // ─── Loan types ──────────────────────────────────────────────────
 interface LoanType {
@@ -118,6 +119,7 @@ export default function UtangPage() {
   const [amount, setAmount] = useState<number | null>(null);
   const [term, setTerm] = useState<number | null>(null);
   const [revealed, setRevealed] = useState(false);
+  const [showResult, setShowResult] = useState(false);
 
   const monthlyRate = loanType?.id === "custom" ? customRate / 100 : (loanType?.monthlyRate ?? 0);
   const isReady = loanType !== null && amount !== null && amount > 0 && term !== null && monthlyRate > 0;
@@ -125,9 +127,13 @@ export default function UtangPage() {
   const verdict = useMemo(() => result ? getVerdict(result.interestPct) : null, [result]);
 
   // Auto-reveal
-  if (isReady && !revealed && result) {
-    setRevealed(true);
-  }
+  useEffect(() => {
+    if (isReady && !revealed && result) {
+      setRevealed(true);
+      setShowResult(false);
+      setTimeout(() => setShowResult(true), 80);
+    }
+  }, [isReady, revealed, result]);
 
   function handleTryAgain() {
     setRevealed(false);
@@ -232,8 +238,10 @@ export default function UtangPage() {
         ) : result && verdict ? (
         <>
           {/* Verdict card */}
-          <div className="rounded-[20px] p-6 sm:p-8 mb-3 relative overflow-hidden" style={{
+          <div className="rounded-[20px] p-6 sm:p-8 mb-3 relative overflow-hidden transition-all duration-700 ease-out" style={{
             background: verdict.verdict === "green" ? "#00c853" : verdict.verdict === "yellow" ? "#FFB300" : "#D32F2F",
+            transform: showResult ? "scale(1) translateY(0)" : "scale(0.92) translateY(20px)",
+            opacity: showResult ? 1 : 0,
           }}>
             <div className="text-center" style={{ color: verdict.verdict === "yellow" ? "#1a1a1a" : "#fff" }}>
               <p className="text-[72px] leading-none mb-2">{verdict.emoji}</p>
@@ -246,7 +254,7 @@ export default function UtangPage() {
               <p className="text-[10px] font-semibold uppercase tracking-[1px] mb-1" style={{
                 color: verdict.verdict === "yellow" ? "rgba(26,26,26,0.4)" : "rgba(255,255,255,0.5)"
               }}>Nawawala sa&apos;yo</p>
-              <p className="text-5xl sm:text-6xl font-black tracking-tight mb-4">{formatPeso(result.totalInterest)}</p>
+              <p className="text-5xl sm:text-6xl font-black tracking-tight mb-4"><ScrollingPeso value={result.totalInterest} /></p>
 
               {/* Stats */}
               <div className="flex justify-center gap-4 sm:gap-6 mb-5">
