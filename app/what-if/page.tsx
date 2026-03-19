@@ -381,16 +381,18 @@ export default function WhatIfPage() {
           </button>
           <button
             onClick={async () => {
+              const scale = Math.min(window.devicePixelRatio || 1, 3);
               const w = 600, h = 600;
               const canvas = document.createElement("canvas");
-              canvas.width = w; canvas.height = h;
+              canvas.width = w * scale; canvas.height = h * scale;
               const ctx = canvas.getContext("2d")!;
-              const pad = 40;
+              ctx.scale(scale, scale);
+              const pad = 20; // px-5 = 20px
               const maxW = w - pad * 2;
 
-              // Background
+              // Background — matches bg-[#f5f5f5]
               ctx.fillStyle = "#f5f5f5";
-              ctx.beginPath(); ctx.roundRect(0, 0, w, h, 32); ctx.fill();
+              ctx.fillRect(0, 0, w, h);
 
               // Load item image
               const img = new Image();
@@ -398,124 +400,116 @@ export default function WhatIfPage() {
               img.src = `/items/${item.id}.png`;
               await new Promise<void>((res) => { img.onload = () => res(); img.onerror = () => res(); setTimeout(() => res(), 2000); });
 
-              // ─── Helper: draw flowing text with underlined segments ───
-              const fontSize = 28;
-              const lineH = fontSize * 1.2;
-              ctx.font = `900 ${fontSize}px Inter, system-ui, sans-serif`;
+              // ─── Matches: text-[36px] font-black leading-[1.15] tracking-tight ───
+              const fontSize = 36;
+              const lineH = Math.round(fontSize * 1.15); // leading-[1.15]
+
+              function setMainFont() { ctx.font = `900 ${fontSize}px Inter, system-ui, sans-serif`; }
+
+              setMainFont();
               ctx.textBaseline = "top";
 
-              type Segment = { text: string; underline?: string };
-              const segments: Segment[] = [
+              type Seg = { text: string; underline?: string };
+              const segments: Seg[] = [
                 { text: "kung bumili ka nalang ng " },
                 { text: assetLabel, underline: assetColor },
                 { text: " instead of a " },
                 { text: item.name, underline: "#2196F3" },
               ];
 
-              // Break into words with their styling
-              type Word = { word: string; underline?: string };
-              const words: Word[] = [];
-              for (const seg of segments) {
-                const parts = seg.text.split(/(\s+)/);
-                for (const p of parts) {
-                  if (p.length > 0) words.push({ word: p, underline: p.trim() ? seg.underline : undefined });
+              type Wd = { word: string; underline?: string };
+              const allWords: Wd[] = [];
+              for (const s of segments) {
+                for (const p of s.text.split(/(\s+)/)) {
+                  if (p.length > 0) allWords.push({ word: p, underline: p.trim() ? s.underline : undefined });
                 }
               }
 
-              // Measure and wrap
-              type Line = { words: Word[]; y: number };
-              const lines: Line[] = [];
-              let curLine: Word[] = [];
-              let curW = 0;
-
-              for (const w2 of words) {
-                const ww = ctx.measureText(w2.word).width;
-                if (curW + ww > maxW && curLine.length > 0) {
-                  lines.push({ words: curLine, y: 0 });
-                  curLine = []; curW = 0;
-                }
-                curLine.push(w2); curW += ww;
+              // Word-wrap
+              type WLine = { words: Wd[] };
+              const lines: WLine[] = [];
+              let cur: Wd[] = [], cw = 0;
+              for (const wd of allWords) {
+                const ww = ctx.measureText(wd.word).width;
+                if (cw + ww > maxW && cur.length > 0) { lines.push({ words: cur }); cur = []; cw = 0; }
+                cur.push(wd); cw += ww;
               }
-              if (curLine.length > 0) lines.push({ words: curLine, y: 0 });
+              if (cur.length > 0) lines.push({ words: cur });
 
+              // ─── Measure all sections ───
               const topTextH = lines.length * lineH;
-              const imgSize = 160;
-              const imgGap = 12;
-              const bottomFontSize = 28;
-              const bottomLineH = bottomFontSize * 1.2;
-              const detailH = 16;
-              const brandH = 50;
+              const mb4 = 16;  // mb-4
+              const imgSize = 200; // sm:w-[200px] sm:h-[200px]
+              const mb3 = 12;  // mb-3
 
-              // Total content
-              const totalH = topTextH + imgGap + imgSize + imgGap + bottomLineH + 6 + detailH;
-              const startY = (h - brandH - totalH) / 2;
+              setMainFont();
+              const meronStr = "meron ka sanang ";
+              const valStr = formatPeso(value);
+              const meronFullW = ctx.measureText(meronStr + valStr).width;
+              const bottomTextH = lineH;
+              const detailSize = 12; // text-xs
+              const brandH = 40;
 
-              // ─── Draw top text (left-aligned) ───
-              ctx.font = `900 ${fontSize}px Inter, system-ui, sans-serif`;
+              const totalH = topTextH + mb4 + imgSize + mb3 + bottomTextH + mb3 + detailSize;
+              const startY = Math.max(pad, (h - brandH - totalH) / 2);
+
+              // ─── Top text (left-aligned flowing) ───
+              setMainFont();
               ctx.textAlign = "left";
               ctx.textBaseline = "top";
 
               for (let i = 0; i < lines.length; i++) {
                 const ly = startY + i * lineH;
                 let x = pad;
-                for (const w2 of lines[i].words) {
-                  const ww = ctx.measureText(w2.word).width;
+                for (const wd of lines[i].words) {
+                  const ww = ctx.measureText(wd.word).width;
                   ctx.fillStyle = "#1a1a1a";
-                  ctx.fillText(w2.word, x, ly);
-                  if (w2.underline && w2.word.trim()) {
-                    ctx.fillStyle = w2.underline;
-                    ctx.fillRect(x, ly + fontSize + 2, ww, 4);
+                  ctx.fillText(wd.word, x, ly);
+                  if (wd.underline && wd.word.trim()) {
+                    ctx.fillStyle = wd.underline;
+                    ctx.fillRect(x, ly + fontSize + 1, ww, 4);
                   }
                   x += ww;
                 }
               }
 
-              // ─── Draw image (centered, aspect-ratio preserved) ───
-              const imgY = startY + topTextH + imgGap;
+              // ─── Image (centered, preserve aspect) ───
+              const imgY = startY + topTextH + mb4;
               if (img.complete && img.naturalWidth > 0) {
                 const aspect = img.naturalWidth / img.naturalHeight;
-                let drawW = imgSize, drawH = imgSize;
-                if (aspect > 1) { drawH = imgSize / aspect; }
-                else { drawW = imgSize * aspect; }
-                ctx.drawImage(img, (w - drawW) / 2, imgY + (imgSize - drawH) / 2, drawW, drawH);
+                let dw = imgSize, dh = imgSize;
+                if (aspect > 1) dh = imgSize / aspect; else dw = imgSize * aspect;
+                ctx.drawImage(img, (w - dw) / 2, imgY + (imgSize - dh) / 2, dw, dh);
               }
 
               // ─── "meron ka sanang ₱X" (centered) ───
-              const meronY = imgY + imgSize + imgGap;
-              ctx.font = `900 ${bottomFontSize}px Inter, system-ui, sans-serif`;
-              ctx.textAlign = "center";
+              const meronY = imgY + imgSize + mb3;
+              setMainFont();
               ctx.textBaseline = "top";
-
-              const meronText = "meron ka sanang ";
-              const valText = formatPeso(value);
-              const fullMeron = meronText + valText;
-              const fullW2 = ctx.measureText(fullMeron).width;
-              const startX = w / 2 - fullW2 / 2;
-
-              ctx.fillStyle = "#1a1a1a";
               ctx.textAlign = "left";
-              ctx.fillText(meronText, startX, meronY);
-              const valX = startX + ctx.measureText(meronText).width;
-              ctx.fillText(valText, valX, meronY);
-              const valW = ctx.measureText(valText).width;
+              const meronX = (w - meronFullW) / 2;
+              ctx.fillStyle = "#1a1a1a";
+              ctx.fillText(meronStr, meronX, meronY);
+              const valX = meronX + ctx.measureText(meronStr).width;
+              ctx.fillText(valStr, valX, meronY);
               ctx.fillStyle = "#00c853";
-              ctx.fillRect(valX, meronY + bottomFontSize + 2, valW, 4);
+              ctx.fillRect(valX, meronY + fontSize + 1, ctx.measureText(valStr).width, 4);
 
-              // ─── Details (centered) ───
-              const detY = meronY + bottomLineH + 8;
+              // ─── Details (centered, text-xs) ───
+              const detY = meronY + lineH + mb3;
+              ctx.font = `700 ${detailSize}px Inter, system-ui, sans-serif`;
               ctx.textAlign = "center";
-              ctx.font = "600 13px Inter, system-ui, sans-serif";
               ctx.fillStyle = "#888";
               ctx.fillText(`₱${item.price.toLocaleString("en-PH")} · ${item.year} · ${multiplier.toFixed(1)}× return`, w / 2, detY);
 
-              // ─── Branding (bottom) ───
+              // ─── Branding ───
               ctx.textAlign = "center";
-              ctx.font = "800 16px Inter, system-ui, sans-serif";
+              ctx.font = "800 14px Inter, system-ui, sans-serif";
               ctx.fillStyle = "#1a1a1a";
-              ctx.fillText("alkansya.ph/what-if", w / 2, h - 42);
-              ctx.font = "500 10px Inter, system-ui, sans-serif";
-              ctx.fillStyle = "#bbb";
-              ctx.fillText("Pang-guilt trip lang 'to, hindi financial advice.", w / 2, h - 22);
+              ctx.fillText("alkansya.ph/what-if", w / 2, h - 34);
+              ctx.font = "400 9px Inter, system-ui, sans-serif";
+              ctx.fillStyle = "#ccc";
+              ctx.fillText("Pang-guilt trip lang 'to, hindi financial advice.", w / 2, h - 16);
 
               canvas.toBlob(async (blob) => {
                 if (!blob) return;
