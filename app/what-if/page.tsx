@@ -372,7 +372,7 @@ export default function WhatIfPage() {
         <div className="flex gap-2 max-w-[340px] mx-auto shrink-0">
           <button
             onClick={shuffle}
-            className={`flex-1 py-3.5 rounded-2xl text-sm font-black transition-all active:scale-[0.97] ${
+            className={`flex-1 py-3.5 px-5 rounded-2xl text-sm font-black transition-all active:scale-[0.97] ${
               asset === "gold" ? "text-[#1a1a1a]" : "text-white"
             }`}
             style={{ background: assetColor }}
