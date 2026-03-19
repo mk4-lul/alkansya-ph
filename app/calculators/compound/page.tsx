@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import Link from "next/link";
 import { formatPeso } from "@/lib/utils";
 import NavMenu from "@/components/NavMenu";
@@ -210,6 +210,15 @@ export default function CalculatorPage() {
 
   const interestPct = result && result.finalBalance > 0 ? ((result.totalInterest / result.finalBalance) * 100).toFixed(1) : "0";
 
+  const [showResult, setShowResult] = useState(false);
+  useEffect(() => {
+    if (isReady && result) {
+      setShowResult(false);
+      const t = setTimeout(() => setShowResult(true), 80);
+      return () => clearTimeout(t);
+    } else { setShowResult(false); }
+  }, [isReady, result]);
+
   return (
     <div className="min-h-screen bg-[#f5f5f5]">
       {/* Nav */}
@@ -240,7 +249,8 @@ export default function CalculatorPage() {
           </div>
         </div>
 
-        {/* Inputs */}
+        {/* Inputs — hidden when result shows */}
+        {!(isReady && result) && (
         <div className="space-y-3 mb-3">
           {/* Initial deposit */}
           <div className="bg-white rounded-[20px] p-5 sm:p-6">
@@ -348,11 +358,26 @@ export default function CalculatorPage() {
             </div>
           </div>
         </div>
+        )}
 
         {/* Hero result card — only shows when all inputs selected */}
         {isReady && result && (
         <>
-        <div className="bg-[#00FF7F] rounded-[20px] p-6 sm:p-8 mb-3 relative overflow-hidden">
+        {/* Input summary + edit */}
+        <div className="flex items-center justify-between mb-3 px-1">
+          <p className="text-[12px] text-[#888]">
+            ₱{formatWithCommas(initial!)} + ₱{formatWithCommas(monthly!)}/mo · {annualRate.toFixed(1)}%/yr · {years}yr
+          </p>
+          <button onClick={() => setYears(null)}
+            className="text-[12px] font-semibold text-[#00c853] hover:text-[#00a844] transition-colors"
+          >Change ↻</button>
+        </div>
+
+        <div className="bg-[#00FF7F] rounded-[20px] p-6 sm:p-8 mb-3 relative overflow-hidden transition-all duration-700 ease-out"
+          style={{
+            transform: showResult ? "scale(1) translateY(0)" : "scale(0.92) translateY(20px)",
+            opacity: showResult ? 1 : 0,
+          }}>
           {/* Scattered money emojis */}
           <div className="absolute inset-0 pointer-events-none select-none" style={{ filter: "blur(2px)" }} aria-hidden="true">
             {['💵','💰','💸','💎','🤑','📈'].map((e, i) => (
@@ -367,13 +392,15 @@ export default function CalculatorPage() {
             ))}
           </div>
           <div className="relative text-center">
-            <p className="text-[13px] font-bold uppercase tracking-[1px] text-[#1a1a1a]/60 mb-2">
+            <p className="text-[13px] font-bold uppercase tracking-[1px] text-[#1a1a1a]/60 mb-2 transition-all duration-500 delay-200"
+              style={{ opacity: showResult ? 1 : 0, transform: showResult ? "translateY(0)" : "translateY(10px)" }}>
               Your money after {years} {years === 1 ? "year" : "years"}
             </p>
             <p className="text-5xl sm:text-6xl font-extrabold tracking-tight text-[#1a1a1a]">
               <ScrollingPeso value={result.finalBalance} />
             </p>
-            <div className="flex justify-center mt-4">
+            <div className="flex justify-center mt-4 transition-all duration-500 delay-300"
+              style={{ opacity: showResult ? 1 : 0, transform: showResult ? "translateY(0)" : "translateY(10px)" }}>
               <div className="bg-black/10 backdrop-blur-md rounded-2xl px-6 py-4 flex gap-8">
                 <div className="text-center">
                   <p className="text-[12px] font-semibold text-[#1a1a1a]/50 uppercase tracking-[0.5px]">Deposited</p>
@@ -386,9 +413,10 @@ export default function CalculatorPage() {
               </div>
             </div>
             {/* Interest percentage bar */}
-            <div className="mt-4 max-w-[300px] mx-auto">
+            <div className="mt-4 max-w-[300px] mx-auto transition-all duration-500 delay-500"
+              style={{ opacity: showResult ? 1 : 0 }}>
               <div className="h-2 rounded-full bg-black/10 overflow-hidden">
-                <div className="h-full rounded-full bg-[#1a1a1a] transition-all duration-500" style={{ width: `${interestPct}%` }} />
+                <div className="h-full rounded-full bg-[#1a1a1a] transition-all duration-[2000ms] ease-out" style={{ width: showResult ? `${interestPct}%` : "0%" }} />
               </div>
               <p className="text-[12px] font-semibold text-[#1a1a1a]/60 mt-1">{interestPct}% of your final balance is interest</p>
             </div>
