@@ -381,11 +381,11 @@ export default function WhatIfPage() {
           </button>
           <button
             onClick={async () => {
-              const w = 600, h = 800;
+              const w = 600, h = 600;
               const canvas = document.createElement("canvas");
               canvas.width = w; canvas.height = h;
               const ctx = canvas.getContext("2d")!;
-              const pad = 50;
+              const pad = 40;
               const maxW = w - pad * 2;
 
               // Background
@@ -399,7 +399,7 @@ export default function WhatIfPage() {
               await new Promise<void>((res) => { img.onload = () => res(); img.onerror = () => res(); setTimeout(() => res(), 2000); });
 
               // ─── Helper: draw flowing text with underlined segments ───
-              const fontSize = 32;
+              const fontSize = 28;
               const lineH = fontSize * 1.2;
               ctx.font = `900 ${fontSize}px Inter, system-ui, sans-serif`;
               ctx.textBaseline = "top";
@@ -439,15 +439,15 @@ export default function WhatIfPage() {
               if (curLine.length > 0) lines.push({ words: curLine, y: 0 });
 
               const topTextH = lines.length * lineH;
-              const imgSize = 200;
-              const imgGap = 20;
-              const bottomFontSize = 32;
+              const imgSize = 160;
+              const imgGap = 12;
+              const bottomFontSize = 28;
               const bottomLineH = bottomFontSize * 1.2;
-              const detailH = 20;
-              const brandH = 60;
+              const detailH = 16;
+              const brandH = 50;
 
               // Total content
-              const totalH = topTextH + imgGap + imgSize + imgGap + bottomLineH + 8 + detailH;
+              const totalH = topTextH + imgGap + imgSize + imgGap + bottomLineH + 6 + detailH;
               const startY = (h - brandH - totalH) / 2;
 
               // ─── Draw top text (left-aligned) ───
@@ -498,20 +498,20 @@ export default function WhatIfPage() {
               ctx.fillRect(valX, meronY + bottomFontSize + 2, valW, 4);
 
               // ─── Details (centered) ───
-              const detY = meronY + bottomLineH + 12;
+              const detY = meronY + bottomLineH + 8;
               ctx.textAlign = "center";
-              ctx.font = "600 14px Inter, system-ui, sans-serif";
+              ctx.font = "600 13px Inter, system-ui, sans-serif";
               ctx.fillStyle = "#888";
               ctx.fillText(`₱${item.price.toLocaleString("en-PH")} · ${item.year} · ${multiplier.toFixed(1)}× return`, w / 2, detY);
 
               // ─── Branding (bottom) ───
               ctx.textAlign = "center";
-              ctx.font = "800 18px Inter, system-ui, sans-serif";
+              ctx.font = "800 16px Inter, system-ui, sans-serif";
               ctx.fillStyle = "#1a1a1a";
-              ctx.fillText("alkansya.ph/what-if", w / 2, h - 52);
-              ctx.font = "500 11px Inter, system-ui, sans-serif";
+              ctx.fillText("alkansya.ph/what-if", w / 2, h - 42);
+              ctx.font = "500 10px Inter, system-ui, sans-serif";
               ctx.fillStyle = "#bbb";
-              ctx.fillText("Pang-guilt trip lang 'to, hindi financial advice.", w / 2, h - 30);
+              ctx.fillText("Pang-guilt trip lang 'to, hindi financial advice.", w / 2, h - 22);
 
               canvas.toBlob(async (blob) => {
                 if (!blob) return;
