@@ -470,10 +470,14 @@ export default function WhatIfPage() {
                 }
               }
 
-              // ─── Draw image (centered) ───
+              // ─── Draw image (centered, aspect-ratio preserved) ───
               const imgY = startY + topTextH + imgGap;
               if (img.complete && img.naturalWidth > 0) {
-                ctx.drawImage(img, (w - imgSize) / 2, imgY, imgSize, imgSize);
+                const aspect = img.naturalWidth / img.naturalHeight;
+                let drawW = imgSize, drawH = imgSize;
+                if (aspect > 1) { drawH = imgSize / aspect; }
+                else { drawW = imgSize * aspect; }
+                ctx.drawImage(img, (w - drawW) / 2, imgY + (imgSize - drawH) / 2, drawW, drawH);
               }
 
               // ─── "meron ka sanang ₱X" (centered) ───
