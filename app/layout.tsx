@@ -54,7 +54,30 @@ export default function RootLayout({
           gtag('config', '${GA_ID}');
         `}</Script>
       </head>
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        {children}
+        <Script id="glow-detect" strategy="afterInteractive">{`
+          var _glowPath = '';
+          function checkGlow() {
+            var el = document.querySelector('main')?.parentElement || document.body;
+            var bg = getComputedStyle(el).backgroundColor;
+            var match = bg.match(/\\d+/g);
+            if (match && match[0]==='245' && match[1]==='245' && match[2]==='245') {
+              el.classList.add('glow-bg');
+              if (_glowPath !== location.pathname) {
+                _glowPath = location.pathname;
+                el.style.setProperty('--glow-x', (Math.random() * 100) + '%');
+                el.style.setProperty('--glow-y', (55 + Math.random() * 40) + '%');
+              }
+            } else {
+              el.classList.remove('glow-bg');
+              _glowPath = '';
+            }
+          }
+          checkGlow();
+          new MutationObserver(checkGlow).observe(document.body, { childList: true, subtree: true });
+        `}</Script>
+      </body>
     </html>
   );
 }
