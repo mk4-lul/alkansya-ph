@@ -266,7 +266,6 @@ export default function WhatIfPage() {
   const [imgError, setImgError] = useState(false);
   const [show, setShow] = useState(true);
   const [btnText, setBtnText] = useState(() => randomButtonText());
-  const [shareCopied, setShareCopied] = useState(false);
   const prices = useLivePrices();
 
   const item = ITEMS[index];
@@ -382,14 +381,103 @@ export default function WhatIfPage() {
           </button>
           <button
             onClick={async () => {
-              const text = `Kung bumili ko nalang ng ${assetLabel} instead of a ${item.name} (₱${item.price.toLocaleString("en-PH")}, ${item.year}), meron sana akong ${formatPeso(value)} — ${multiplier.toFixed(1)}× return\n\nalkansya.ph/what-if`;
-              if (navigator.share) {
-                try { await navigator.share({ text }); } catch {}
-              } else {
-                await navigator.clipboard.writeText(text);
-                setShareCopied(true);
-                setTimeout(() => setShareCopied(false), 2000);
+              const w = 600, h = 900;
+              const canvas = document.createElement("canvas");
+              canvas.width = w; canvas.height = h;
+              const ctx = canvas.getContext("2d")!;
+
+              // Background
+              ctx.fillStyle = "#f5f5f5";
+              ctx.beginPath(); ctx.roundRect(0, 0, w, h, 32); ctx.fill();
+
+              ctx.textAlign = "center";
+
+              // Load item image
+              const img = new Image();
+              img.crossOrigin = "anonymous";
+              img.src = `/items/${item.id}.png`;
+              await new Promise<void>((res) => { img.onload = () => res(); img.onerror = () => res(); setTimeout(() => res(), 2000); });
+
+              // Top text — "kung bumili ka nalang ng"
+              const topY = 80;
+              ctx.font = "900 28px Inter, system-ui, sans-serif";
+              ctx.fillStyle = "#1a1a1a";
+              ctx.fillText("kung bumili ka nalang ng", w / 2, topY);
+
+              // Asset name with underline
+              const assetY = topY + 42;
+              ctx.font = "900 32px Inter, system-ui, sans-serif";
+              ctx.fillStyle = "#1a1a1a";
+              const assetW = ctx.measureText(assetLabel).width;
+              ctx.fillText(assetLabel, w / 2, assetY);
+              ctx.fillStyle = assetColor;
+              ctx.fillRect(w / 2 - assetW / 2, assetY + 4, assetW, 4);
+
+              // "instead of a"
+              const insteadY = assetY + 42;
+              ctx.font = "900 28px Inter, system-ui, sans-serif";
+              ctx.fillStyle = "#1a1a1a";
+              ctx.fillText("instead of a", w / 2, insteadY);
+
+              // Item name with underline
+              const itemY = insteadY + 42;
+              ctx.font = "900 32px Inter, system-ui, sans-serif";
+              ctx.fillStyle = "#1a1a1a";
+              const itemW = ctx.measureText(item.name).width;
+              ctx.fillText(item.name, w / 2, itemY);
+              ctx.fillStyle = "#2196F3";
+              ctx.fillRect(w / 2 - itemW / 2, itemY + 4, itemW, 4);
+
+              // Item image
+              if (img.complete && img.naturalWidth > 0) {
+                const imgSize = 200;
+                const imgX = (w - imgSize) / 2;
+                const imgYPos = itemY + 30;
+                ctx.drawImage(img, imgX, imgYPos, imgSize, imgSize);
               }
+
+              // "meron ka sanang"
+              const meronY = itemY + 260;
+              ctx.font = "900 28px Inter, system-ui, sans-serif";
+              ctx.fillStyle = "#1a1a1a";
+              ctx.fillText("meron ka sanang", w / 2, meronY);
+
+              // Value with underline
+              const valY = meronY + 48;
+              ctx.font = "900 40px Inter, system-ui, sans-serif";
+              ctx.fillStyle = "#1a1a1a";
+              const valText = formatPeso(value);
+              const valW = ctx.measureText(valText).width;
+              ctx.fillText(valText, w / 2, valY);
+              ctx.fillStyle = "#00c853";
+              ctx.fillRect(w / 2 - valW / 2, valY + 6, valW, 5);
+
+              // Details
+              const detY = valY + 50;
+              ctx.font = "600 16px Inter, system-ui, sans-serif";
+              ctx.fillStyle = "#888";
+              ctx.fillText(`₱${item.price.toLocaleString("en-PH")} · ${item.year} · ${multiplier.toFixed(1)}× return`, w / 2, detY);
+
+              // Branding
+              ctx.font = "800 20px Inter, system-ui, sans-serif";
+              ctx.fillStyle = "#1a1a1a";
+              ctx.fillText("alkansya.ph/what-if", w / 2, h - 40);
+              ctx.font = "500 12px Inter, system-ui, sans-serif";
+              ctx.fillStyle = "#aaa";
+              ctx.fillText("Pang-guilt trip lang 'to, hindi financial advice.", w / 2, h - 18);
+
+              canvas.toBlob(async (blob) => {
+                if (!blob) return;
+                const file = new File([blob], "what-if.png", { type: "image/png" });
+                if (navigator.share && navigator.canShare?.({ files: [file] })) {
+                  try { await navigator.share({ files: [file], title: "What if nag-invest ka nalang?" }); } catch {}
+                } else {
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url; a.download = "what-if.png"; a.click();
+                  URL.revokeObjectURL(url);
+                }
+              }, "image/png");
             }}
             className={`w-14 shrink-0 py-3.5 rounded-2xl text-lg transition-all active:scale-[0.97] ${
               asset === "gold" ? "text-[#1a1a1a]" : "text-white"
@@ -397,7 +485,7 @@ export default function WhatIfPage() {
             style={{ background: assetColor }}
             title="Share"
           >
-            {shareCopied ? "✓" : "↗"}
+            ↗
           </button>
         </div>
 
