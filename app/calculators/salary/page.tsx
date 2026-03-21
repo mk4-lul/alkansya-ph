@@ -317,9 +317,7 @@ export default function SalaryPage() {
     const conf = row[6];
     const phMin = phRow[idx];
     const phMax = phRow[idx + 1];
-    const phMid = (phMin + phMax) / 2;
-    const mid = (min + max) / 2;
-    const multiplier = phMid > 0 ? mid / phMid : 0;
+    const multiplier = phMin > 0 ? min / phMin : 0;
 
     return { min, max, conf, phMin, phMax, multiplier };
   }, [profId, exp, countryId]);
@@ -342,57 +340,65 @@ export default function SalaryPage() {
       <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">
         <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1a1a1a] tracking-tight mb-4">Magkano sahod abroad?</h1>
 
-        {/* Inputs */}
+        {/* Inputs — one at a time */}
         {!isReady && (
         <div className="space-y-3">
-          {/* Profession */}
+          {/* Step 1: Profession */}
+          {!profId && (
           <div className="bg-white rounded-[20px] p-5 sm:p-6">
             <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Profession</p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {PROFESSIONS.map((p) => (
                 <button key={p.id} onClick={() => setProfId(p.id)}
-                  className={`py-3 rounded-xl text-[12px] font-bold transition-all flex items-center justify-center gap-1.5 ${
-                    profId === p.id ? "bg-[#1a1a1a] text-white" : "bg-[#f5f5f5] text-[#1a1a1a] hover:bg-[#e8e8e8]"
-                  }`}>
+                  className="py-3 rounded-xl text-[12px] font-bold transition-all flex items-center justify-center gap-1.5 bg-[#f5f5f5] text-[#1a1a1a] hover:bg-[#e8e8e8]">
                   <span className="text-base">{p.emoji}</span> {p.name}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Experience */}
-          {profId && (
-          <div className="bg-white rounded-[20px] p-5 sm:p-6">
-            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Experience</p>
-            <div className="grid grid-cols-3 gap-2">
-              {EXP_OPTIONS.map((e) => (
-                <button key={e.id} onClick={() => setExp(e.id)}
-                  className={`py-3 rounded-xl text-[12px] font-bold transition-all ${
-                    exp === e.id ? "bg-[#1a1a1a] text-white" : "bg-[#f5f5f5] text-[#1a1a1a] hover:bg-[#e8e8e8]"
-                  }`}>
-                  <span className="block">{e.label}</span>
-                  <span className={`text-[10px] font-normal ${exp === e.id ? "text-white/60" : "text-[#aaa]"}`}>{e.desc}</span>
                 </button>
               ))}
             </div>
           </div>
           )}
 
-          {/* Country */}
-          {profId && exp && (
+          {/* Step 2: Experience */}
+          {profId && !exp && (
+          <>
+          <div className="flex items-center justify-between px-1 mb-1">
+            <p className="text-[12px] text-[#888]">{profession?.emoji} {profession?.name}</p>
+            <button onClick={() => setProfId(null)} className="text-[12px] font-semibold text-[#00c853]">Change ↻</button>
+          </div>
+          <div className="bg-white rounded-[20px] p-5 sm:p-6">
+            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Experience</p>
+            <div className="grid grid-cols-3 gap-2">
+              {EXP_OPTIONS.map((e) => (
+                <button key={e.id} onClick={() => setExp(e.id)}
+                  className="py-3 rounded-xl text-[12px] font-bold transition-all bg-[#f5f5f5] text-[#1a1a1a] hover:bg-[#e8e8e8]">
+                  <span className="block">{e.label}</span>
+                  <span className="text-[10px] font-normal text-[#aaa]">{e.desc}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+          </>
+          )}
+
+          {/* Step 3: Country */}
+          {profId && exp && !countryId && (
+          <>
+          <div className="flex items-center justify-between px-1 mb-1">
+            <p className="text-[12px] text-[#888]">{profession?.emoji} {profession?.name} · {EXP_OPTIONS.find(e => e.id === exp)?.label}</p>
+            <button onClick={() => setExp(null)} className="text-[12px] font-semibold text-[#00c853]">Change ↻</button>
+          </div>
           <div className="bg-white rounded-[20px] p-5 sm:p-6">
             <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Country</p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {COUNTRIES.map((c) => (
                 <button key={c.id} onClick={() => setCountryId(c.id)}
-                  className={`py-3 rounded-xl text-[12px] font-bold transition-all flex items-center justify-center gap-1.5 ${
-                    countryId === c.id ? "bg-[#1a1a1a] text-white" : "bg-[#f5f5f5] text-[#1a1a1a] hover:bg-[#e8e8e8]"
-                  }`}>
+                  className="py-3 rounded-xl text-[12px] font-bold transition-all flex items-center justify-center gap-1.5 bg-[#f5f5f5] text-[#1a1a1a] hover:bg-[#e8e8e8]">
                   <span className="text-base">{c.flag}</span> {c.name}
                 </button>
               ))}
             </div>
           </div>
+          </>
           )}
         </div>
         )}
@@ -416,10 +422,13 @@ export default function SalaryPage() {
               <p className="text-[10px] font-semibold uppercase tracking-[1px] text-white/40 mb-1">
                 Estimated monthly salary
               </p>
-              <p className="text-3xl sm:text-4xl font-black tracking-tight text-white mb-1">
-                {fmtRange(result.min, result.max)}
+              <p className="text-4xl sm:text-5xl font-black tracking-tight text-white mb-0.5">
+                ₱{fmt(result.min * 1000)}
               </p>
-              <p className="text-sm font-semibold text-white/40 mb-4">
+              <p className="text-lg sm:text-xl font-bold text-white/40 mb-1">
+                up to ₱{fmt(result.max * 1000)}
+              </p>
+              <p className="text-[11px] font-semibold text-white/30 mb-4">
                 per month in {country.name}
               </p>
 
@@ -438,7 +447,7 @@ export default function SalaryPage() {
                 <div className="flex justify-between items-center">
                   <div className="text-left">
                     <p className="text-[10px] font-semibold uppercase tracking-wider text-white/40">Same role in PH</p>
-                    <p className="text-lg font-extrabold text-white/70">{fmtRange(result.phMin, result.phMax)}</p>
+                    <p className="text-base font-extrabold text-white/70">₱{fmt(result.phMin * 1000)} – ₱{fmt(result.phMax * 1000)}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-[10px] font-semibold uppercase tracking-wider text-white/40">Multiplier</p>
@@ -450,6 +459,11 @@ export default function SalaryPage() {
               </div>
               )}
             </div>
+
+            {/* Warning */}
+            <p className="text-[10px] text-white/25 text-center mt-4 leading-relaxed max-w-xs mx-auto">
+              Actual offers can be lower depending on employer, city, and qualifications. Treat the lower number as the realistic starting point.
+            </p>
           </div>
 
           {/* Country details */}
@@ -501,12 +515,13 @@ export default function SalaryPage() {
                 const row = S[profId]?.[c.id];
                 if (!row) return null;
                 const idx = exp === "entry" ? 0 : exp === "mid" ? 2 : 4;
-                const mid = (row[idx] + row[idx + 1]) / 2;
+                const rMin = row[idx];
+                const rMax = row[idx + 1];
                 const maxMid = Math.max(...COUNTRIES.filter(cc => cc.id !== "ph").map((cc) => {
                   const r = S[profId]?.[cc.id];
-                  return r ? (r[idx] + r[idx + 1]) / 2 : 0;
+                  return r ? r[idx + 1] : 0;
                 }));
-                const pct = maxMid > 0 ? (mid / maxMid) * 100 : 0;
+                const pct = maxMid > 0 ? (rMin / maxMid) * 100 : 0;
                 const active = c.id === countryId;
 
                 return (
@@ -518,7 +533,7 @@ export default function SalaryPage() {
                         <span className="text-[12px] font-bold text-[#1a1a1a]">{c.flag} {c.name}</span>
                       </div>
                       <span className={`text-[11px] font-extrabold ${active ? "text-[#1a1a1a]" : "text-[#888]"}`}>
-                        ₱{fmt(mid * 1000)}/mo
+                        ₱{fmt(rMin * 1000)}<span className="font-normal text-[#aaa]"> – ₱{fmt(rMax * 1000)}</span>/mo
                       </span>
                     </div>
                     <div className="h-1.5 rounded-full bg-[#f0f0f0] overflow-hidden">
