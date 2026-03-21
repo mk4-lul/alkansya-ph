@@ -79,33 +79,27 @@ const TOOLS = [
     description: "Alamin ang totoong cost ng utang mo — credit card, 5-6, online lending",
     tag: "calculator",
   },
+  {
+    href: "/salary",
+    emoji: "✈️",
+    title: "Magkano Sahod Abroad?",
+    description: "Compare estimated salaries across 12 countries",
+    tag: "12 countries",
+  },
 ];
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-[#f5f5f5] relative overflow-hidden">
-      {/* Green radial glow */}
-      <div
-        className="absolute pointer-events-none"
-        style={{
-          width: 1000,
-          height: 1000,
-          borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(0,200,83,0.16) 0%, transparent 55%)",
-          bottom: -300,
-          right: -100,
-        }}
-      />
-
+    <div className="min-h-screen bg-[#f5f5f5] relative">
       {/* Nav */}
-      <nav className="relative z-10 flex justify-between items-center px-4 sm:px-6 py-4 max-w-[720px] mx-auto">
+      <nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[720px] mx-auto">
         <span className="text-xl font-extrabold tracking-tight text-[#1a1a1a]">
           alkansya<span className="text-[#00c853]">.ph</span>
         </span>
         <NavMenu />
       </nav>
 
-      <main className="relative z-10 max-w-[720px] mx-auto pb-8">
+      <main className="max-w-[720px] mx-auto pb-8">
 
         {/* Trending — horizontal scroll */}
         <div className="mb-6">
