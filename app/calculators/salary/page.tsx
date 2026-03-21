@@ -422,11 +422,8 @@ export default function SalaryPage() {
               <p className="text-[10px] font-semibold uppercase tracking-[1px] text-white/40 mb-1">
                 Estimated monthly salary
               </p>
-              <p className="text-4xl sm:text-5xl font-black tracking-tight text-white mb-0.5">
-                ₱{fmt(result.min * 1000)}
-              </p>
-              <p className="text-lg sm:text-xl font-bold text-white/40 mb-1">
-                up to ₱{fmt(result.max * 1000)}
+              <p className="text-4xl sm:text-5xl font-black tracking-tight text-white mb-1">
+                ₱{fmt(result.min * 1000)} <span className="text-white/30 font-bold">–</span> ₱{fmt(result.max * 1000)}
               </p>
               <p className="text-[11px] font-semibold text-white/30 mb-4">
                 per month in {country.name}
