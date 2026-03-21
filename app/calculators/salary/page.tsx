@@ -71,7 +71,7 @@ type SalaryRow = [number, number, number, number, number, number, number];
 
 const S: Record<string, Record<string, SalaryRow>> = {
   nurse: {
-    ph: [15, 22, 22, 30, 30, 45, 1],
+    ph: [12, 18, 18, 28, 28, 40, 1],
     us: [250, 310, 340, 460, 460, 630, 1],
     ca: [190, 250, 250, 340, 340, 420, 1],
     uk: [145, 200, 200, 290, 290, 400, 1],
@@ -85,7 +85,7 @@ const S: Record<string, Record<string, SalaryRow>> = {
     de: [155, 210, 210, 280, 280, 370, 1],
   },
   swe: {
-    ph: [18, 30, 35, 60, 60, 120, 1],
+    ph: [15, 25, 25, 50, 50, 100, 1],
     us: [340, 460, 570, 800, 800, 1250, 1],
     ca: [250, 340, 380, 550, 550, 800, 1],
     uk: [220, 310, 310, 460, 460, 680, 1],
@@ -99,7 +99,7 @@ const S: Record<string, Record<string, SalaryRow>> = {
     de: [190, 280, 280, 400, 400, 560, 1],
   },
   bpo: {
-    ph: [15, 20, 20, 30, 30, 50, 1],
+    ph: [12, 18, 18, 28, 28, 45, 1],
     us: [160, 200, 200, 285, 285, 400, 2],
     ca: [130, 170, 170, 230, 230, 310, 2],
     uk: [115, 160, 160, 220, 220, 310, 2],
@@ -113,7 +113,7 @@ const S: Record<string, Record<string, SalaryRow>> = {
     de: [120, 165, 165, 230, 230, 310, 3],
   },
   caregiver: {
-    ph: [8, 12, 12, 18, 18, 25, 1],
+    ph: [6, 10, 10, 15, 15, 22, 1],
     us: [140, 185, 185, 230, 230, 285, 2],
     ca: [100, 140, 140, 185, 185, 230, 1],
     uk: [95, 140, 140, 190, 190, 250, 2],
@@ -127,7 +127,7 @@ const S: Record<string, Record<string, SalaryRow>> = {
     de: [95, 130, 130, 175, 175, 230, 2],
   },
   seaman: {
-    ph: [20, 35, 40, 70, 70, 150, 1],
+    ph: [18, 30, 30, 55, 55, 120, 1],
     us: [170, 285, 285, 400, 400, 570, 2],
     ca: [145, 230, 230, 340, 340, 510, 3],
     uk: [145, 230, 230, 340, 340, 510, 2],
@@ -141,7 +141,7 @@ const S: Record<string, Record<string, SalaryRow>> = {
     de: [145, 220, 220, 340, 340, 510, 2],
   },
   teacher: {
-    ph: [15, 20, 20, 28, 28, 42, 1],
+    ph: [12, 18, 18, 25, 25, 38, 1],
     us: [200, 260, 260, 340, 340, 460, 1],
     ca: [170, 230, 230, 310, 310, 420, 1],
     uk: [145, 200, 200, 270, 270, 370, 1],
@@ -155,7 +155,7 @@ const S: Record<string, Record<string, SalaryRow>> = {
     de: [155, 210, 210, 280, 280, 370, 1],
   },
   accountant: {
-    ph: [15, 22, 25, 40, 40, 70, 1],
+    ph: [12, 18, 18, 32, 32, 55, 1],
     us: [260, 340, 370, 510, 510, 740, 1],
     ca: [190, 260, 280, 380, 380, 540, 1],
     uk: [170, 230, 250, 360, 360, 500, 1],
@@ -169,7 +169,7 @@ const S: Record<string, Record<string, SalaryRow>> = {
     de: [155, 220, 240, 340, 340, 470, 1],
   },
   engineer: {
-    ph: [15, 22, 25, 40, 40, 65, 1],
+    ph: [12, 18, 18, 32, 32, 55, 1],
     us: [285, 400, 400, 570, 570, 800, 1],
     ca: [220, 310, 330, 460, 460, 630, 1],
     uk: [180, 250, 270, 380, 380, 530, 1],
@@ -183,7 +183,7 @@ const S: Record<string, Record<string, SalaryRow>> = {
     de: [185, 260, 270, 380, 380, 530, 1],
   },
   chef: {
-    ph: [10, 15, 15, 25, 25, 40, 1],
+    ph: [8, 13, 13, 20, 20, 35, 1],
     us: [155, 200, 200, 285, 285, 460, 2],
     ca: [120, 170, 170, 230, 230, 340, 2],
     uk: [110, 155, 155, 220, 220, 340, 2],
@@ -197,7 +197,7 @@ const S: Record<string, Record<string, SalaryRow>> = {
     de: [110, 155, 160, 230, 230, 340, 2],
   },
   hotel: {
-    ph: [10, 14, 14, 22, 22, 35, 1],
+    ph: [8, 12, 12, 18, 18, 30, 1],
     us: [140, 185, 200, 280, 280, 400, 2],
     ca: [110, 150, 155, 220, 220, 310, 2],
     uk: [100, 140, 145, 200, 200, 290, 2],
@@ -211,7 +211,7 @@ const S: Record<string, Record<string, SalaryRow>> = {
     de: [100, 140, 150, 210, 210, 300, 2],
   },
   factory: {
-    ph: [10, 13, 13, 18, 18, 25, 1],
+    ph: [8, 11, 11, 15, 15, 22, 1],
     us: [160, 200, 200, 260, 260, 340, 2],
     ca: [125, 165, 170, 220, 220, 280, 2],
     uk: [110, 150, 155, 200, 200, 260, 2],
@@ -225,7 +225,7 @@ const S: Record<string, Record<string, SalaryRow>> = {
     de: [115, 160, 165, 220, 220, 290, 2],
   },
   construction: {
-    ph: [10, 14, 14, 22, 22, 35, 1],
+    ph: [8, 12, 12, 18, 18, 30, 1],
     us: [170, 230, 230, 315, 315, 430, 2],
     ca: [145, 200, 210, 285, 285, 390, 2],
     uk: [120, 170, 175, 240, 240, 330, 2],
@@ -375,7 +375,7 @@ export default function SalaryPage() {
         >
           {/* Step 1: Profession */}
           {!profId && (
-          <div className="bg-white rounded-[20px] p-5 sm:p-6">
+          <div className="bg-white rounded-[20px] p-5 pb-7 sm:p-6 sm:pb-8">
             <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Profession</p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {PROFESSIONS.map((p) => (
@@ -395,7 +395,7 @@ export default function SalaryPage() {
             <p className="text-[12px] text-[#888]">{profession?.emoji} {profession?.name}</p>
             <button onClick={() => animatedPick(() => setProfId(null))} className="text-[12px] font-semibold text-[#00c853]">Change ↻</button>
           </div>
-          <div className="bg-white rounded-[20px] p-5 sm:p-6">
+          <div className="bg-white rounded-[20px] p-5 pb-7 sm:p-6 sm:pb-8">
             <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Experience</p>
             <div className="grid grid-cols-3 gap-2">
               {EXP_OPTIONS.map((e) => (
@@ -417,7 +417,7 @@ export default function SalaryPage() {
             <p className="text-[12px] text-[#888]">{profession?.emoji} {profession?.name} · {EXP_OPTIONS.find(e => e.id === exp)?.label}</p>
             <button onClick={() => animatedPick(() => setExp(null))} className="text-[12px] font-semibold text-[#00c853]">Change ↻</button>
           </div>
-          <div className="bg-white rounded-[20px] p-5 sm:p-6">
+          <div className="bg-white rounded-[20px] p-5 pb-7 sm:p-6 sm:pb-8">
             <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Country</p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {COUNTRIES.map((c) => (
