@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import NavMenu from "@/components/NavMenu";
 
@@ -298,12 +298,36 @@ export default function SalaryPage() {
   const [profId, setProfId] = useState<string | null>(null);
   const [exp, setExp] = useState<Experience | null>(null);
   const [countryId, setCountryId] = useState<string | null>(null);
+  const [fadeOut, setFadeOut] = useState(false);
+  const [fadeIn, setFadeIn] = useState(true);
+  const [showResult, setShowResult] = useState(false);
 
   const profession = PROFESSIONS.find((p) => p.id === profId);
   const country = COUNTRIES.find((c) => c.id === countryId);
   const phBaseline = COUNTRIES[0];
 
   const isReady = profId && exp && countryId;
+
+  function animatedPick(setter: () => void) {
+    setFadeOut(true);
+    setTimeout(() => {
+      setter();
+      setFadeOut(false);
+      setFadeIn(false);
+      requestAnimationFrame(() => requestAnimationFrame(() => setFadeIn(true)));
+    }, 200);
+  }
+
+  // Trigger result animation
+  useEffect(() => {
+    if (isReady) {
+      setShowResult(false);
+      const t = setTimeout(() => setShowResult(true), 80);
+      return () => clearTimeout(t);
+    } else {
+      setShowResult(false);
+    }
+  }, [isReady, profId, exp, countryId]);
 
   const result = useMemo(() => {
     if (!profId || !exp || !countryId) return null;
@@ -340,16 +364,22 @@ export default function SalaryPage() {
       <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">
         <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1a1a1a] tracking-tight mb-4">Magkano sahod abroad?</h1>
 
-        {/* Inputs — one at a time */}
+        {/* Inputs — one at a time, animated */}
         {!isReady && (
-        <div className="space-y-3">
+        <div
+          className="transition-all duration-200 ease-out"
+          style={{
+            opacity: fadeOut ? 0 : fadeIn ? 1 : 0,
+            transform: fadeOut ? "translateY(-10px) scale(0.98)" : fadeIn ? "translateY(0) scale(1)" : "translateY(10px) scale(0.98)",
+          }}
+        >
           {/* Step 1: Profession */}
           {!profId && (
           <div className="bg-white rounded-[20px] p-5 sm:p-6">
             <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Profession</p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {PROFESSIONS.map((p) => (
-                <button key={p.id} onClick={() => setProfId(p.id)}
+                <button key={p.id} onClick={() => animatedPick(() => setProfId(p.id))}
                   className="py-3 rounded-xl text-[12px] font-bold transition-all flex items-center justify-center gap-1.5 bg-[#f5f5f5] text-[#1a1a1a] hover:bg-[#e8e8e8]">
                   <span className="text-base">{p.emoji}</span> {p.name}
                 </button>
@@ -363,13 +393,13 @@ export default function SalaryPage() {
           <>
           <div className="flex items-center justify-between px-1 mb-1">
             <p className="text-[12px] text-[#888]">{profession?.emoji} {profession?.name}</p>
-            <button onClick={() => setProfId(null)} className="text-[12px] font-semibold text-[#00c853]">Change ↻</button>
+            <button onClick={() => animatedPick(() => setProfId(null))} className="text-[12px] font-semibold text-[#00c853]">Change ↻</button>
           </div>
           <div className="bg-white rounded-[20px] p-5 sm:p-6">
             <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Experience</p>
             <div className="grid grid-cols-3 gap-2">
               {EXP_OPTIONS.map((e) => (
-                <button key={e.id} onClick={() => setExp(e.id)}
+                <button key={e.id} onClick={() => animatedPick(() => setExp(e.id))}
                   className="py-3 rounded-xl text-[12px] font-bold transition-all bg-[#f5f5f5] text-[#1a1a1a] hover:bg-[#e8e8e8]">
                   <span className="block">{e.label}</span>
                   <span className="text-[10px] font-normal text-[#aaa]">{e.desc}</span>
@@ -385,13 +415,13 @@ export default function SalaryPage() {
           <>
           <div className="flex items-center justify-between px-1 mb-1">
             <p className="text-[12px] text-[#888]">{profession?.emoji} {profession?.name} · {EXP_OPTIONS.find(e => e.id === exp)?.label}</p>
-            <button onClick={() => setExp(null)} className="text-[12px] font-semibold text-[#00c853]">Change ↻</button>
+            <button onClick={() => animatedPick(() => setExp(null))} className="text-[12px] font-semibold text-[#00c853]">Change ↻</button>
           </div>
           <div className="bg-white rounded-[20px] p-5 sm:p-6">
             <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">Country</p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {COUNTRIES.map((c) => (
-                <button key={c.id} onClick={() => setCountryId(c.id)}
+                <button key={c.id} onClick={() => { setCountryId(c.id); }}
                   className="py-3 rounded-xl text-[12px] font-bold transition-all flex items-center justify-center gap-1.5 bg-[#f5f5f5] text-[#1a1a1a] hover:bg-[#e8e8e8]">
                   <span className="text-base">{c.flag}</span> {c.name}
                 </button>
@@ -417,15 +447,22 @@ export default function SalaryPage() {
           </div>
 
           {/* Salary card */}
-          <div className="bg-[#1a1a1a] rounded-[20px] p-6 sm:p-8 mb-3">
+          <div className="bg-[#1a1a1a] rounded-[20px] p-6 sm:p-8 mb-3 transition-all duration-700 ease-out"
+            style={{
+              transform: showResult ? "scale(1) translateY(0)" : "scale(0.92) translateY(20px)",
+              opacity: showResult ? 1 : 0,
+            }}>
             <div className="text-center">
-              <p className="text-[10px] font-semibold uppercase tracking-[1px] text-white/40 mb-1">
+              <p className="text-[10px] font-semibold uppercase tracking-[1px] text-white/40 mb-1 transition-all duration-500 delay-200"
+                style={{ opacity: showResult ? 1 : 0, transform: showResult ? "translateY(0)" : "translateY(10px)" }}>
                 Estimated monthly salary
               </p>
-              <p className="text-4xl sm:text-5xl font-black tracking-tight text-white mb-1">
+              <p className="text-4xl sm:text-5xl font-black tracking-tight text-white mb-1 transition-all duration-500 delay-300"
+                style={{ opacity: showResult ? 1 : 0 }}>
                 ₱{fmt(result.min * 1000)} <span className="text-white/30 font-bold">–</span> ₱{fmt(result.max * 1000)}
               </p>
-              <p className="text-[11px] font-semibold text-white/30 mb-4">
+              <p className="text-[11px] font-semibold text-white/30 mb-4 transition-all duration-500 delay-300"
+                style={{ opacity: showResult ? 1 : 0 }}>
                 per month in {country.name}
               </p>
 
@@ -464,7 +501,8 @@ export default function SalaryPage() {
           </div>
 
           {/* Country details */}
-          <div className="bg-white rounded-[20px] p-5 sm:p-6 mb-3">
+          <div className="bg-white rounded-[20px] p-5 sm:p-6 mb-3 transition-all duration-500 delay-300"
+            style={{ opacity: showResult ? 1 : 0, transform: showResult ? "translateY(0)" : "translateY(15px)" }}>
             <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">{country.flag} {country.name}</p>
             <div className="space-y-3">
               {/* Cost of living */}
@@ -503,7 +541,8 @@ export default function SalaryPage() {
 
           {/* All countries comparison */}
           {countryId !== "ph" && (
-          <div className="bg-white rounded-[20px] p-5 sm:p-6 mb-3">
+          <div className="bg-white rounded-[20px] p-5 sm:p-6 mb-3 transition-all duration-500 delay-500"
+            style={{ opacity: showResult ? 1 : 0, transform: showResult ? "translateY(0)" : "translateY(15px)" }}>
             <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">
               {profession.name} salary across countries
             </p>
@@ -545,7 +584,8 @@ export default function SalaryPage() {
           )}
 
           {/* Sources */}
-          <div className="bg-white rounded-[20px] p-5 sm:p-6 mb-3">
+          <div className="bg-white rounded-[20px] p-5 sm:p-6 mb-3 transition-all duration-500 delay-700"
+            style={{ opacity: showResult ? 1 : 0, transform: showResult ? "translateY(0)" : "translateY(15px)" }}>
             <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-2">Sources</p>
             <div className="space-y-1">
               {(SOURCES[countryId] || []).map((url, i) => (
