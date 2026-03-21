@@ -367,7 +367,7 @@ export default function SalaryPage() {
         {/* Inputs — one at a time, animated */}
         {!isReady && (
         <div
-          className="transition-all duration-200 ease-out"
+          className="transition-all duration-200 ease-out mb-16"
           style={{
             opacity: fadeOut ? 0 : fadeIn ? 1 : 0,
             transform: fadeOut ? "translateY(-10px) scale(0.98)" : fadeIn ? "translateY(0) scale(1)" : "translateY(10px) scale(0.98)",
