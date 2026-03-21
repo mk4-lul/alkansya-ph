@@ -14,6 +14,7 @@ const PAGES = [
   { label: "Magkano nawawala sa'yo?", href: "/utang", description: "Alamin ang totoong cost ng utang mo" },
   { label: "What if nag-invest ka nalang?", href: "/what-if", description: "Sana nag-invest ka nalang..." },
   { label: "Gaano ako kayaman?", href: "/gkk", description: "Nasaan ka sa income ranking ng mga Pilipino?" },
+  { label: "Magkano sahod abroad?", href: "/salary", description: "Salary comparison across 12 countries" },
 ];
 
 export default function NavMenu({ dark = false }: { dark?: boolean }) {
