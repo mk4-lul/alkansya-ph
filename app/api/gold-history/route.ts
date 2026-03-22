@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
+// Don't prerender — env vars aren't available at build time
+export const dynamic = "force-dynamic";
+
 // Reads gold_prices from Supabase. Same client pattern as lib/supabase.ts.
 
 function getSupabase() {
