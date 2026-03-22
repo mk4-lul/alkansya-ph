@@ -402,8 +402,8 @@ export default function GoldPage() {
           <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-3">Gold Calculator</p>
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Weight input — narrow */}
-            <div className="w-[100px] sm:w-[120px] shrink-0">
-              <div className="flex items-center bg-white/10 rounded-xl px-3 py-3">
+            <div className="w-[110px] sm:w-[130px] shrink-0">
+              <div className="flex items-center bg-white/10 rounded-xl px-3 py-3 h-[48px]">
                 <input
                   type="text"
                   inputMode="decimal"
@@ -413,25 +413,25 @@ export default function GoldPage() {
                     if (unit === "oz") { setUnit("oz"); setOz(e.target.value); }
                     else { setUnit("g"); setGrams(e.target.value); }
                   }}
-                  className="bg-transparent font-extrabold text-lg text-white outline-none min-w-0 w-full placeholder-white/30"
+                  className="bg-transparent font-extrabold text-lg text-white outline-none min-w-0 flex-1 placeholder-white/30"
                   placeholder="1"
                 />
-              </div>
-              <div className="flex bg-white/10 rounded-full p-0.5 mt-1.5 w-fit mx-auto">
-                <button onClick={() => { setUnit("oz"); setOz("1"); }}
-                  className={`px-2 py-0.5 rounded-full text-[9px] font-bold transition-all ${
-                    unit === "oz" ? "bg-white text-[#C8940A]" : "text-white/50"
-                  }`}>oz</button>
-                <button onClick={() => { setUnit("g"); setGrams("1"); }}
-                  className={`px-2 py-0.5 rounded-full text-[9px] font-bold transition-all ${
-                    unit === "g" ? "bg-white text-[#C8940A]" : "text-white/50"
-                  }`}>g</button>
+                <div className="flex bg-white/10 rounded-full p-0.5 ml-1 shrink-0">
+                  <button onClick={() => { setUnit("oz"); setOz("1"); }}
+                    className={`px-1.5 py-0.5 rounded-full text-[8px] font-bold transition-all ${
+                      unit === "oz" ? "bg-white text-[#C8940A]" : "text-white/50"
+                    }`}>oz</button>
+                  <button onClick={() => { setUnit("g"); setGrams("1"); }}
+                    className={`px-1.5 py-0.5 rounded-full text-[8px] font-bold transition-all ${
+                      unit === "g" ? "bg-white text-[#C8940A]" : "text-white/50"
+                    }`}>g</button>
+                </div>
               </div>
             </div>
             <span className="text-xl font-black text-white/20 shrink-0">=</span>
-            {/* PHP output — takes remaining space */}
+            {/* PHP output — takes remaining space, same height */}
             <div className="flex-1 min-w-0">
-              <div className="bg-white/10 rounded-xl px-4 py-3">
+              <div className="bg-white/10 rounded-xl px-4 py-3 h-[48px] flex items-center">
                 {(() => {
                   const v = unit === "oz" ? parseFloat(oz) : parseFloat(grams);
                   const total = isNaN(v) || v === 0 ? 0 : unit === "oz" ? v * goldPhp : v * goldPhpPerGram;
