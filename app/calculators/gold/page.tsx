@@ -456,12 +456,12 @@ export default function GoldPage() {
           <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-3">Price per Gram by Karat</p>
           <div className="space-y-0">
             {[
-              { k: 24, purity: 1, note: "Pure gold — bars, coins, investment gold" },
+              { k: 24, purity: 1, note: "HK 足金 (Chuk Kam) 999.9 standard, bars, coins" },
               { k: 22, purity: 22/24, note: "Saudi gold, Indian jewelry" },
               { k: 21, purity: 21/24, note: "Saudi gold, Middle East standard" },
-              { k: 18, purity: 18/24, note: "Most common in PH jewelry stores" },
-              { k: 14, purity: 14/24, note: "Affordable jewelry, durable for daily wear" },
-              { k: 10, purity: 10/24, note: "Budget jewelry, lowest legally sold as 'gold'" },
+              { k: 18, purity: 18/24, note: "PH & Japan (K18) standard, HK karat jewelry" },
+              { k: 14, purity: 14/24, note: "Common in PH & Japan (K14), everyday wear" },
+              { k: 10, purity: 10/24, note: "Budget jewelry, Japan K10" },
             ].map((row) => (
               <div key={row.k} className="flex items-center justify-between py-2.5 border-b border-white/5 last:border-0">
                 <div>
