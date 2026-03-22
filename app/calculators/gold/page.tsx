@@ -39,7 +39,7 @@ function AnimatedRate({ value, decimals = 2, prefix = "₱" }: { value: number; 
 }
 
 // --- Chart component (same structure as usdphp) ---
-function GoldChart({ data, color = "#1a1a1a" }: { data: [number, number][]; color?: string }) {
+function GoldChart({ data, color = "white" }: { data: [number, number][]; color?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [dotPos, setDotPos] = useState<{ x: number; y: number } | null>(null);
   const hoverIdxRef = useRef(-1);
@@ -85,21 +85,21 @@ function GoldChart({ data, color = "#1a1a1a" }: { data: [number, number][]; colo
 
       // Y-axis labels
       ctx.font = "600 10px Inter, system-ui, sans-serif";
-      ctx.fillStyle = "rgba(26,26,26,0.3)";
+      ctx.fillStyle = "rgba(255,255,255,0.4)";
       ctx.textAlign = "right";
       const ySteps = 5;
       for (let i = 0; i <= ySteps; i++) {
         const val = min + (range * i) / ySteps;
         const y = padTop + chartH - (chartH * i) / ySteps;
         ctx.fillText(`₱${Math.round(val).toLocaleString("en-PH")}`, padLeft - 8, y + 3);
-        ctx.strokeStyle = "rgba(26,26,26,0.06)";
+        ctx.strokeStyle = "rgba(255,255,255,0.08)";
         ctx.lineWidth = 0.5;
         ctx.beginPath(); ctx.moveTo(padLeft, y); ctx.lineTo(w - padRight, y); ctx.stroke();
       }
 
       // X-axis labels
       ctx.textAlign = "center";
-      ctx.fillStyle = "rgba(26,26,26,0.3)";
+      ctx.fillStyle = "rgba(255,255,255,0.4)";
       const xLabels = 5;
       for (let i = 0; i <= xLabels; i++) {
         const idx = Math.floor((i / xLabels) * (data.length - 1));
@@ -125,8 +125,8 @@ function GoldChart({ data, color = "#1a1a1a" }: { data: [number, number][]; colo
         ctx.lineTo(points[0].x, padTop + chartH);
         ctx.closePath();
         const grad = ctx.createLinearGradient(0, padTop, 0, padTop + chartH);
-        grad.addColorStop(0, "rgba(26,26,26,0.08)");
-        grad.addColorStop(1, "rgba(26,26,26,0.01)");
+        grad.addColorStop(0, "rgba(255,255,255,0.12)");
+        grad.addColorStop(1, "rgba(255,255,255,0.01)");
         ctx.fillStyle = grad;
         ctx.fill();
       }
@@ -137,7 +137,7 @@ function GoldChart({ data, color = "#1a1a1a" }: { data: [number, number][]; colo
         const pt = points[hi];
         ctx.beginPath();
         ctx.setLineDash([4, 4]);
-        ctx.strokeStyle = "rgba(26,26,26,0.15)";
+        ctx.strokeStyle = "rgba(255,255,255,0.2)";
         ctx.lineWidth = 1;
         ctx.moveTo(pt.x, padTop); ctx.lineTo(pt.x, padTop + chartH);
         ctx.stroke();
@@ -147,7 +147,7 @@ function GoldChart({ data, color = "#1a1a1a" }: { data: [number, number][]; colo
         ctx.arc(pt.x, pt.y, 4, 0, Math.PI * 2);
         ctx.fillStyle = color;
         ctx.fill();
-        ctx.strokeStyle = "white";
+        ctx.strokeStyle = "rgba(0,0,0,0.3)";
         ctx.lineWidth = 2;
         ctx.stroke();
 
@@ -160,7 +160,7 @@ function GoldChart({ data, color = "#1a1a1a" }: { data: [number, number][]; colo
         const tx = pt.x > w * 0.7 ? pt.x - tw - 10 : pt.x + 10;
         const ty = Math.max(padTop, pt.y - 30);
 
-        ctx.fillStyle = "rgba(26,26,26,0.9)";
+        ctx.fillStyle = "rgba(0,0,0,0.7)";
         ctx.beginPath();
         ctx.roundRect(tx, ty, tw, 46, 8);
         ctx.fill();
@@ -231,8 +231,8 @@ function GoldChart({ data, color = "#1a1a1a" }: { data: [number, number][]; colo
       />
       {dotPos && (
         <span className="absolute pointer-events-none" style={{ left: `${dotPos.x}%`, top: `${dotPos.y}%`, transform: "translate(-50%, -50%)" }}>
-          <span className="block w-[8px] h-[8px] rounded-full bg-[#1a1a1a]" />
-          <span className="absolute inset-[-4px] rounded-full bg-[#1a1a1a]/40 animate-pulse-dot" />
+          <span className="block w-[8px] h-[8px] rounded-full bg-white" />
+          <span className="absolute inset-[-4px] rounded-full bg-white/40 animate-pulse-dot" />
         </span>
       )}
     </div>
@@ -299,16 +299,24 @@ export default function GoldPage() {
     if (usdPhp > 0) loadHistory();
   }, [usdPhp]);
 
-  // Chart data based on period
+  // Chart data based on period — append live price to bridge any data gap
   const chartData = useMemo(() => {
     if (historyData.length === 0) return [];
+    // Append today's live price
+    const withLive = [...historyData];
+    const today = Date.now();
+    const lastTs = withLive[withLive.length - 1][0];
+    if (today - lastTs > 86400000 && goldPhp > 0) {
+      withLive.push([today, goldPhp]);
+    }
+
     let pts: [number, number][];
     if (period === "all") {
-      pts = historyData;
+      pts = withLive;
     } else {
       const cutoff = Date.now() - Number(period) * 86400000;
-      const sliced = historyData.filter(d => d[0] >= cutoff);
-      pts = sliced.length >= 2 ? sliced : historyData.slice(-30);
+      const sliced = withLive.filter(d => d[0] >= cutoff);
+      pts = sliced.length >= 2 ? sliced : withLive.slice(-30);
     }
     const maxPoints = 200;
     const step = Math.max(1, Math.floor(pts.length / maxPoints));
@@ -317,7 +325,7 @@ export default function GoldPage() {
       sampled.push(pts[pts.length - 1]);
     }
     return sampled;
-  }, [historyData, period]);
+  }, [historyData, period, goldPhp]);
 
   // Conversion
   useEffect(() => {
@@ -354,16 +362,16 @@ export default function GoldPage() {
 
         {/* Price display */}
         <div className="text-center mb-6">
-          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#1a1a1a]/40 mb-2">Gold Price / Troy Oz</p>
-          <p className="text-5xl sm:text-6xl font-black tracking-tight text-[#1a1a1a]">
+          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-2">Global Gold Price / Troy Oz</p>
+          <p className="text-5xl sm:text-6xl font-black tracking-tight text-white">
             <AnimatedRate value={goldPhp} decimals={0} />
           </p>
-          <p className="text-lg font-bold text-[#1a1a1a]/50 mt-1">
+          <p className="text-lg font-bold text-white/50 mt-1">
             <AnimatedRate value={goldUsd} decimals={2} prefix="$" /> USD
           </p>
           {live && (
-            <p className="text-[11px] text-[#1a1a1a]/30 mt-2">
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#1a1a1a]/40 mr-1 animate-pulse" />
+            <p className="text-[11px] text-white/30 mt-2">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-white/50 mr-1 animate-pulse" />
               Updated {lastUpdated}
             </p>
           )}
@@ -371,29 +379,61 @@ export default function GoldPage() {
 
         {/* Quick stats */}
         <div className="grid grid-cols-2 gap-3 mb-4">
-          <div className="bg-[#1a1a1a]/10 rounded-2xl px-4 py-3 text-center">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#1a1a1a]/40">Per Gram</p>
-            <p className="text-xl font-extrabold text-[#1a1a1a]">
+          <div className="bg-white/10 rounded-2xl px-4 py-3 text-center">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-white/50">Per Gram (24K)</p>
+            <p className="text-xl font-extrabold text-white">
               <AnimatedRate value={goldPhpPerGram} decimals={0} />
             </p>
           </div>
-          <div className="bg-[#1a1a1a]/10 rounded-2xl px-4 py-3 text-center">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#1a1a1a]/40">USD / PHP Rate</p>
-            <p className="text-xl font-extrabold text-[#1a1a1a]">
+          <div className="bg-white/10 rounded-2xl px-4 py-3 text-center">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-white/50">USD / PHP Rate</p>
+            <p className="text-xl font-extrabold text-white">
               <AnimatedRate value={usdPhp} decimals={2} />
             </p>
           </div>
         </div>
 
+        {/* Karat pricing */}
+        <div className="bg-white/10 backdrop-blur-sm rounded-[20px] p-5 mb-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-3">Price per Gram by Karat</p>
+          <div className="space-y-0">
+            {[
+              { k: 24, purity: 1, note: "Pure gold — bars, coins, investment gold" },
+              { k: 22, purity: 22/24, note: "Saudi gold, Indian jewelry" },
+              { k: 21, purity: 21/24, note: "Saudi gold, Middle East standard" },
+              { k: 18, purity: 18/24, note: "Most common in PH jewelry stores" },
+              { k: 14, purity: 14/24, note: "Affordable jewelry, durable for daily wear" },
+              { k: 10, purity: 10/24, note: "Budget jewelry, lowest legally sold as 'gold'" },
+            ].map((row) => (
+              <div key={row.k} className="flex items-center justify-between py-2.5 border-b border-white/5 last:border-0">
+                <div>
+                  <p className="text-sm font-bold text-white">{row.k}K</p>
+                  <p className="text-[10px] text-white/35">{row.note}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-extrabold text-white">
+                    ₱{Math.round(goldPhpPerGram * row.purity).toLocaleString("en-PH")}/g
+                  </p>
+                  <p className="text-[10px] text-white/35">{(row.purity * 100).toFixed(1)}% pure</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <p className="text-[10px] text-white/20 mt-3 leading-relaxed">
+            Karat prices are calculated from 24K spot. Jewelry store prices will be higher due to labor, design, and markup.
+            Saudi gold is typically 21K or 22K — ask your OFW to check the stamp.
+          </p>
+        </div>
+
         {/* Chart */}
-        <div className="bg-[#1a1a1a]/10 backdrop-blur-sm rounded-[20px] p-5 mb-4">
+        <div className="bg-white/10 backdrop-blur-sm rounded-[20px] p-5 mb-4">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#1a1a1a]/40">Gold Price in PHP</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50">Gold Price in PHP</p>
             <div className="flex gap-1">
               {PERIODS.map((p) => (
                 <button key={p.days} onClick={() => setPeriod(p.days)}
                   className={`px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
-                    period === p.days ? "bg-[#1a1a1a] text-white" : "bg-[#1a1a1a]/10 text-[#1a1a1a]/50"
+                    period === p.days ? "bg-white text-[#C8940A]" : "bg-white/10 text-white/50"
                   }`}>{p.label}</button>
               ))}
             </div>
@@ -402,9 +442,9 @@ export default function GoldPage() {
           {chartData.length > 0 ? (
             <>
               <GoldChart data={chartData} />
-              <div className="flex justify-between mt-3 text-[10px] text-[#1a1a1a]/40">
+              <div className="flex justify-between mt-3 text-[10px] text-white/40">
                 <span>Low: ₱{Math.round(chartMin).toLocaleString("en-PH")}</span>
-                <span className={chartChange >= 0 ? "text-[#1a1a1a]/70" : "text-red-800"}>
+                <span className={chartChange >= 0 ? "text-white/70" : "text-red-300"}>
                   {chartChange >= 0 ? "+" : ""}{chartChange.toFixed(1)}%
                 </span>
                 <span>High: ₱{Math.round(chartMax).toLocaleString("en-PH")}</span>
@@ -412,18 +452,18 @@ export default function GoldPage() {
             </>
           ) : (
             <div className="h-[200px] flex items-center justify-center">
-              <div className="w-5 h-5 border-2 border-[#1a1a1a]/30 border-t-[#1a1a1a] rounded-full animate-spin" />
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             </div>
           )}
         </div>
 
         {/* Converter */}
-        <div className="bg-[#1a1a1a]/10 backdrop-blur-sm rounded-[20px] p-5 mb-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#1a1a1a]/40 mb-3">Gold Calculator</p>
+        <div className="bg-white/10 backdrop-blur-sm rounded-[20px] p-5 mb-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-3">Gold Calculator</p>
           <div className="flex items-center gap-3">
             {/* Weight input */}
             <div className="flex-1">
-              <div className="flex items-center bg-[#1a1a1a]/10 rounded-xl px-4 py-3">
+              <div className="flex items-center bg-white/10 rounded-xl px-4 py-3">
                 <input
                   type="text"
                   inputMode="decimal"
@@ -433,26 +473,26 @@ export default function GoldPage() {
                     if (unit === "oz") { setUnit("oz"); setOz(e.target.value); }
                     else { setUnit("g"); setGrams(e.target.value); }
                   }}
-                  className="bg-transparent font-extrabold text-xl text-[#1a1a1a] outline-none min-w-0 flex-1"
+                  className="bg-transparent font-extrabold text-xl text-white outline-none min-w-0 flex-1 placeholder-white/30"
                   placeholder="1"
                 />
-                <div className="flex bg-[#1a1a1a]/10 rounded-full p-0.5 ml-2">
+                <div className="flex bg-white/10 rounded-full p-0.5 ml-2">
                   <button onClick={() => { setUnit("oz"); setOz("1"); }}
                     className={`px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
-                      unit === "oz" ? "bg-[#1a1a1a] text-white" : "text-[#1a1a1a]/50"
+                      unit === "oz" ? "bg-white text-[#C8940A]" : "text-white/50"
                     }`}>oz</button>
                   <button onClick={() => { setUnit("g"); setGrams("1"); }}
                     className={`px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
-                      unit === "g" ? "bg-[#1a1a1a] text-white" : "text-[#1a1a1a]/50"
+                      unit === "g" ? "bg-white text-[#C8940A]" : "text-white/50"
                     }`}>g</button>
                 </div>
               </div>
             </div>
-            <span className="text-2xl font-black text-[#1a1a1a]/20">=</span>
+            <span className="text-2xl font-black text-white/20">=</span>
             {/* PHP output */}
             <div className="flex-1">
-              <div className="bg-[#1a1a1a]/10 rounded-xl px-4 py-3">
-                <p className="text-xl font-extrabold text-[#1a1a1a]">
+              <div className="bg-white/10 rounded-xl px-4 py-3">
+                <p className="text-xl font-extrabold text-white">
                   ₱{(() => {
                     const v = unit === "oz" ? parseFloat(oz) : parseFloat(grams);
                     if (isNaN(v) || v === 0) return "0";
@@ -465,16 +505,10 @@ export default function GoldPage() {
           </div>
         </div>
 
-        <p className="text-center mb-4">
-          <a href="https://www.binance.com/register?ref=ALKANSYA" target="_blank" rel="noopener noreferrer"
-            className="text-[11px] font-normal text-[#1a1a1a]/40 no-underline border-b border-[#1a1a1a]/20 pb-px hover:text-[#1a1a1a]/70 hover:border-[#1a1a1a]/40 transition-colors">
-            Buy gold on Binance
-          </a>
-        </p>
 
         {/* Quick reference */}
-        <div className="bg-[#1a1a1a]/10 backdrop-blur-sm rounded-[20px] p-5 mb-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#1a1a1a]/40 mb-3">Quick reference</p>
+        <div className="bg-white/10 backdrop-blur-sm rounded-[20px] p-5 mb-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-3">Quick reference</p>
           <div className="grid grid-cols-2 gap-2">
             {[
               { label: "1 gram", val: goldPhpPerGram },
@@ -486,9 +520,9 @@ export default function GoldPage() {
               { label: "50 grams", val: goldPhpPerGram * 50 },
               { label: "100 grams", val: goldPhpPerGram * 100 },
             ].map((r) => (
-              <div key={r.label} className="flex justify-between text-sm py-1.5 border-b border-[#1a1a1a]/5 last:border-0">
-                <span className="text-[#1a1a1a]/50 font-medium">{r.label}</span>
-                <span className="text-[#1a1a1a] font-bold">₱{Math.round(r.val).toLocaleString("en-PH")}</span>
+              <div key={r.label} className="flex justify-between text-sm py-1.5 border-b border-white/5 last:border-0">
+                <span className="text-white/50 font-medium">{r.label}</span>
+                <span className="text-white font-bold">₱{Math.round(r.val).toLocaleString("en-PH")}</span>
               </div>
             ))}
           </div>
@@ -496,8 +530,8 @@ export default function GoldPage() {
 
         {/* Footer */}
         <footer className="text-center pt-4">
-          <p className="text-[10px] text-[#1a1a1a]/20 leading-relaxed max-w-md mx-auto">
-            Gold spot price from metals.dev / CoinGecko. Historical data from FreeGoldAPI.com. USD/PHP rate from CoinGecko USDT/PHP. Prices are indicative — actual dealer prices may differ.
+          <p className="text-[10px] text-white/20 leading-relaxed max-w-md mx-auto">
+            Gold spot price from metals.dev / CoinGecko. Historical data from FreeGoldAPI.com. USD/PHP rate from CoinGecko USDT/PHP. Karat prices are calculated from 24K spot — actual jewelry prices include labor and markup.
           </p>
         </footer>
       </main>
