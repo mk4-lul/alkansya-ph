@@ -47,8 +47,8 @@ const TOOLS = [
   {
     href: "/gold",
     emoji: "🥇",
-    title: "Gold Price in PHP",
-    description: "Live gold spot price with historical chart — updated daily",
+    title: "Global Gold Price in PHP",
+    description: "Live gold spot price with historical chart and karat pricing",
     tag: "live",
   },
   {
