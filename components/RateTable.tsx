@@ -56,11 +56,13 @@ function BankRow({
   bank,
   depositType,
   amount,
+  rank,
   isHighlighted,
 }: {
   bank: BankWithRates;
   depositType: "savings" | "time_deposit";
   amount: number;
+  rank: number;
   isHighlighted: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
@@ -80,9 +82,7 @@ function BankRow({
   const rateText = depositType === "savings" && hasRange && amount === 0
     ? formatRateRange(bank.savings_min_rate, bank.savings_rate) : `${displayRate}%`;
 
-  const isHigh = displayRate >= 2;
-  const isMid = displayRate >= 0.5;
-  const rateColor = isHigh ? "text-[#00c853]" : isMid ? "text-[#1a1a1a]" : "text-[#888]";
+  const rateColor = rank < 3 ? "text-[#00c853]" : rank < 6 ? "text-[#FF9800]" : "text-[#888]";
 
   const sourceUrl = depositType === "time_deposit" && bank.td_source_url ? bank.td_source_url : bank.source_url;
 
@@ -312,12 +312,13 @@ export default function RateTable({
 
       {/* Bank list */}
       <div className="space-y-2">
-        {(showAll ? filtered : filtered.slice(0, 10)).map((bank) => (
+        {(showAll ? filtered : filtered.slice(0, 10)).map((bank, idx) => (
           <BankRow
             key={bank.id}
             bank={bank}
             depositType={depositType}
             amount={amount}
+            rank={idx}
             isHighlighted={highlightBankId === bank.id}
           />
         ))}
