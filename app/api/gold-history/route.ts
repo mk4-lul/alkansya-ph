@@ -1,54 +1,42 @@
 import { NextResponse } from "next/server";
 
-// Yahoo Finance chart API — GC=F (Gold Futures)
-// Returns complete daily OHLCV data, no API key needed
+// CoinGecko PAX Gold (PAXG) — gold-backed token that tracks spot gold 1:1
+// Complete daily data, no gaps, no API key needed, proven on Vercel
 
 export async function GET() {
   try {
-    // Fetch max range daily data for gold futures
-    const url = "https://query1.finance.yahoo.com/v8/finance/chart/GC=F?range=max&interval=1d";
+    // max days = full history (~2019-present for PAXG)
+    const url = "https://api.coingecko.com/api/v3/coins/pax-gold/market_chart?vs_currency=usd&days=max&interval=daily";
 
     const res = await fetch(url, {
       next: { revalidate: 10800 }, // cache 3 hours
-      headers: {
-        "User-Agent": "Mozilla/5.0",
-        "Accept": "application/json",
-      },
     });
 
     if (!res.ok) {
       const body = await res.text().catch(() => "");
       return NextResponse.json(
-        { prices: [], error: `Yahoo ${res.status}: ${body.slice(0, 200)}` },
+        { prices: [], error: `CoinGecko ${res.status}: ${body.slice(0, 200)}` },
         { status: 502 }
       );
     }
 
     const data = await res.json();
-    const result = data?.chart?.result?.[0];
-    if (!result?.timestamp || !result?.indicators?.quote?.[0]?.close) {
+    if (!data?.prices?.length) {
       return NextResponse.json(
-        { prices: [], error: "Yahoo returned no chart data" },
+        { prices: [], error: "CoinGecko returned no price data" },
         { status: 502 }
       );
     }
 
-    const timestamps: number[] = result.timestamp;
-    const closes: (number | null)[] = result.indicators.quote[0].close;
+    // data.prices is already [[timestamp_ms, price_usd], ...]
+    const entries: [number, number][] = data.prices
+      .filter((p: [number, number]) => p[1] > 0)
+      .map((p: [number, number]) => [p[0], p[1]] as [number, number]);
 
-    // Build [timestamp_ms, close_usd] pairs, skip nulls
-    const entries: [number, number][] = [];
-    for (let i = 0; i < timestamps.length; i++) {
-      const close = closes[i];
-      if (close != null && close > 0) {
-        entries.push([timestamps[i] * 1000, close]);
-      }
-    }
-
-    // Downsample to ~800 points for performance
-    const maxPoints = 800;
+    // Downsample to ~600 points
+    const maxPoints = 600;
     const step = Math.max(1, Math.floor(entries.length / maxPoints));
-    const sampled = entries.filter((_, i) => i % step === 0);
+    const sampled = entries.filter((_: [number, number], i: number) => i % step === 0);
     if (sampled.length > 0 && sampled[sampled.length - 1][0] !== entries[entries.length - 1][0]) {
       sampled.push(entries[entries.length - 1]);
     }
