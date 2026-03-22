@@ -15,6 +15,7 @@ const PAGES = [
   { label: "What if nag-invest ka nalang?", href: "/what-if", description: "Sana nag-invest ka nalang..." },
   { label: "Gaano ako kayaman?", href: "/gkk", description: "Nasaan ka sa income ranking ng mga Pilipino?" },
   { label: "Magkano sahod abroad?", href: "/salary", description: "Salary comparison across 12 countries" },
+  { label: "Gold Price", href: "/gold", description: "Live gold price in PHP with chart" },
 ];
 
 export default function NavMenu({ dark = false }: { dark?: boolean }) {
