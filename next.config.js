@@ -17,6 +17,7 @@ const nextConfig = {
       { source: "/usdphp", destination: "/calculators/usdphp" },
       { source: "/gkk", destination: "/calculators/gkk" },
       { source: "/salary", destination: "/calculators/salary" },
+      { source: "/gold", destination: "/calculators/gold" },
     ];
   },
 }
