@@ -1,49 +1,43 @@
 import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 
-// CoinGecko PAX Gold (PAXG) — gold-backed token that tracks spot gold 1:1
-// Complete daily data, no gaps, no API key needed, proven on Vercel
+// Reads gold_prices from Supabase. Data is complete because we control it.
+// Cached 3 hours — scraper runs daily, so data is always fresh enough.
 
 export async function GET() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!url || !key) {
+    return NextResponse.json({ prices: [], error: "Supabase not configured" }, { status: 500 });
+  }
+
   try {
-    // CoinGecko free tier: no interval param for days=max, it auto-selects daily
-    const url = "https://api.coingecko.com/api/v3/coins/pax-gold/market_chart?vs_currency=usd&days=max";
+    const supabase = createClient(url, key);
 
-    const res = await fetch(url, {
-      next: { revalidate: 10800 },
-      headers: { "Accept": "application/json" },
-    });
+    // Supabase defaults to 1000 rows — we have ~2200+
+    const { data, error } = await supabase
+      .from("gold_prices")
+      .select("date, price_usd")
+      .order("date", { ascending: true })
+      .limit(10000);
 
-    if (!res.ok) {
-      const body = await res.text().catch(() => "");
-      return NextResponse.json(
-        { prices: [], error: `CoinGecko ${res.status}: ${body.slice(0, 200)}` },
-        { status: 502 }
-      );
+    if (error) {
+      return NextResponse.json({ prices: [], error: error.message }, { status: 502 });
     }
 
-    const data = await res.json();
-    if (!data?.prices?.length) {
-      return NextResponse.json(
-        { prices: [], error: "CoinGecko returned no price data" },
-        { status: 502 }
-      );
+    if (!data || data.length === 0) {
+      return NextResponse.json({ prices: [], error: "No gold data in database" }, { status: 404 });
     }
 
-    // data.prices is already [[timestamp_ms, price_usd], ...]
-    const entries: [number, number][] = data.prices
-      .filter((p: [number, number]) => p[1] > 0)
-      .map((p: [number, number]) => [p[0], p[1]] as [number, number]);
-
-    // Downsample to ~600 points
-    const maxPoints = 600;
-    const step = Math.max(1, Math.floor(entries.length / maxPoints));
-    const sampled = entries.filter((_: [number, number], i: number) => i % step === 0);
-    if (sampled.length > 0 && sampled[sampled.length - 1][0] !== entries[entries.length - 1][0]) {
-      sampled.push(entries[entries.length - 1]);
-    }
+    // Convert to [timestamp_ms, price_usd] pairs (~2200 rows, ~44KB — fine to send all)
+    const prices: [number, number][] = data.map((row) => [
+      new Date(row.date).getTime(),
+      Number(row.price_usd),
+    ]);
 
     return NextResponse.json(
-      { prices: sampled, currency: "USD" },
+      { prices, currency: "USD" },
       {
         headers: {
           "Cache-Control": "public, s-maxage=10800, stale-while-revalidate=3600",
@@ -51,9 +45,6 @@ export async function GET() {
       }
     );
   } catch (err) {
-    return NextResponse.json(
-      { prices: [], error: String(err) },
-      { status: 502 }
-    );
+    return NextResponse.json({ prices: [], error: String(err) }, { status: 502 });
   }
 }
