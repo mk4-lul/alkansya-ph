@@ -254,27 +254,19 @@ export default function GoldPage() {
   const goldPhp = goldUsd * usdPhp;
   const goldPhpPerGram = goldPhp / 31.1035;
 
-  // Fetch live gold price + USD/PHP
+  // Fetch live gold price + USD/PHP from CoinGecko
   useEffect(() => {
     async function fetchPrices() {
       try {
-        // Gold USD from metals.dev
-        const gRes = await fetch("https://api.metals.dev/v1/latest?api_key=demo&currency=USD&unit=toz");
+        const [gRes, pRes] = await Promise.all([
+          fetch("https://api.coingecko.com/api/v3/simple/price?ids=pax-gold&vs_currencies=usd"),
+          fetch("https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=php"),
+        ]);
         const gData = await gRes.json();
-        if (gData?.metals?.gold) setGoldUsd(gData.metals.gold);
-      } catch {
-        // fallback: try CoinGecko for a rough gold proxy
-        try {
-          const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=pax-gold&vs_currencies=usd");
-          const d = await res.json();
-          if (d?.["pax-gold"]?.usd) setGoldUsd(d["pax-gold"].usd);
-        } catch { /* use fallback */ }
-      }
-      try {
-        const pRes = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=php");
         const pData = await pRes.json();
+        if (gData?.["pax-gold"]?.usd) setGoldUsd(gData["pax-gold"].usd);
         if (pData?.tether?.php) setUsdPhp(pData.tether.php);
-      } catch { /* use fallback */ }
+      } catch { /* use fallback values */ }
       setLive(true);
       setLastUpdated(new Date().toLocaleTimeString("en-PH", { hour: "2-digit", minute: "2-digit" }));
     }
@@ -283,8 +275,7 @@ export default function GoldPage() {
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch historical gold data — store in USD, convert to PHP at render time
-  // Try CoinGecko PAXG first (complete data), fall back to freegoldapi.com
+  // Fetch historical gold data from our own Supabase via API route
   const [historyUsd, setHistoryUsd] = useState<[number, number][]>([]);
   const historyFetched = useRef(false);
 
@@ -293,40 +284,19 @@ export default function GoldPage() {
     historyFetched.current = true;
 
     async function loadHistory() {
-      // Delay to let live price calls finish first (avoid CoinGecko rate limit)
-      await new Promise(r => setTimeout(r, 2000));
-
-      // Try CoinGecko PAXG (complete daily data since 2019)
       try {
-        const res = await fetch("https://api.coingecko.com/api/v3/coins/pax-gold/market_chart?vs_currency=usd&days=2000");
-        if (res.ok) {
-          const data = await res.json();
-          if (data?.prices?.length > 10) {
-            const entries: [number, number][] = data.prices
-              .filter((p: [number, number]) => p[1] > 0);
-            setHistoryUsd(entries);
-            return;
-          }
+        const res = await fetch("/api/gold-history");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data?.prices?.length) {
+          setHistoryUsd(data.prices as [number, number][]);
         }
-      } catch { /* try fallback */ }
-
-      // Fallback: freegoldapi.com (has gap in recent daily data but loads reliably)
-      try {
-        const res = await fetch("https://freegoldapi.com/data/latest.json");
-        if (res.ok) {
-          const raw: { date: string; price: number }[] = await res.json();
-          const entries: [number, number][] = raw
-            .filter(d => d.date >= "1990-01-01" && d.price > 0)
-            .map(d => [new Date(d.date).getTime(), d.price]);
-          if (entries.length > 10) setHistoryUsd(entries);
-        }
-      } catch { /* no history at all */ }
+      } catch { /* silent */ }
     }
-
     loadHistory();
   }, []);
 
-  // Convert USD history to PHP and build chart data
+  // Convert USD history to PHP at render time
   const historyData = useMemo(() => {
     if (historyUsd.length === 0 || usdPhp === 0) return [] as [number, number][];
     return historyUsd.map(([ts, usd]) => [ts, usd * usdPhp] as [number, number]);
@@ -563,7 +533,7 @@ export default function GoldPage() {
         {/* Footer */}
         <footer className="text-center pt-4">
           <p className="text-[10px] text-white/20 leading-relaxed max-w-md mx-auto">
-            Gold spot price from metals.dev / CoinGecko. Historical data from CoinGecko (PAX Gold). USD/PHP rate from CoinGecko USDT/PHP. Karat prices are calculated from 24K spot — actual jewelry prices include labor and markup.
+            Gold spot price via CoinGecko (PAX Gold). Historical data from Supabase. USD/PHP rate from CoinGecko USDT/PHP. Karat prices are calculated from 24K spot — actual jewelry prices include labor and markup.
           </p>
         </footer>
       </main>
