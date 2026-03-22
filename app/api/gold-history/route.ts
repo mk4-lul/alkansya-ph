@@ -1,54 +1,41 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 
-// Don't prerender — env vars aren't available at build time
 export const dynamic = "force-dynamic";
 
-// Reads gold_prices from Supabase. Same client pattern as lib/supabase.ts.
-
-function getSupabase() {
+export async function GET() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) return null;
-  return createClient(url.trim(), key.trim());
-}
 
-export async function GET() {
-  const supabase = getSupabase();
-
-  if (!supabase) {
-    return NextResponse.json({ prices: [], error: "Supabase not configured" }, { status: 500 });
+  if (!url || !key) {
+    return NextResponse.json({ prices: [], error: "No config" }, { status: 500 });
   }
 
-  try {
-    const { data, error } = await supabase
-      .from("gold_prices")
-      .select("date, price_usd")
-      .order("date", { ascending: true })
-      .limit(10000);
+  const cleanUrl = url.trim().replace(/^["']|["']$/g, "");
+  const cleanKey = key.trim().replace(/^["']|["']$/g, "");
 
-    if (error) {
-      return NextResponse.json({ prices: [], error: error.message }, { status: 502 });
-    }
+  const fetchUrl = `${cleanUrl}/rest/v1/gold_prices?select=date,price_usd&order=date.asc&limit=10000`;
 
-    if (!data || data.length === 0) {
-      return NextResponse.json({ prices: [], error: "No gold data in database" }, { status: 404 });
-    }
+  const resp = await fetch(fetchUrl, {
+    headers: {
+      apikey: cleanKey,
+      Authorization: `Bearer ${cleanKey}`,
+    },
+  });
 
-    const prices: [number, number][] = data.map((row) => [
-      new Date(row.date).getTime(),
-      Number(row.price_usd),
-    ]);
+  const data = await resp.json();
+  const count = Array.isArray(data) ? data.length : -1;
 
-    return NextResponse.json(
-      { prices, currency: "USD" },
-      {
-        headers: {
-          "Cache-Control": "public, s-maxage=10800, stale-while-revalidate=3600",
-        },
-      }
-    );
-  } catch (err) {
-    return NextResponse.json({ prices: [], error: String(err) }, { status: 502 });
-  }
+  const prices = (data || []).map((row: { date: string; price_usd: number }) => [
+    new Date(row.date).getTime(),
+    Number(row.price_usd),
+  ]);
+
+  return NextResponse.json({
+    count,
+    total_prices: prices.length,
+    first: prices[0],
+    last: prices[prices.length - 1],
+    prices,
+    currency: "USD",
+  });
 }
