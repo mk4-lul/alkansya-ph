@@ -1,21 +1,23 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-// Reads gold_prices from Supabase. Data is complete because we control it.
-// Cached 3 hours — scraper runs daily, so data is always fresh enough.
+// Reads gold_prices from Supabase. Same client pattern as lib/supabase.ts.
 
-export async function GET() {
+function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return null;
+  return createClient(url.trim(), key.trim());
+}
 
-  if (!url || !key) {
+export async function GET() {
+  const supabase = getSupabase();
+
+  if (!supabase) {
     return NextResponse.json({ prices: [], error: "Supabase not configured" }, { status: 500 });
   }
 
   try {
-    const supabase = createClient(url, key);
-
-    // Supabase defaults to 1000 rows — we have ~2200+
     const { data, error } = await supabase
       .from("gold_prices")
       .select("date, price_usd")
@@ -30,7 +32,6 @@ export async function GET() {
       return NextResponse.json({ prices: [], error: "No gold data in database" }, { status: 404 });
     }
 
-    // Convert to [timestamp_ms, price_usd] pairs (~2200 rows, ~44KB — fine to send all)
     const prices: [number, number][] = data.map((row) => [
       new Date(row.date).getTime(),
       Number(row.price_usd),
