@@ -190,7 +190,8 @@ export async function getGoldPrices(): Promise<[number, number][]> {
     const { data, error } = await supabase
       .from("gold_prices")
       .select("date, price_usd")
-      .order("date", { ascending: true });
+      .order("date", { ascending: true })
+      .limit(10000);
 
     if (error) {
       console.error("Gold prices fetch error:", error);
