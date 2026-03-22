@@ -58,19 +58,28 @@ export default function RootLayout({
         {children}
         <Script id="glow-detect" strategy="afterInteractive">{`
           var _glowPath = '';
+          var _orb = null;
           function checkGlow() {
             var el = document.querySelector('main')?.parentElement || document.body;
             var bg = getComputedStyle(el).backgroundColor;
             var match = bg.match(/\\d+/g);
-            if (match && match[0]==='245' && match[1]==='245' && match[2]==='245') {
-              el.classList.add('glow-bg');
+            var isLight = match && match[0]==='245' && match[1]==='245' && match[2]==='245';
+            if (isLight) {
+              el.style.backgroundColor = 'transparent';
+              if (!_orb) {
+                _orb = document.createElement('div');
+                _orb.className = 'glow-orb';
+                document.body.appendChild(_orb);
+              }
               if (_glowPath !== location.pathname) {
                 _glowPath = location.pathname;
-                el.style.setProperty('--glow-x', (Math.random() * 100) + '%');
-                el.style.setProperty('--glow-y', (55 + Math.random() * 40) + '%');
+                _orb.style.left = (Math.random() * 100) + '%';
+                _orb.style.top = (55 + Math.random() * 40) + '%';
+                _orb.style.transform = 'translate(-50%, -50%)';
               }
+              _orb.style.opacity = '1';
             } else {
-              el.classList.remove('glow-bg');
+              if (_orb) _orb.style.opacity = '0';
               _glowPath = '';
             }
           }
