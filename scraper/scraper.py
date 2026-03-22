@@ -355,6 +355,63 @@ def write_to_supabase(scraped: list[ScrapedRate]):
 
 
 # ---------------------------------------------------------------------------
+# Gold price scraper
+# ---------------------------------------------------------------------------
+
+def scrape_gold_price():
+    """Fetch today's gold price from CoinGecko PAXG and store in gold_prices table."""
+    log.info("Scraping gold price...")
+
+    url = os.environ.get("SUPABASE_URL")
+    key = os.environ.get("SUPABASE_SERVICE_KEY")
+    cg_key = os.environ.get("CG_API_KEY", "")
+
+    if not url or not key:
+        log.error("SUPABASE_URL and SUPABASE_SERVICE_KEY must be set")
+        return
+
+    # Fetch from CoinGecko PAXG (simple/price — lightweight, reliable)
+    try:
+        headers = {}
+        if cg_key:
+            headers["x-cg-demo-api-key"] = cg_key
+        resp = requests.get(
+            "https://api.coingecko.com/api/v3/simple/price?ids=pax-gold&vs_currencies=usd",
+            timeout=10,
+            headers=headers,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        price = data.get("pax-gold", {}).get("usd")
+        if not price or price <= 0:
+            log.error("CoinGecko returned invalid gold price")
+            return
+        price = round(price, 2)
+    except Exception as e:
+        log.error(f"Failed to fetch gold price: {e}")
+        return
+
+    # Upsert into gold_prices
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    try:
+        sb_headers = {
+            "apikey": key,
+            "Authorization": f"Bearer {key}",
+            "Content-Type": "application/json",
+            "Prefer": "resolution=merge-duplicates,return=minimal",
+        }
+        resp = requests.post(
+            f"{url}/rest/v1/gold_prices",
+            headers=sb_headers,
+            json={"date": today, "price_usd": price},
+        )
+        resp.raise_for_status()
+        log.info(f"Gold price stored: {today} = ${price:.2f}")
+    except Exception as e:
+        log.error(f"Failed to write gold price: {e}")
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -396,7 +453,13 @@ def run(bank_filter: Optional[str] = None, dry_run: bool = False):
         else:
             log.warning("No rates scraped. Database unchanged.")
 
-    log.info("Done.")
+    log.info("Done with bank rates.")
+
+    # Gold price — runs every execution (daily)
+    if not dry_run and not bank_filter:
+        scrape_gold_price()
+
+    log.info("All done.")
 
 
 if __name__ == "__main__":
