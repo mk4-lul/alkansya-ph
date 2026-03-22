@@ -284,20 +284,19 @@ export default function GoldPage() {
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch historical gold data from Yahoo Finance via API route
+  // Fetch historical gold data directly from CoinGecko (client-side, CORS enabled)
   useEffect(() => {
     async function loadHistory() {
       try {
-        const res = await fetch("/api/gold-history");
+        const res = await fetch("https://api.coingecko.com/api/v3/coins/pax-gold/market_chart?vs_currency=usd&days=max");
         if (!res.ok) throw new Error(res.statusText);
         const data = await res.json();
-        if (data?.prices?.length) {
-          // Data comes in USD — convert to PHP
-          const phpPrices = (data.prices as [number, number][]).map(
-            ([ts, usd]) => [ts, usd * usdPhp] as [number, number]
-          );
-          setHistoryData(phpPrices);
-        }
+        if (!data?.prices?.length) return;
+        // data.prices is [[timestamp_ms, price_usd], ...]
+        const entries: [number, number][] = data.prices
+          .filter((p: [number, number]) => p[1] > 0)
+          .map((p: [number, number]) => [p[0], p[1] * usdPhp] as [number, number]);
+        if (entries.length > 10) setHistoryData(entries);
       } catch { /* no history */ }
     }
     if (usdPhp > 0) loadHistory();
