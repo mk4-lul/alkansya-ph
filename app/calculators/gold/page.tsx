@@ -246,7 +246,6 @@ export default function GoldPage() {
   const [usdPhp, setUsdPhp] = useState(FALLBACK_USDPHP);
   const [live, setLive] = useState(false);
   const [lastUpdated, setLastUpdated] = useState("");
-  const [historyData, setHistoryData] = useState<[number, number][]>([]);
   const [period, setPeriod] = useState("all");
   const [oz, setOz] = useState("1");
   const [grams, setGrams] = useState("");
@@ -284,23 +283,54 @@ export default function GoldPage() {
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch historical gold data directly from CoinGecko (client-side, CORS enabled)
+  // Fetch historical gold data — store in USD, convert to PHP at render time
+  // Try CoinGecko PAXG first (complete data), fall back to freegoldapi.com
+  const [historyUsd, setHistoryUsd] = useState<[number, number][]>([]);
+  const historyFetched = useRef(false);
+
   useEffect(() => {
+    if (historyFetched.current) return;
+    historyFetched.current = true;
+
     async function loadHistory() {
+      // Delay to let live price calls finish first (avoid CoinGecko rate limit)
+      await new Promise(r => setTimeout(r, 2000));
+
+      // Try CoinGecko PAXG (complete daily data since 2019)
       try {
-        const res = await fetch("https://api.coingecko.com/api/v3/coins/pax-gold/market_chart?vs_currency=usd&days=max");
-        if (!res.ok) throw new Error(res.statusText);
-        const data = await res.json();
-        if (!data?.prices?.length) return;
-        // data.prices is [[timestamp_ms, price_usd], ...]
-        const entries: [number, number][] = data.prices
-          .filter((p: [number, number]) => p[1] > 0)
-          .map((p: [number, number]) => [p[0], p[1] * usdPhp] as [number, number]);
-        if (entries.length > 10) setHistoryData(entries);
-      } catch { /* no history */ }
+        const res = await fetch("https://api.coingecko.com/api/v3/coins/pax-gold/market_chart?vs_currency=usd&days=2000");
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.prices?.length > 10) {
+            const entries: [number, number][] = data.prices
+              .filter((p: [number, number]) => p[1] > 0);
+            setHistoryUsd(entries);
+            return;
+          }
+        }
+      } catch { /* try fallback */ }
+
+      // Fallback: freegoldapi.com (has gap in recent daily data but loads reliably)
+      try {
+        const res = await fetch("https://freegoldapi.com/data/latest.json");
+        if (res.ok) {
+          const raw: { date: string; price: number }[] = await res.json();
+          const entries: [number, number][] = raw
+            .filter(d => d.date >= "1990-01-01" && d.price > 0)
+            .map(d => [new Date(d.date).getTime(), d.price]);
+          if (entries.length > 10) setHistoryUsd(entries);
+        }
+      } catch { /* no history at all */ }
     }
-    if (usdPhp > 0) loadHistory();
-  }, [usdPhp]);
+
+    loadHistory();
+  }, []);
+
+  // Convert USD history to PHP and build chart data
+  const historyData = useMemo(() => {
+    if (historyUsd.length === 0 || usdPhp === 0) return [] as [number, number][];
+    return historyUsd.map(([ts, usd]) => [ts, usd * usdPhp] as [number, number]);
+  }, [historyUsd, usdPhp]);
 
   // Chart data based on period — append live price to bridge any data gap
   const chartData = useMemo(() => {
