@@ -45,6 +45,13 @@ const TOOLS = [
     tag: "forex",
   },
   {
+    href: "/gold",
+    emoji: "🥇",
+    title: "Gold Price in PHP",
+    description: "Live gold spot price with historical chart — updated daily",
+    tag: "live",
+  },
+  {
     href: "/rates",
     emoji: "💰",
     title: "Compare Bank Interest Rates",
