@@ -184,21 +184,31 @@ export async function flagRate(bankId: string, reason?: string) {
 
 export async function getGoldPrices(): Promise<[number, number][]> {
   try {
-    const supabase = getSupabase();
-    if (!supabase) return [];
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!url || !key) return [];
 
-    const { data, error } = await supabase
-      .from("gold_prices")
-      .select("date, price_usd")
-      .order("date", { ascending: true })
-      .limit(10000);
+    const cleanUrl = url.trim().replace(/^["']|["']$/g, "");
+    const cleanKey = key.trim().replace(/^["']|["']$/g, "");
 
-    if (error) {
-      console.error("Gold prices fetch error:", error);
+    const resp = await fetch(
+      `${cleanUrl}/rest/v1/gold_prices?select=date,price_usd&order=date.asc`,
+      {
+        headers: {
+          apikey: cleanKey,
+          Authorization: `Bearer ${cleanKey}`,
+          Range: "0-9999",
+        },
+      }
+    );
+
+    if (!resp.ok) {
+      console.error("Gold prices fetch error:", resp.status);
       return [];
     }
 
-    return (data || []).map((row) => [
+    const data = await resp.json();
+    return (data || []).map((row: { date: string; price_usd: number }) => [
       new Date(row.date).getTime(),
       Number(row.price_usd),
     ]);
