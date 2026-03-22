@@ -192,7 +192,7 @@ export async function getGoldPrices(): Promise<[number, number][]> {
     const cleanKey = key.trim().replace(/^["']|["']$/g, "");
 
     const resp = await fetch(
-      `${cleanUrl}/rest/v1/gold_prices?select=date,price_usd&order=date.asc`,
+      `${cleanUrl}/rest/v1/gold_prices?select=date,price_usd&order=date.asc&limit=10000`,
       {
         headers: {
           apikey: cleanKey,
