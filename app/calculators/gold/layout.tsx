@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Gold Price Today in PHP — Alkansya.ph",
-  description: "Live gold price in Philippine Pesos. Track historical gold prices with interactive charts. Updated daily.",
+  title: "Global Gold Price in PHP — Alkansya.ph",
+  description: "Live global gold price in Philippine Pesos. Track historical gold prices with interactive charts. Updated daily.",
   openGraph: {
-    title: "Gold Price Today in PHP — Alkansya.ph",
-    description: "Live gold price in Philippine Pesos with historical charts.",
+    title: "Global Gold Price in PHP — Alkansya.ph",
+    description: "Live global gold price in Philippine Pesos with historical charts.",
     url: "https://alkansya.ph/gold",
   },
 };
