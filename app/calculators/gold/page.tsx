@@ -1,0 +1,506 @@
+"use client";
+
+import { useState, useEffect, useRef, useMemo } from "react";
+import Link from "next/link";
+import NavMenu from "@/components/NavMenu";
+
+const FALLBACK_GOLD_USD = 3000;
+const FALLBACK_USDPHP = 57;
+
+const PERIODS = [
+  { label: "1Y", days: "365" },
+  { label: "5Y", days: "1825" },
+  { label: "ALL", days: "all" },
+] as const;
+
+// --- Animated number ---
+function AnimatedRate({ value, decimals = 2, prefix = "₱" }: { value: number; decimals?: number; prefix?: string }) {
+  const [display, setDisplay] = useState(value);
+  const prev = useRef(value);
+  const raf = useRef<number>(0);
+
+  useEffect(() => {
+    const from = prev.current;
+    const to = value;
+    prev.current = value;
+    if (from === to) { setDisplay(to); return; }
+    const start = performance.now();
+    function tick(now: number) {
+      const p = Math.min((now - start) / 2500, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setDisplay(from + (to - from) * eased);
+      if (p < 1) raf.current = requestAnimationFrame(tick);
+    }
+    raf.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf.current);
+  }, [value]);
+
+  return <span>{prefix}{display.toLocaleString("en-PH", { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}</span>;
+}
+
+// --- Chart component (same structure as usdphp) ---
+function GoldChart({ data, color = "#1a1a1a" }: { data: [number, number][]; color?: string }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [dotPos, setDotPos] = useState<{ x: number; y: number } | null>(null);
+  const hoverIdxRef = useRef(-1);
+  const rafRef = useRef<number>(0);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || data.length === 0) return;
+
+    const ctx = canvas.getContext("2d")!;
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    const w = rect.width, h = rect.height;
+
+    const prices = data.map(d => d[1]);
+    const min = Math.min(...prices) * 0.999;
+    const max = Math.max(...prices) * 1.001;
+    const range = max - min || 1;
+
+    const padTop = 20, padBot = 30, padLeft = 55, padRight = 10;
+    const chartW = w - padLeft - padRight;
+    const chartH = h - padTop - padBot;
+    const totalDays = (data[data.length - 1][0] - data[0][0]) / 86400000;
+
+    const points = data.map((d, i) => ({
+      x: padLeft + (i / (data.length - 1)) * chartW,
+      y: padTop + ((max - d[1]) / range) * chartH,
+    }));
+    const lastPt = points[points.length - 1];
+
+    function formatDateLabel(date: Date) {
+      if (totalDays > 365) return `${date.getFullYear()}`;
+      if (totalDays > 60) return `${date.toLocaleString("en", { month: "short" })} ${date.getDate()}`;
+      return `${date.getMonth() + 1}/${date.getDate()}`;
+    }
+
+    function draw(progress: number) {
+      ctx.save();
+      ctx.scale(dpr, dpr);
+      ctx.clearRect(0, 0, w, h);
+
+      // Y-axis labels
+      ctx.font = "600 10px Inter, system-ui, sans-serif";
+      ctx.fillStyle = "rgba(26,26,26,0.3)";
+      ctx.textAlign = "right";
+      const ySteps = 5;
+      for (let i = 0; i <= ySteps; i++) {
+        const val = min + (range * i) / ySteps;
+        const y = padTop + chartH - (chartH * i) / ySteps;
+        ctx.fillText(`₱${Math.round(val).toLocaleString("en-PH")}`, padLeft - 8, y + 3);
+        ctx.strokeStyle = "rgba(26,26,26,0.06)";
+        ctx.lineWidth = 0.5;
+        ctx.beginPath(); ctx.moveTo(padLeft, y); ctx.lineTo(w - padRight, y); ctx.stroke();
+      }
+
+      // X-axis labels
+      ctx.textAlign = "center";
+      ctx.fillStyle = "rgba(26,26,26,0.3)";
+      const xLabels = 5;
+      for (let i = 0; i <= xLabels; i++) {
+        const idx = Math.floor((i / xLabels) * (data.length - 1));
+        const date = new Date(data[idx][0]);
+        ctx.fillText(formatDateLabel(date), points[idx].x, h - 6);
+      }
+
+      // Line
+      const drawCount = Math.ceil(points.length * progress);
+      ctx.beginPath();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.lineJoin = "round";
+      for (let i = 0; i < drawCount; i++) {
+        if (i === 0) ctx.moveTo(points[i].x, points[i].y);
+        else ctx.lineTo(points[i].x, points[i].y);
+      }
+      ctx.stroke();
+
+      // Fill
+      if (drawCount > 1) {
+        ctx.lineTo(points[drawCount - 1].x, padTop + chartH);
+        ctx.lineTo(points[0].x, padTop + chartH);
+        ctx.closePath();
+        const grad = ctx.createLinearGradient(0, padTop, 0, padTop + chartH);
+        grad.addColorStop(0, "rgba(26,26,26,0.08)");
+        grad.addColorStop(1, "rgba(26,26,26,0.01)");
+        ctx.fillStyle = grad;
+        ctx.fill();
+      }
+
+      // Hover
+      const hi = hoverIdxRef.current;
+      if (hi >= 0 && hi < points.length) {
+        const pt = points[hi];
+        ctx.beginPath();
+        ctx.setLineDash([4, 4]);
+        ctx.strokeStyle = "rgba(26,26,26,0.15)";
+        ctx.lineWidth = 1;
+        ctx.moveTo(pt.x, padTop); ctx.lineTo(pt.x, padTop + chartH);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 4, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Tooltip
+        const val = data[hi][1];
+        const date = new Date(data[hi][0]);
+        const label = `₱${Math.round(val).toLocaleString("en-PH")}`;
+        const dateStr = date.toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric" });
+        const tw = Math.max(ctx.measureText(label).width, ctx.measureText(dateStr).width) + 20;
+        const tx = pt.x > w * 0.7 ? pt.x - tw - 10 : pt.x + 10;
+        const ty = Math.max(padTop, pt.y - 30);
+
+        ctx.fillStyle = "rgba(26,26,26,0.9)";
+        ctx.beginPath();
+        ctx.roundRect(tx, ty, tw, 46, 8);
+        ctx.fill();
+
+        ctx.fillStyle = "white";
+        ctx.font = "800 13px Inter, system-ui, sans-serif";
+        ctx.textAlign = "left";
+        ctx.fillText(label, tx + 10, ty + 18);
+        ctx.fillStyle = "rgba(255,255,255,0.5)";
+        ctx.font = "500 10px Inter, system-ui, sans-serif";
+        ctx.fillText(dateStr, tx + 10, ty + 36);
+      }
+
+      ctx.restore();
+    }
+
+    // Animate in
+    const startTime = performance.now();
+    function animate(now: number) {
+      const p = Math.min((now - startTime) / 1200, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      draw(eased);
+      if (p < 1) rafRef.current = requestAnimationFrame(animate);
+    }
+    rafRef.current = requestAnimationFrame(animate);
+
+    function onMove(clientX: number) {
+      const r = canvas!.getBoundingClientRect();
+      const mx = clientX - r.left;
+      const relX = Math.max(0, Math.min(1, (mx - padLeft) / chartW));
+      const idx = Math.round(relX * (data.length - 1));
+      hoverIdxRef.current = idx;
+      const pt = points[idx];
+      setDotPos(null);
+      draw(1);
+    }
+
+    function onLeave() {
+      hoverIdxRef.current = -1;
+      setDotPos({ x: (lastPt.x / w) * 100, y: (lastPt.y / h) * 100 });
+      draw(1);
+    }
+
+    const handleMouse = (e: MouseEvent) => onMove(e.clientX);
+    const handleTouch = (e: TouchEvent) => { if (e.touches.length) onMove(e.touches[0].clientX); };
+    const handleLeave = () => onLeave();
+
+    canvas.addEventListener("mousemove", handleMouse);
+    canvas.addEventListener("touchmove", handleTouch);
+    canvas.addEventListener("mouseleave", handleLeave);
+    canvas.addEventListener("touchend", handleLeave);
+
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      canvas.removeEventListener("mousemove", handleMouse);
+      canvas.removeEventListener("touchmove", handleTouch);
+      canvas.removeEventListener("mouseleave", handleLeave);
+      canvas.removeEventListener("touchend", handleLeave);
+    };
+  }, [data, color]);
+
+  return (
+    <div className="relative">
+      <canvas
+        ref={canvasRef}
+        className="w-full h-[200px] sm:h-[240px] cursor-crosshair"
+        style={{ display: "block" }}
+      />
+      {dotPos && (
+        <span className="absolute pointer-events-none" style={{ left: `${dotPos.x}%`, top: `${dotPos.y}%`, transform: "translate(-50%, -50%)" }}>
+          <span className="block w-[8px] h-[8px] rounded-full bg-[#1a1a1a]" />
+          <span className="absolute inset-[-4px] rounded-full bg-[#1a1a1a]/40 animate-pulse-dot" />
+        </span>
+      )}
+    </div>
+  );
+}
+
+// --- Page ---
+export default function GoldPage() {
+  const [goldUsd, setGoldUsd] = useState(FALLBACK_GOLD_USD);
+  const [usdPhp, setUsdPhp] = useState(FALLBACK_USDPHP);
+  const [live, setLive] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState("");
+  const [historyData, setHistoryData] = useState<[number, number][]>([]);
+  const [period, setPeriod] = useState("all");
+  const [oz, setOz] = useState("1");
+  const [grams, setGrams] = useState("");
+  const [unit, setUnit] = useState<"oz" | "g">("oz");
+
+  const goldPhp = goldUsd * usdPhp;
+  const goldPhpPerGram = goldPhp / 31.1035;
+
+  // Fetch live gold price + USD/PHP
+  useEffect(() => {
+    async function fetchPrices() {
+      try {
+        // Gold USD from metals.dev
+        const gRes = await fetch("https://api.metals.dev/v1/latest?api_key=demo&currency=USD&unit=toz");
+        const gData = await gRes.json();
+        if (gData?.metals?.gold) setGoldUsd(gData.metals.gold);
+      } catch {
+        // fallback: try CoinGecko for a rough gold proxy
+        try {
+          const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=pax-gold&vs_currencies=usd");
+          const d = await res.json();
+          if (d?.["pax-gold"]?.usd) setGoldUsd(d["pax-gold"].usd);
+        } catch { /* use fallback */ }
+      }
+      try {
+        const pRes = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=php");
+        const pData = await pRes.json();
+        if (pData?.tether?.php) setUsdPhp(pData.tether.php);
+      } catch { /* use fallback */ }
+      setLive(true);
+      setLastUpdated(new Date().toLocaleTimeString("en-PH", { hour: "2-digit", minute: "2-digit" }));
+    }
+    fetchPrices();
+    const interval = setInterval(fetchPrices, 120000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Fetch historical gold data from freegoldapi.com
+  useEffect(() => {
+    async function loadHistory() {
+      try {
+        const res = await fetch("https://freegoldapi.com/data/latest.json");
+        const raw: { date: string; price: number }[] = await res.json();
+        // Filter to 1990+ and convert to PHP
+        const filtered = raw
+          .filter(d => d.date >= "1990-01-01" && d.price > 0)
+          .map(d => [new Date(d.date).getTime(), d.price * usdPhp] as [number, number]);
+        if (filtered.length > 10) setHistoryData(filtered);
+      } catch { /* no history */ }
+    }
+    if (usdPhp > 0) loadHistory();
+  }, [usdPhp]);
+
+  // Chart data based on period
+  const chartData = useMemo(() => {
+    if (historyData.length === 0) return [];
+    let pts: [number, number][];
+    if (period === "all") {
+      pts = historyData;
+    } else {
+      const cutoff = Date.now() - Number(period) * 86400000;
+      const sliced = historyData.filter(d => d[0] >= cutoff);
+      pts = sliced.length >= 2 ? sliced : historyData.slice(-30);
+    }
+    const maxPoints = 200;
+    const step = Math.max(1, Math.floor(pts.length / maxPoints));
+    const sampled = pts.filter((_, i) => i % step === 0);
+    if (sampled.length > 0 && sampled[sampled.length - 1][0] !== pts[pts.length - 1][0]) {
+      sampled.push(pts[pts.length - 1]);
+    }
+    return sampled;
+  }, [historyData, period]);
+
+  // Conversion
+  useEffect(() => {
+    if (unit === "oz") {
+      const v = parseFloat(oz);
+      setGrams(isNaN(v) || v === 0 ? "" : (v * goldPhp).toFixed(0));
+    }
+  }, [oz, goldPhp, unit]);
+
+  useEffect(() => {
+    if (unit === "g") {
+      const v = parseFloat(grams);
+      setOz(isNaN(v) || v === 0 ? "" : (v / goldPhpPerGram).toFixed(4));
+    }
+  }, [grams, goldPhpPerGram, unit]);
+
+  // Chart stats
+  const chartMin = chartData.length > 0 ? Math.min(...chartData.map(d => d[1])) : 0;
+  const chartMax = chartData.length > 0 ? Math.max(...chartData.map(d => d[1])) : 0;
+  const chartStart = chartData.length > 0 ? chartData[0][1] : 0;
+  const chartChange = chartStart > 0 ? ((goldPhp - chartStart) / chartStart * 100) : 0;
+
+  return (
+    <div className="min-h-screen bg-[#C8940A]">
+      {/* Nav */}
+      <nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[600px] mx-auto">
+        <Link href="/" className="text-xl font-extrabold tracking-tight text-white no-underline">
+          alkansya<span className="text-white/60">.ph</span>
+        </Link>
+        <NavMenu dark />
+      </nav>
+
+      <main className="max-w-[600px] mx-auto px-4 sm:px-6 pb-8">
+
+        {/* Price display */}
+        <div className="text-center mb-6">
+          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#1a1a1a]/40 mb-2">Gold Price / Troy Oz</p>
+          <p className="text-5xl sm:text-6xl font-black tracking-tight text-[#1a1a1a]">
+            <AnimatedRate value={goldPhp} decimals={0} />
+          </p>
+          <p className="text-lg font-bold text-[#1a1a1a]/50 mt-1">
+            <AnimatedRate value={goldUsd} decimals={2} prefix="$" /> USD
+          </p>
+          {live && (
+            <p className="text-[11px] text-[#1a1a1a]/30 mt-2">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#1a1a1a]/40 mr-1 animate-pulse" />
+              Updated {lastUpdated}
+            </p>
+          )}
+        </div>
+
+        {/* Quick stats */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div className="bg-[#1a1a1a]/10 rounded-2xl px-4 py-3 text-center">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#1a1a1a]/40">Per Gram</p>
+            <p className="text-xl font-extrabold text-[#1a1a1a]">
+              <AnimatedRate value={goldPhpPerGram} decimals={0} />
+            </p>
+          </div>
+          <div className="bg-[#1a1a1a]/10 rounded-2xl px-4 py-3 text-center">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#1a1a1a]/40">USD / PHP Rate</p>
+            <p className="text-xl font-extrabold text-[#1a1a1a]">
+              <AnimatedRate value={usdPhp} decimals={2} />
+            </p>
+          </div>
+        </div>
+
+        {/* Chart */}
+        <div className="bg-[#1a1a1a]/10 backdrop-blur-sm rounded-[20px] p-5 mb-4">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#1a1a1a]/40">Gold Price in PHP</p>
+            <div className="flex gap-1">
+              {PERIODS.map((p) => (
+                <button key={p.days} onClick={() => setPeriod(p.days)}
+                  className={`px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
+                    period === p.days ? "bg-[#1a1a1a] text-white" : "bg-[#1a1a1a]/10 text-[#1a1a1a]/50"
+                  }`}>{p.label}</button>
+              ))}
+            </div>
+          </div>
+
+          {chartData.length > 0 ? (
+            <>
+              <GoldChart data={chartData} />
+              <div className="flex justify-between mt-3 text-[10px] text-[#1a1a1a]/40">
+                <span>Low: ₱{Math.round(chartMin).toLocaleString("en-PH")}</span>
+                <span className={chartChange >= 0 ? "text-[#1a1a1a]/70" : "text-red-800"}>
+                  {chartChange >= 0 ? "+" : ""}{chartChange.toFixed(1)}%
+                </span>
+                <span>High: ₱{Math.round(chartMax).toLocaleString("en-PH")}</span>
+              </div>
+            </>
+          ) : (
+            <div className="h-[200px] flex items-center justify-center">
+              <div className="w-5 h-5 border-2 border-[#1a1a1a]/30 border-t-[#1a1a1a] rounded-full animate-spin" />
+            </div>
+          )}
+        </div>
+
+        {/* Converter */}
+        <div className="bg-[#1a1a1a]/10 backdrop-blur-sm rounded-[20px] p-5 mb-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#1a1a1a]/40 mb-3">Gold Calculator</p>
+          <div className="flex items-center gap-3">
+            {/* Weight input */}
+            <div className="flex-1">
+              <div className="flex items-center bg-[#1a1a1a]/10 rounded-xl px-4 py-3">
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={unit === "oz" ? oz : grams}
+                  onFocus={() => setUnit(unit)}
+                  onChange={(e) => {
+                    if (unit === "oz") { setUnit("oz"); setOz(e.target.value); }
+                    else { setUnit("g"); setGrams(e.target.value); }
+                  }}
+                  className="bg-transparent font-extrabold text-xl text-[#1a1a1a] outline-none min-w-0 flex-1"
+                  placeholder="1"
+                />
+                <div className="flex bg-[#1a1a1a]/10 rounded-full p-0.5 ml-2">
+                  <button onClick={() => { setUnit("oz"); setOz("1"); }}
+                    className={`px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
+                      unit === "oz" ? "bg-[#1a1a1a] text-white" : "text-[#1a1a1a]/50"
+                    }`}>oz</button>
+                  <button onClick={() => { setUnit("g"); setGrams("1"); }}
+                    className={`px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
+                      unit === "g" ? "bg-[#1a1a1a] text-white" : "text-[#1a1a1a]/50"
+                    }`}>g</button>
+                </div>
+              </div>
+            </div>
+            <span className="text-2xl font-black text-[#1a1a1a]/20">=</span>
+            {/* PHP output */}
+            <div className="flex-1">
+              <div className="bg-[#1a1a1a]/10 rounded-xl px-4 py-3">
+                <p className="text-xl font-extrabold text-[#1a1a1a]">
+                  ₱{(() => {
+                    const v = unit === "oz" ? parseFloat(oz) : parseFloat(grams);
+                    if (isNaN(v) || v === 0) return "0";
+                    const total = unit === "oz" ? v * goldPhp : v * goldPhpPerGram;
+                    return Math.round(total).toLocaleString("en-PH");
+                  })()}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p className="text-center mb-4">
+          <a href="https://www.binance.com/register?ref=ALKANSYA" target="_blank" rel="noopener noreferrer"
+            className="text-[11px] font-normal text-[#1a1a1a]/40 no-underline border-b border-[#1a1a1a]/20 pb-px hover:text-[#1a1a1a]/70 hover:border-[#1a1a1a]/40 transition-colors">
+            Buy gold on Binance
+          </a>
+        </p>
+
+        {/* Quick reference */}
+        <div className="bg-[#1a1a1a]/10 backdrop-blur-sm rounded-[20px] p-5 mb-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#1a1a1a]/40 mb-3">Quick reference</p>
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { label: "1 gram", val: goldPhpPerGram },
+              { label: "5 grams", val: goldPhpPerGram * 5 },
+              { label: "10 grams", val: goldPhpPerGram * 10 },
+              { label: "1/4 oz", val: goldPhp * 0.25 },
+              { label: "1/2 oz", val: goldPhp * 0.5 },
+              { label: "1 oz", val: goldPhp },
+              { label: "50 grams", val: goldPhpPerGram * 50 },
+              { label: "100 grams", val: goldPhpPerGram * 100 },
+            ].map((r) => (
+              <div key={r.label} className="flex justify-between text-sm py-1.5 border-b border-[#1a1a1a]/5 last:border-0">
+                <span className="text-[#1a1a1a]/50 font-medium">{r.label}</span>
+                <span className="text-[#1a1a1a] font-bold">₱{Math.round(r.val).toLocaleString("en-PH")}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <footer className="text-center pt-4">
+          <p className="text-[10px] text-[#1a1a1a]/20 leading-relaxed max-w-md mx-auto">
+            Gold spot price from metals.dev / CoinGecko. Historical data from FreeGoldAPI.com. USD/PHP rate from CoinGecko USDT/PHP. Prices are indicative — actual dealer prices may differ.
+          </p>
+        </footer>
+      </main>
+    </div>
+  );
+}
