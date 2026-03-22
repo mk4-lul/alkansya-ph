@@ -4,4 +4,4 @@ dockerfilePath = "scraper/Dockerfile"
 [deploy]
 startCommand = "python scraper.py"
 restartPolicyType = "never"
-cronSchedule = "0 8 * * 0"
+cronSchedule = "0 8 * * *"
