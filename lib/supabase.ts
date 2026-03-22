@@ -195,10 +195,9 @@ export async function getGoldPrices(): Promise<[number, number][]> {
       `${cleanUrl}/rest/v1/gold_prices?select=date,price_usd&order=date.asc&limit=10000`,
       {
         headers: {
-          apikey: cleanKey,
-          Authorization: `Bearer ${cleanKey}`,
-          Range: "0-9999",
-        },
+  apikey: cleanKey,
+  Authorization: `Bearer ${cleanKey}`,
+},
       }
     );
 
