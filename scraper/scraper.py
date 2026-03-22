@@ -191,9 +191,9 @@ def scrape_metrobank() -> list[ScrapedRate]:
 def scrape_maya() -> list[ScrapedRate]:
     """Maya Bank — headline savings rate."""
     urls = [
-        "https://www.maya.ph/savings",
-        "https://www.maya.ph/",
-        "https://maya.ph/",
+        "https://www.mayabank.ph/savings",
+        "https://www.mayabank.ph/",
+        "https://mayabank.ph/",
     ]
     soup = None
     for url in urls:
