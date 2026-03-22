@@ -27,7 +27,7 @@ function AnimatedRate({ value, decimals = 2, prefix = "₱" }: { value: number; 
     if (from === to) { setDisplay(to); return; }
     const start = performance.now();
     function tick(now: number) {
-      const p = Math.min((now - start) / 2500, 1);
+      const p = Math.min((now - start) / 1500, 1);
       const eased = 1 - Math.pow(1 - p, 3);
       setDisplay(from + (to - from) * eased);
       if (p < 1) raf.current = requestAnimationFrame(tick);
@@ -403,18 +403,25 @@ export default function GoldPage() {
             {/* Weight input — narrow */}
             <div className="w-[110px] sm:w-[130px] shrink-0">
               <div className="flex items-center bg-white/10 rounded-xl px-3 py-3 h-[48px]">
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  value={unit === "oz" ? oz : grams}
-                  onFocus={() => setUnit(unit)}
-                  onChange={(e) => {
-                    if (unit === "oz") { setUnit("oz"); setOz(e.target.value); }
-                    else { setUnit("g"); setGrams(e.target.value); }
-                  }}
-                  className="bg-transparent font-extrabold text-lg text-white outline-none min-w-0 flex-1 placeholder-white/30"
-                  placeholder="1"
-                />
+                {(() => {
+                  const val = unit === "oz" ? oz : grams;
+                  const len = val.length;
+                  const fontSize = len > 8 ? "text-xs" : len > 6 ? "text-sm" : len > 4 ? "text-base" : "text-lg";
+                  return (
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={val}
+                      onFocus={() => setUnit(unit)}
+                      onChange={(e) => {
+                        if (unit === "oz") { setUnit("oz"); setOz(e.target.value); }
+                        else { setUnit("g"); setGrams(e.target.value); }
+                      }}
+                      className={`bg-transparent font-extrabold ${fontSize} text-white outline-none min-w-0 flex-1 placeholder-white/30 transition-[font-size] duration-200`}
+                      placeholder="1"
+                    />
+                  );
+                })()}
                 <div className="flex bg-white/10 rounded-full p-0.5 ml-1 shrink-0">
                   <button onClick={() => { setUnit("oz"); setOz("1"); }}
                     className={`px-1.5 py-0.5 rounded-full text-[8px] font-bold transition-all ${
