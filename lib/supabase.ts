@@ -4,13 +4,21 @@ let _supabase: SupabaseClient | null = null;
 
 function getSupabase(): SupabaseClient | null {
   if (_supabase) return _supabase;
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  let url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  let key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!url || !key) {
     console.warn("Supabase credentials not configured — using fallback data");
     return null;
   }
-  _supabase = createClient(url, key);
+  // Strip any accidental quotes or whitespace from env vars
+  url = url.trim().replace(/^["']|["']$/g, "");
+  key = key.trim().replace(/^["']|["']$/g, "");
+  try {
+    _supabase = createClient(url, key);
+  } catch (err) {
+    console.error("Supabase client creation failed:", err);
+    return null;
+  }
   return _supabase;
 }
 
@@ -172,4 +180,42 @@ export async function flagRate(bankId: string, reason?: string) {
     reason: reason || "Rate may be outdated",
   });
   if (error) console.error("Flag error:", error);
+}
+
+export async function getGoldPrices(): Promise<[number, number][]> {
+  try {
+    const supabase = getSupabase();
+    if (!supabase) return [];
+
+    // Supabase caps at 1000 rows per request — paginate to get all
+    const allRows: { date: string; price_usd: number }[] = [];
+    const pageSize = 1000;
+    let from = 0;
+
+    while (true) {
+      const { data, error } = await supabase
+        .from("gold_prices")
+        .select("date, price_usd")
+        .order("date", { ascending: true })
+        .range(from, from + pageSize - 1);
+
+      if (error) {
+        console.error("Gold prices fetch error:", error);
+        break;
+      }
+
+      if (!data || data.length === 0) break;
+      allRows.push(...data);
+      if (data.length < pageSize) break; // last page
+      from += pageSize;
+    }
+
+    return allRows.map((row) => [
+      new Date(row.date).getTime(),
+      Number(row.price_usd),
+    ]);
+  } catch (err) {
+    console.error("Gold prices error:", err);
+    return [];
+  }
 }
