@@ -8,6 +8,7 @@ const FALLBACK_GOLD_USD = 3000;
 const FALLBACK_USDPHP = 57;
 
 const PERIODS = [
+  { label: "1M", days: "30" },
   { label: "1Y", days: "365" },
   { label: "5Y", days: "1825" },
   { label: "ALL", days: "all" },
