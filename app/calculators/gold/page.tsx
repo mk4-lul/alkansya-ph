@@ -284,17 +284,20 @@ export default function GoldPage() {
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch historical gold data from freegoldapi.com
+  // Fetch historical gold data from Yahoo Finance via API route
   useEffect(() => {
     async function loadHistory() {
       try {
-        const res = await fetch("https://freegoldapi.com/data/latest.json");
-        const raw: { date: string; price: number }[] = await res.json();
-        // Filter to 1990+ and convert to PHP
-        const filtered = raw
-          .filter(d => d.date >= "1990-01-01" && d.price > 0)
-          .map(d => [new Date(d.date).getTime(), d.price * usdPhp] as [number, number]);
-        if (filtered.length > 10) setHistoryData(filtered);
+        const res = await fetch("/api/gold-history");
+        if (!res.ok) throw new Error(res.statusText);
+        const data = await res.json();
+        if (data?.prices?.length) {
+          // Data comes in USD — convert to PHP
+          const phpPrices = (data.prices as [number, number][]).map(
+            ([ts, usd]) => [ts, usd * usdPhp] as [number, number]
+          );
+          setHistoryData(phpPrices);
+        }
       } catch { /* no history */ }
     }
     if (usdPhp > 0) loadHistory();
@@ -532,7 +535,7 @@ export default function GoldPage() {
         {/* Footer */}
         <footer className="text-center pt-4">
           <p className="text-[10px] text-white/20 leading-relaxed max-w-md mx-auto">
-            Gold spot price from metals.dev / CoinGecko. Historical data from FreeGoldAPI.com. USD/PHP rate from CoinGecko USDT/PHP. Karat prices are calculated from 24K spot — actual jewelry prices include labor and markup.
+            Gold spot price from metals.dev / CoinGecko. Historical data from Yahoo Finance (GC=F Gold Futures). USD/PHP rate from CoinGecko USDT/PHP. Karat prices are calculated from 24K spot — actual jewelry prices include labor and markup.
           </p>
         </footer>
       </main>
