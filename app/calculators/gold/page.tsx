@@ -535,7 +535,7 @@ export default function GoldPage() {
         {/* Footer */}
         <footer className="text-center pt-4">
           <p className="text-[10px] text-white/20 leading-relaxed max-w-md mx-auto">
-            Gold spot price from metals.dev / CoinGecko. Historical data from Yahoo Finance (GC=F Gold Futures). USD/PHP rate from CoinGecko USDT/PHP. Karat prices are calculated from 24K spot — actual jewelry prices include labor and markup.
+            Gold spot price from metals.dev / CoinGecko. Historical data from CoinGecko (PAX Gold). USD/PHP rate from CoinGecko USDT/PHP. Karat prices are calculated from 24K spot — actual jewelry prices include labor and markup.
           </p>
         </footer>
       </main>
