@@ -5,11 +5,12 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    // max days = full history (~2019-present for PAXG)
-    const url = "https://api.coingecko.com/api/v3/coins/pax-gold/market_chart?vs_currency=usd&days=max&interval=daily";
+    // CoinGecko free tier: no interval param for days=max, it auto-selects daily
+    const url = "https://api.coingecko.com/api/v3/coins/pax-gold/market_chart?vs_currency=usd&days=max";
 
     const res = await fetch(url, {
-      next: { revalidate: 10800 }, // cache 3 hours
+      next: { revalidate: 10800 },
+      headers: { "Accept": "application/json" },
     });
 
     if (!res.ok) {
