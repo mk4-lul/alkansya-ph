@@ -1,12 +1,23 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { BankWithRates } from "@/lib/supabase";
-import { formatPeso, calcInterest, getRateForAmount, AMOUNT_BRACKETS } from "@/lib/utils";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { BankWithRates, flagRate } from "@/lib/supabase";
+import {
+  formatPeso,
+  formatPesoShort,
+  calcInterest,
+  timeAgo,
+  getRateForAmount,
+  getTdRateForAmount,
+  getUniqueTdTerms,
+  getBestTdRate,
+  formatRateRange,
+  TERM_LABELS,
+} from "@/lib/utils";
 
-function AnimatedNumber({ value, prefix = "", suffix = "", decimals = 2 }: { value: number; prefix?: string; suffix?: string; decimals?: number }) {
-  const [display, setDisplay] = useState(0);
-  const prevValue = useRef(0);
+function AnimatedValue({ value, format }: { value: number; format: (n: number) => string }) {
+  const [display, setDisplay] = useState(value);
+  const prevValue = useRef(value);
   const raf = useRef<number>(0);
 
   useEffect(() => {
@@ -26,114 +37,319 @@ function AnimatedNumber({ value, prefix = "", suffix = "", decimals = 2 }: { val
     return () => cancelAnimationFrame(raf.current);
   }, [value]);
 
+  return <span>{format(display)}</span>;
+}
+
+function FlagButton({ bankId }: { bankId: string }) {
+  const [flagged, setFlagged] = useState(false);
+  if (flagged) return <span className="text-[11px] text-[#00c853] font-medium">Flagged</span>;
   return (
-    <span>
-      {prefix}{display.toLocaleString("en-PH", { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}{suffix}
-    </span>
+    <button onClick={(e) => { e.stopPropagation(); flagRate(bankId); setFlagged(true); }}
+      className="text-[11px] text-[#888] hover:text-[#1a1a1a] transition-colors"
+      title="Flag this rate as outdated">
+      Flag
+    </button>
   );
 }
 
-export default function HeroCalculator({
+function BankRow({
+  bank,
+  depositType,
+  amount,
+  rank,
+  isHighlighted,
+}: {
+  bank: BankWithRates;
+  depositType: "savings" | "time_deposit";
+  amount: number;
+  rank: number;
+  isHighlighted: boolean;
+}) {
+  const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    if (isHighlighted) setExpanded(true);
+  }, [isHighlighted]);
+
+  const displayRate = depositType === "savings"
+    ? getRateForAmount(bank.savings_tiers, amount)
+    : amount > 0
+      ? getBestTdRate(bank.time_deposit_rates, amount)
+      : bank.time_deposit_rates.length > 0 ? Math.max(...bank.time_deposit_rates.map(r => r.rate)) : 0;
+
+  const earnings = calcInterest(amount, displayRate);
+  const hasRange = bank.savings_min_rate !== bank.savings_rate;
+  const rateText = depositType === "savings" && hasRange && amount === 0
+    ? formatRateRange(bank.savings_min_rate, bank.savings_rate) : `${displayRate}%`;
+
+  const rateColor = rank < 3 ? "text-[#00c853]" : rank < 6 ? "text-[#FF9800]" : "text-[#888]";
+
+  const sourceUrl = depositType === "time_deposit" && bank.td_source_url ? bank.td_source_url : bank.source_url;
+
+  return (
+    <div
+      id={`bank-${bank.id}`}
+      className={`bg-white rounded-2xl overflow-hidden transition-all ${isHighlighted ? "animate-bank-highlight ring-2 ring-[#00c853]" : ""}`}>
+      {/* Row */}
+      <div
+        onClick={() => setExpanded(!expanded)}
+        className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-[#fafafa] transition-colors">
+        <div className="flex items-center gap-3">
+          <img src={bank.logo} alt={bank.name} className="w-9 h-9 rounded-xl bg-[#f5f5f5] object-contain shrink-0" />
+          <div>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-bold text-[#1a1a1a]">{bank.name}</p>
+              {/* Desktop: gold stars next to name */}
+              {bank.avg_app_rating && (
+                <span className="hidden sm:inline-flex items-center gap-0.5 text-[11px] font-semibold text-[#c8940a]"
+                  title={`Play Store: ${bank.play_store_rating} · App Store: ${bank.app_store_rating}`}>
+                  <span className="text-[13px]">★</span> {bank.avg_app_rating}
+                </span>
+              )}
+            </div>
+            <p className="text-[11px] text-[#888]">
+              {bank.type === "digital" ? "Digital" : "Traditional"}
+              {/* Mobile: rating inline with type */}
+              {bank.avg_app_rating && (
+                <span className="sm:hidden ml-1.5 text-[#c8940a] font-semibold"
+                  title={`Play Store: ${bank.play_store_rating} · App Store: ${bank.app_store_rating}`}>
+                  ★ {bank.avg_app_rating}
+                </span>
+              )}
+            </p>
+          </div>
+        </div>
+        <div className="text-right">
+          <p className={`text-xl sm:text-2xl font-extrabold tracking-tight ${rateColor}`}>
+            {depositType === "savings" && hasRange && amount === 0
+              ? rateText
+              : <AnimatedValue value={displayRate} format={(n) => `${n.toFixed(n >= 1 ? 2 : 4)}%`} />
+            }
+          </p>
+          {amount > 0 && <p className="text-[11px] text-[#888] font-medium"><AnimatedValue value={earnings} format={(n) => `${formatPeso(n)}/yr`} /></p>}
+        </div>
+      </div>
+
+      {/* Expanded */}
+      {expanded && (
+        <div className="px-5 pb-5 animate-fade-in">
+          {/* Savings products — FIRST */}
+          {depositType === "savings" && bank.savings_products.length > 0 && (
+            <div className="mb-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-2">
+                {bank.savings_products.length > 1 ? "Savings products" : "Savings rate"}
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {bank.savings_products.map((product, pi) => (
+                  <div key={pi} className="bg-[#f5f5f5] rounded-xl overflow-hidden">
+                    <div className="px-4 py-2.5 flex items-center justify-between">
+                      <p className="text-[13px] font-bold text-[#1a1a1a]">{product.name}</p>
+                      <p className={`text-sm font-extrabold ${
+                        product.best_rate >= 2 ? "text-[#00c853]" : product.best_rate >= 0.5 ? "text-[#1a1a1a]" : "text-[#888]"
+                      }`}>
+                        {product.min_rate === product.best_rate ? `${product.best_rate}%` : `${product.min_rate}%–${product.best_rate}%`}
+                      </p>
+                    </div>
+                    <div className="px-4 pb-2.5">
+                      {product.tiers.map((tier, ti) => {
+                        const tierLabel = tier.max_deposit
+                          ? `${formatPesoShort(tier.min_deposit)} – ${formatPesoShort(tier.max_deposit)}`
+                          : tier.min_deposit > 0 ? `${formatPesoShort(tier.min_deposit)}+` : "Any amount";
+                        const tierEarnings = calcInterest(Math.max(amount, tier.min_deposit), tier.rate);
+                        const isActive = amount > 0 && amount >= tier.min_deposit && (tier.max_deposit === null || amount <= tier.max_deposit);
+
+                        return (
+                          <div key={ti} className={`flex items-center justify-between py-1.5 ${
+                            ti > 0 ? "border-t border-black/5" : ""
+                          } ${isActive ? "text-[#1a1a1a]" : "text-[#888]"}`}>
+                            <div className="flex items-center gap-2">
+                              {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#00c853]" />}
+                              <span className="text-[11px]">{tierLabel}</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <span className={`text-sm font-bold ${
+                                tier.rate >= 2 ? "text-[#00c853]" : tier.rate >= 0.5 ? "text-[#1a1a1a]" : "text-[#888]"
+                              }`}>{tier.rate}%</span>
+                              {amount > 0 && <span className="text-[10px] text-[#888] w-[5rem] text-right"><AnimatedValue value={tierEarnings} format={(n) => `${formatPeso(n)}/yr`} /></span>}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* App rating — AFTER savings */}
+          {bank.avg_app_rating && (
+            <div className="mb-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-2">App rating</p>
+              <div className="flex gap-2">
+                <div className="rounded-xl px-3 py-2 flex items-center gap-2" style={{ background: 'linear-gradient(135deg, #4285F4 0%, #34A853 35%, #FBBC05 65%, #EA4335 100%)' }}>
+                  <span className="text-[11px] text-white/90 font-medium">Play Store</span>
+                  <span className="text-sm font-extrabold text-white">{bank.play_store_rating}</span>
+                </div>
+                <div className="rounded-xl px-3 py-2 flex items-center gap-2" style={{ background: 'linear-gradient(135deg, #00D2FF 0%, #1E90FF 50%, #007AFF 100%)' }}>
+                  <span className="text-[11px] text-white/90 font-medium">App Store</span>
+                  <span className="text-sm font-extrabold text-white">{bank.app_store_rating}</span>
+                </div>
+                <div className="bg-[#1a1a1a] rounded-xl px-3 py-2 flex items-center gap-2">
+                  <span className="text-[11px] text-white/60">Avg</span>
+                  <span className="text-sm font-extrabold text-white">{bank.avg_app_rating}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Time deposit terms */}
+          {depositType === "time_deposit" && bank.time_deposit_rates.length > 0 && (
+            <div className="mb-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-2">Time deposit terms</p>
+              <div className="flex flex-wrap gap-2">
+                {getUniqueTdTerms(bank.time_deposit_rates).map((term) => {
+                  const rate = amount > 0 ? getTdRateForAmount(bank.time_deposit_rates, term, amount) : bank.time_deposit_rates.find(r => r.term_days === term)?.rate || 0;
+                  return (
+                    <div key={term} className="bg-[#f5f5f5] rounded-xl px-4 py-3 text-center min-w-[80px]">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.5px] text-[#888]">{TERM_LABELS[term] || `${term}d`}</p>
+                      <p className={`text-lg font-extrabold mt-0.5 ${rate >= 2 ? "text-[#00c853]" : "text-[#1a1a1a]"}`}>
+                        <AnimatedValue value={rate} format={(n) => `${n.toFixed(n >= 1 ? 2 : 3)}%`} />
+                      </p>
+                      {amount > 0 && <p className="text-[10px] text-[#888]"><AnimatedValue value={calcInterest(amount, rate, term)} format={(n) => formatPeso(n)} /></p>}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {depositType === "time_deposit" && bank.time_deposit_rates.length === 0 && (
+            <div className="bg-[#f5f5f5] rounded-xl px-4 py-3 mb-4 max-w-sm">
+              <p className="text-sm text-[#888]">{bank.name} doesn&apos;t offer time deposit products.</p>
+            </div>
+          )}
+
+          {/* Footer: verified + source + flag */}
+          <div className="flex items-center gap-3 flex-wrap text-[11px] text-[#888]">
+            <span>
+              Verified {timeAgo(bank.last_verified)} · {sourceUrl ? (
+                <a href={sourceUrl} target="_blank" rel="noopener noreferrer"
+                  className="underline hover:text-[#1a1a1a]" onClick={(e) => e.stopPropagation()}>source</a>
+              ) : "manual"}
+            </span>
+            <FlagButton bankId={bank.id} />
+            {bank.has_promo && bank.promo_terms && (
+              <span className="px-2 py-0.5 bg-red-50 text-red-500 rounded-full text-[10px] font-medium">*{bank.promo_terms}</span>
+            )}
+            {bank.notes && <span className="text-[#aaa]">{bank.notes}</span>}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function RateTable({
   banks,
   amount,
-  onAmountChange,
-  onBankClick,
+  highlightBankId,
+  onHighlightDone,
 }: {
   banks: BankWithRates[];
   amount: number;
-  onAmountChange: (amount: number) => void;
-  onBankClick: (bankId: string) => void;
+  highlightBankId: string | null;
+  onHighlightDone: () => void;
 }) {
-  const hasAmount = amount > 0;
+  const [depositType, setDepositType] = useState<"savings" | "time_deposit">("savings");
+  const [bankType, setBankType] = useState<"all" | "traditional" | "digital">("all");
+  const [showTdInfo, setShowTdInfo] = useState(false);
+  const [showAll, setShowAll] = useState(false);
 
-  const top3 = hasAmount
-    ? [...banks]
-        .sort((a, b) => getRateForAmount(b.savings_tiers, amount) - getRateForAmount(a.savings_tiers, amount))
-        .slice(0, 3)
-    : [];
-
-  const cardAnimations = ["animate-card-pop-1", "animate-card-pop-2", "animate-card-pop-3"];
+  const filtered = useMemo(() => {
+    let list = [...banks];
+    if (bankType !== "all") list = list.filter((b) => b.type === bankType);
+    list.sort((a, b) => {
+      const rateA = depositType === "savings"
+        ? getRateForAmount(a.savings_tiers, amount)
+        : getBestTdRate(a.time_deposit_rates, amount);
+      const rateB = depositType === "savings"
+        ? getRateForAmount(b.savings_tiers, amount)
+        : getBestTdRate(b.time_deposit_rates, amount);
+      return rateB - rateA;
+    });
+    return list;
+  }, [banks, depositType, bankType, amount]);
 
   return (
-    <div className={`${hasAmount ? "bg-[#00c853]" : "bg-white"} rounded-[20px] p-6 sm:p-8 relative overflow-hidden transition-colors duration-300`}>
-      {/* Emoji background — always visible */}
-      <div className="absolute inset-0 pointer-events-none select-none" style={{ filter: "blur(2px)" }} aria-hidden="true">
-        {['💵','💰','💸','📈','🏦'].map((e, i) => (
-          <span key={i} className="absolute text-[28px] sm:text-[34px] emoji-float" style={{
-            left: `${(i * 47 + 13) % 100}%`,
-            top: `${(i * 31 + 7) % 100}%`,
-            opacity: hasAmount ? 0.75 : 0.3,
-            '--base-rotate': `rotate(${(i * 37) % 360}deg)`,
-            '--float-duration': `${6 + (i % 5) * 2}s`,
-            '--float-delay': `${-((i * 1.3) % 8)}s`,
-            transition: "opacity 0.3s",
-          } as React.CSSProperties}>{e}</span>
+    <div>
+      {/* Tabs + Filters */}
+      <div className="flex flex-wrap items-center gap-2 mb-3">
+        <div className="flex bg-white rounded-full p-1">
+          <button onClick={() => { setDepositType("savings"); setShowAll(false); }}
+            className={`px-4 py-2 rounded-full text-[12px] font-semibold transition-all ${
+              depositType === "savings" ? "bg-[#1a1a1a] text-white" : "text-[#888] hover:text-[#1a1a1a]"
+            }`}>Savings</button>
+          <button onClick={() => { setDepositType("time_deposit"); setShowAll(false); }}
+            className={`px-4 py-2 rounded-full text-[12px] font-semibold transition-all ${
+              depositType === "time_deposit" ? "bg-[#1a1a1a] text-white" : "text-[#888] hover:text-[#1a1a1a]"
+            }`}>
+            Time deposit
+            <span onClick={(e) => { e.stopPropagation(); setShowTdInfo(true); }}
+              className="inline-flex items-center justify-center w-4 h-4 ml-1 rounded-full border border-current text-[9px] opacity-40 hover:opacity-100 transition-opacity"
+              title="What is a time deposit?">i</span>
+          </button>
+        </div>
+        <div className="flex bg-white rounded-full p-1">
+          {([["all", "All"], ["digital", "Digital"], ["traditional", "Trad."]] as const).map(([val, label]) => (
+            <button key={val} onClick={() => { setBankType(val as "all" | "traditional" | "digital"); setShowAll(false); }}
+              className={`px-3 py-2 rounded-full text-[12px] font-semibold transition-all ${
+                bankType === val ? "bg-[#1a1a1a] text-white" : "text-[#888] hover:text-[#1a1a1a]"
+              }`}>{label}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* Bank list */}
+      <div className="space-y-2">
+        {(showAll ? filtered : filtered.slice(0, 10)).map((bank, idx) => (
+          <BankRow
+            key={bank.id}
+            bank={bank}
+            depositType={depositType}
+            amount={amount}
+            rank={idx}
+            isHighlighted={highlightBankId === bank.id}
+          />
         ))}
-      </div>
-
-      <div className="relative">
-        {!hasAmount ? (
-          <>
-            {/* Select an amount */}
-            <p className="text-center text-[13px] font-bold uppercase tracking-[1px] text-[#888] mb-4">Select an amount</p>
-            <div className="grid grid-cols-4 gap-2.5 max-w-[440px] mx-auto">
-              {AMOUNT_BRACKETS.map((a) => {
-                const isGold = a.value >= 1000000;
-                return (
-                  <button
-                    key={a.value}
-                    onClick={() => onAmountChange(a.value)}
-                    className={`py-4 rounded-xl text-base font-extrabold transition-all border-2 ${
-                      isGold
-                        ? "bg-transparent border-[#FFD600]/40 text-[#c8a600] hover:bg-[#FFD600]/5"
-                        : "bg-transparent border-[#e0e0e0] text-[#1a1a1a] hover:bg-[#f5f5f5]"
-                    }`}>
-                    {a.label}
-                  </button>
-                );
-              })}
-            </div>
-          </>
-        ) : top3.length > 0 ? (
-          <>
-            {/* Best rates for you */}
-            <p className="text-[12px] font-semibold uppercase tracking-[1px] text-white/70 mb-3 text-center">Best rates for you</p>
-            <div key={amount} className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              {top3.map((bank, i) => {
-                const rate = getRateForAmount(bank.savings_tiers, amount);
-                const earnings = calcInterest(amount, rate);
-                const isFirst = i === 0;
-
-                return (
-                  <div
-                    key={bank.id}
-                    onClick={() => onBankClick(bank.id)}
-                    className={`rounded-2xl px-5 py-4 cursor-pointer transition-all hover:scale-[1.02] ${cardAnimations[i]} ${
-                      isFirst
-                        ? "bg-white text-[#1a1a1a]"
-                        : "bg-white/15 backdrop-blur-md text-white"
-                    }`}>
-                    <p className={`text-sm font-bold`}>{bank.name}</p>
-                    <p className="text-3xl font-extrabold tracking-tight mt-1">
-                      <AnimatedNumber value={rate} prefix="" suffix="%" decimals={2} />
-                    </p>
-                    <p className={`text-sm font-semibold mt-1 ${isFirst ? "text-[#888]" : "text-white/70"}`}>
-                      <AnimatedNumber value={earnings} prefix="₱" suffix="/yr" />
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
-            {/* Change amount button */}
+        {filtered.length === 0 && <p className="text-center py-8 text-sm text-[#888]">No results match your filters</p>}
+        {!showAll && filtered.length > 10 && (
+          <div className="flex justify-center pb-4">
             <button
-              onClick={() => onAmountChange(0)}
-              className="mt-4 mx-auto block text-[11px] font-semibold text-white/50 hover:text-white/80 transition-colors"
-            >
-              Select different amount ↻
+              onClick={() => setShowAll(true)}
+              className="px-6 py-2.5 rounded-full bg-white text-[13px] font-bold text-[#888] hover:text-[#1a1a1a] transition-colors">
+              Show more
             </button>
-          </>
-        ) : null}
+          </div>
+        )}
       </div>
+
+      {/* TD Info Modal */}
+      {showTdInfo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4" onClick={() => setShowTdInfo(false)}>
+          <div className="absolute inset-0 bg-black/30" />
+          <div className="relative bg-white rounded-2xl p-6 max-w-sm w-full" onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => setShowTdInfo(false)}
+              className="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full hover:bg-[#f5f5f5] text-[#888] hover:text-[#1a1a1a] transition-colors text-lg">
+              &times;
+            </button>
+            <p className="text-base font-bold text-[#1a1a1a] mb-2">What is a time deposit?</p>
+            <p className="text-sm text-[#888] leading-relaxed">
+              A time deposit is a safe, fixed-term savings account where your money is locked in for a specific period in exchange for a higher interest rate than regular savings.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
