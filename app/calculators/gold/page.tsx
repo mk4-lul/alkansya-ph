@@ -397,6 +397,54 @@ export default function GoldPage() {
           </div>
         </div>
 
+        {/* Gold Calculator */}
+        <div className="bg-white/10 backdrop-blur-sm rounded-[20px] p-5 mb-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-3">Gold Calculator</p>
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Weight input — narrow */}
+            <div className="w-[100px] sm:w-[120px] shrink-0">
+              <div className="flex items-center bg-white/10 rounded-xl px-3 py-3">
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={unit === "oz" ? oz : grams}
+                  onFocus={() => setUnit(unit)}
+                  onChange={(e) => {
+                    if (unit === "oz") { setUnit("oz"); setOz(e.target.value); }
+                    else { setUnit("g"); setGrams(e.target.value); }
+                  }}
+                  className="bg-transparent font-extrabold text-lg text-white outline-none min-w-0 w-full placeholder-white/30"
+                  placeholder="1"
+                />
+              </div>
+              <div className="flex bg-white/10 rounded-full p-0.5 mt-1.5 w-fit mx-auto">
+                <button onClick={() => { setUnit("oz"); setOz("1"); }}
+                  className={`px-2 py-0.5 rounded-full text-[9px] font-bold transition-all ${
+                    unit === "oz" ? "bg-white text-[#C8940A]" : "text-white/50"
+                  }`}>oz</button>
+                <button onClick={() => { setUnit("g"); setGrams("1"); }}
+                  className={`px-2 py-0.5 rounded-full text-[9px] font-bold transition-all ${
+                    unit === "g" ? "bg-white text-[#C8940A]" : "text-white/50"
+                  }`}>g</button>
+              </div>
+            </div>
+            <span className="text-xl font-black text-white/20 shrink-0">=</span>
+            {/* PHP output — takes remaining space */}
+            <div className="flex-1 min-w-0">
+              <div className="bg-white/10 rounded-xl px-4 py-3">
+                {(() => {
+                  const v = unit === "oz" ? parseFloat(oz) : parseFloat(grams);
+                  const total = isNaN(v) || v === 0 ? 0 : unit === "oz" ? v * goldPhp : v * goldPhpPerGram;
+                  const formatted = `₱${Math.round(total).toLocaleString("en-PH")}`;
+                  const len = formatted.length;
+                  const fontSize = len > 14 ? "text-sm" : len > 11 ? "text-base" : len > 8 ? "text-xl" : "text-2xl";
+                  return <p className={`${fontSize} font-extrabold text-white truncate transition-[font-size] duration-200`}>{formatted}</p>;
+                })()}
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Karat pricing */}
         <div className="bg-white/10 backdrop-blur-sm rounded-[20px] p-5 mb-4">
           <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-3">Price per Gram by Karat</p>
@@ -460,55 +508,6 @@ export default function GoldPage() {
             </div>
           )}
         </div>
-
-        {/* Converter */}
-        <div className="bg-white/10 backdrop-blur-sm rounded-[20px] p-5 mb-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-3">Gold Calculator</p>
-          <div className="flex items-center gap-3">
-            {/* Weight input */}
-            <div className="flex-1">
-              <div className="flex items-center bg-white/10 rounded-xl px-4 py-3">
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  value={unit === "oz" ? oz : grams}
-                  onFocus={() => setUnit(unit)}
-                  onChange={(e) => {
-                    if (unit === "oz") { setUnit("oz"); setOz(e.target.value); }
-                    else { setUnit("g"); setGrams(e.target.value); }
-                  }}
-                  className="bg-transparent font-extrabold text-xl text-white outline-none min-w-0 flex-1 placeholder-white/30"
-                  placeholder="1"
-                />
-                <div className="flex bg-white/10 rounded-full p-0.5 ml-2">
-                  <button onClick={() => { setUnit("oz"); setOz("1"); }}
-                    className={`px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
-                      unit === "oz" ? "bg-white text-[#C8940A]" : "text-white/50"
-                    }`}>oz</button>
-                  <button onClick={() => { setUnit("g"); setGrams("1"); }}
-                    className={`px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
-                      unit === "g" ? "bg-white text-[#C8940A]" : "text-white/50"
-                    }`}>g</button>
-                </div>
-              </div>
-            </div>
-            <span className="text-2xl font-black text-white/20">=</span>
-            {/* PHP output */}
-            <div className="flex-1">
-              <div className="bg-white/10 rounded-xl px-4 py-3">
-                <p className="text-xl font-extrabold text-white">
-                  ₱{(() => {
-                    const v = unit === "oz" ? parseFloat(oz) : parseFloat(grams);
-                    if (isNaN(v) || v === 0) return "0";
-                    const total = unit === "oz" ? v * goldPhp : v * goldPhpPerGram;
-                    return Math.round(total).toLocaleString("en-PH");
-                  })()}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
 
         {/* Quick reference */}
         <div className="bg-white/10 backdrop-blur-sm rounded-[20px] p-5 mb-4">
