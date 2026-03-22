@@ -187,30 +187,17 @@ export async function getGoldPrices(): Promise<[number, number][]> {
     const supabase = getSupabase();
     if (!supabase) return [];
 
-    // Supabase caps at 1000 rows per request — paginate to get all
-    const allRows: { date: string; price_usd: number }[] = [];
-    const pageSize = 1000;
-    let from = 0;
+    const { data, error } = await supabase
+      .from("gold_prices")
+      .select("date, price_usd")
+      .order("date", { ascending: true });
 
-    while (true) {
-      const { data, error } = await supabase
-        .from("gold_prices")
-        .select("date, price_usd")
-        .order("date", { ascending: true })
-        .range(from, from + pageSize - 1);
-
-      if (error) {
-        console.error("Gold prices fetch error:", error);
-        break;
-      }
-
-      if (!data || data.length === 0) break;
-      allRows.push(...data);
-      if (data.length < pageSize) break; // last page
-      from += pageSize;
+    if (error) {
+      console.error("Gold prices fetch error:", error);
+      return [];
     }
 
-    return allRows.map((row) => [
+    return (data || []).map((row) => [
       new Date(row.date).getTime(),
       Number(row.price_usd),
     ]);
