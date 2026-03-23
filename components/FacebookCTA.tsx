@@ -7,12 +7,16 @@ export default function FacebookCTA() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    try {
-      if (!localStorage.getItem(STORAGE_KEY)) setVisible(true);
-    } catch {
-      setVisible(true);
+  try {
+    if (!localStorage.getItem(STORAGE_KEY)) {
+      const t = setTimeout(() => setVisible(true), 2000);
+      return () => clearTimeout(t);
     }
-  }, []);
+  } catch {
+    const t = setTimeout(() => setVisible(true), 2000);
+    return () => clearTimeout(t);
+  }
+}, []);
 
   function dismiss(e: React.MouseEvent) {
     e.preventDefault();
