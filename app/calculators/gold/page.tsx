@@ -247,9 +247,9 @@ export default function GoldPage() {
   const [live, setLive] = useState(false);
   const [lastUpdated, setLastUpdated] = useState("");
   const [period, setPeriod] = useState("30");
-  const [oz, setOz] = useState("1");
-  const [grams, setGrams] = useState("");
-  const [unit, setUnit] = useState<"oz" | "g">("oz");
+  const [oz, setOz] = useState("");
+  const [grams, setGrams] = useState("1");
+  const [unit, setUnit] = useState<"oz" | "g">("g");
   const [displayUnit, setDisplayUnit] = useState<"g" | "oz">("g");
 
   const goldPhp = goldUsd * usdPhp;
@@ -428,20 +428,33 @@ export default function GoldPage() {
           )}
         </div>
 
-        {/* Quick stats */}
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <div className="bg-gradient-to-br from-white to-amber-50 rounded-2xl px-4 py-3 text-center shadow-md">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-[#996515]">{displayUnit === "g" ? "Per Troy Oz" : "Per Gram"} (24K)</p>
-            <p className="text-xl font-extrabold text-[#1a1a1a]">
-              <AnimatedRate value={displayUnit === "g" ? goldPhp : goldPhpPerGram} decimals={0} />
-            </p>
+        {/* Chart */}
+        <div className="bg-white/15 backdrop-blur-sm rounded-[20px] p-5 mb-4">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50">Global Gold Price in PHP {displayUnit === "g" ? "/ Gram" : "/ Troy Oz"}</p>
+            <div className="flex gap-1">
+              {PERIODS.map((p) => (
+                <button key={p.days} onClick={() => setPeriod(p.days)}
+                  className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-all ${
+                    period === p.days ? "bg-white text-[#C8940A]" : "bg-white/15 text-white/50"
+                  }`}>{p.label}</button>
+              ))}
+            </div>
           </div>
-          <div className="bg-gradient-to-br from-white to-amber-50 rounded-2xl px-4 py-3 text-center shadow-md">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-[#996515]">USD / PHP Rate</p>
-            <p className="text-xl font-extrabold text-[#1a1a1a]">
-              <AnimatedRate value={usdPhp} decimals={2} />
-            </p>
-          </div>
+
+          {displayChartData.length > 0 ? (
+            <>
+              <GoldChart data={displayChartData} />
+              <div className="flex justify-between mt-3 text-[11px] text-white/50">
+                <span>Low: ₱{Math.round(chartMin).toLocaleString("en-PH")}</span>
+                <span>High: ₱{Math.round(chartMax).toLocaleString("en-PH")}</span>
+              </div>
+            </>
+          ) : (
+            <div className="h-[200px] flex items-center justify-center">
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            </div>
+          )}
         </div>
 
         {/* Gold Calculator */}
@@ -505,6 +518,7 @@ export default function GoldPage() {
           <div className="space-y-0">
             {[
               { k: 24, purity: 1, note: "HK 足金 (Chuk Kam) 999.9 standard, bars, coins" },
+              { k: 23, purity: 23/24, note: "Thai gold standard (ทองคำ 96.5%)" },
               { k: 22, purity: 22/24, note: "Saudi gold, Indian jewelry" },
               { k: 21, purity: 21/24, note: "Saudi gold, Middle East standard" },
               { k: 18, purity: 18/24, note: "PH & Japan (K18) standard, HK karat jewelry" },
@@ -533,35 +547,6 @@ export default function GoldPage() {
             Karat prices are calculated from 24K spot. Jewelry store prices will be higher due to labor, design, and markup.
             Saudi gold is typically 21K or 22K — ask your OFW to check the stamp.
           </p>
-        </div>
-
-        {/* Chart */}
-        <div className="bg-white/15 backdrop-blur-sm rounded-[20px] p-5 mb-4">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50">Global Gold Price in PHP {displayUnit === "g" ? "/ Gram" : "/ Troy Oz"}</p>
-            <div className="flex gap-1">
-              {PERIODS.map((p) => (
-                <button key={p.days} onClick={() => setPeriod(p.days)}
-                  className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-all ${
-                    period === p.days ? "bg-white text-[#C8940A]" : "bg-white/15 text-white/50"
-                  }`}>{p.label}</button>
-              ))}
-            </div>
-          </div>
-
-          {displayChartData.length > 0 ? (
-            <>
-              <GoldChart data={displayChartData} />
-              <div className="flex justify-between mt-3 text-[11px] text-white/50">
-                <span>Low: ₱{Math.round(chartMin).toLocaleString("en-PH")}</span>
-                <span>High: ₱{Math.round(chartMax).toLocaleString("en-PH")}</span>
-              </div>
-            </>
-          ) : (
-            <div className="h-[200px] flex items-center justify-center">
-              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            </div>
-          )}
         </div>
 
         {/* Performance */}
