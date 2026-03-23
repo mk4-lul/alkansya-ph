@@ -250,10 +250,12 @@ export default function GoldPage() {
   const [oz, setOz] = useState("1");
   const [grams, setGrams] = useState("");
   const [unit, setUnit] = useState<"oz" | "g">("oz");
-  const [karatUnit, setKaratUnit] = useState<"g" | "oz">("g");
+  const [displayUnit, setDisplayUnit] = useState<"g" | "oz">("g");
 
   const goldPhp = goldUsd * usdPhp;
   const goldPhpPerGram = goldPhp / 31.1035;
+  const displayPrice = displayUnit === "g" ? goldPhpPerGram : goldPhp;
+  const displaySuffix = displayUnit === "g" ? "/g" : "/oz";
 
   // Fetch live gold price + USD/PHP from CoinGecko
   useEffect(() => {
@@ -347,8 +349,13 @@ export default function GoldPage() {
   }, [grams, goldPhpPerGram, unit]);
 
   // Chart stats
-  const chartMin = chartData.length > 0 ? Math.min(...chartData.map(d => d[1])) : 0;
-  const chartMax = chartData.length > 0 ? Math.max(...chartData.map(d => d[1])) : 0;
+  const displayDiv = displayUnit === "g" ? 31.1035 : 1;
+  const displayChartData = useMemo(() => {
+    if (displayDiv === 1) return chartData;
+    return chartData.map(([ts, val]) => [ts, val / displayDiv] as [number, number]);
+  }, [chartData, displayDiv]);
+  const chartMin = displayChartData.length > 0 ? Math.min(...displayChartData.map(d => d[1])) : 0;
+  const chartMax = displayChartData.length > 0 ? Math.max(...displayChartData.map(d => d[1])) : 0;
   const chartStart = chartData.length > 0 ? chartData[0][1] : 0;
   const chartChange = chartStart > 0 ? ((goldPhp - chartStart) / chartStart * 100) : 0;
 
@@ -392,12 +399,26 @@ export default function GoldPage() {
 
         {/* Price display */}
         <div className="text-center mb-6">
-          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-2">Global Gold Price / Troy Oz</p>
+          <div className="flex justify-center mb-2">
+            <div className="flex bg-white/15 rounded-full p-0.5">
+              <button onClick={() => setDisplayUnit("g")}
+                className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all ${
+                  displayUnit === "g" ? "bg-white text-[#C8940A]" : "text-white/50"
+                }`}>per gram</button>
+              <button onClick={() => setDisplayUnit("oz")}
+                className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all ${
+                  displayUnit === "oz" ? "bg-white text-[#C8940A]" : "text-white/50"
+                }`}>per troy oz</button>
+            </div>
+          </div>
+          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-2">
+            Gold Price in PHP {displayUnit === "g" ? "/ Gram" : "/ Troy Oz"}
+          </p>
           <p className="text-5xl sm:text-6xl font-black tracking-tight text-white">
-            <AnimatedRate value={goldPhp} decimals={0} />
+            <AnimatedRate value={displayPrice} decimals={displayUnit === "g" ? 0 : 0} />
           </p>
           <p className="text-lg font-bold text-white/50 mt-1">
-            <AnimatedRate value={goldUsd} decimals={2} prefix="$" /> USD
+            <AnimatedRate value={displayUnit === "g" ? goldUsd / 31.1035 : goldUsd} decimals={2} prefix="$" /> USD
           </p>
           {live && (
             <p className="text-[11px] text-white/45 mt-2">
@@ -410,9 +431,9 @@ export default function GoldPage() {
         {/* Quick stats */}
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div className="bg-white/15 rounded-2xl px-4 py-3 text-center">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-white/50">Per Gram (24K)</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-white/50">{displayUnit === "g" ? "Per Troy Oz" : "Per Gram"} (24K)</p>
             <p className="text-xl font-extrabold text-white">
-              <AnimatedRate value={goldPhpPerGram} decimals={0} />
+              <AnimatedRate value={displayUnit === "g" ? goldPhp : goldPhpPerGram} decimals={0} />
             </p>
           </div>
           <div className="bg-white/15 rounded-2xl px-4 py-3 text-center">
@@ -480,19 +501,7 @@ export default function GoldPage() {
 
         {/* Karat pricing */}
         <div className="bg-white/15 backdrop-blur-sm rounded-[20px] p-5 mb-4">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50">Price by Karat</p>
-            <div className="flex bg-white/15 rounded-full p-0.5">
-              <button onClick={() => setKaratUnit("g")}
-                className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-all ${
-                  karatUnit === "g" ? "bg-white text-[#C8940A]" : "text-white/50"
-                }`}>per gram</button>
-              <button onClick={() => setKaratUnit("oz")}
-                className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-all ${
-                  karatUnit === "oz" ? "bg-white text-[#C8940A]" : "text-white/50"
-                }`}>per oz</button>
-            </div>
-          </div>
+          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-3">Price by Karat</p>
           <div className="space-y-0">
             {[
               { k: 24, purity: 1, note: "HK 足金 (Chuk Kam) 999.9 standard, bars, coins" },
@@ -502,8 +511,8 @@ export default function GoldPage() {
               { k: 14, purity: 14/24, note: "Common in PH & Japan (K14), everyday wear" },
               { k: 10, purity: 10/24, note: "Budget jewelry, Japan K10" },
             ].map((row) => {
-              const price = karatUnit === "g" ? goldPhpPerGram * row.purity : goldPhp * row.purity;
-              const suffix = karatUnit === "g" ? "/g" : "/oz";
+              const price = displayUnit === "g" ? goldPhpPerGram * row.purity : goldPhp * row.purity;
+              const suffix = displayUnit === "g" ? "/g" : "/oz";
               return (
                 <div key={row.k} className="flex items-center justify-between py-2.5 border-b border-white/5 last:border-0">
                   <div>
@@ -529,7 +538,7 @@ export default function GoldPage() {
         {/* Chart */}
         <div className="bg-white/15 backdrop-blur-sm rounded-[20px] p-5 mb-4">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50">Gold Price in PHP</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50">Gold Price in PHP {displayUnit === "g" ? "/ Gram" : "/ Troy Oz"}</p>
             <div className="flex gap-1">
               {PERIODS.map((p) => (
                 <button key={p.days} onClick={() => setPeriod(p.days)}
@@ -540,9 +549,9 @@ export default function GoldPage() {
             </div>
           </div>
 
-          {chartData.length > 0 ? (
+          {displayChartData.length > 0 ? (
             <>
-              <GoldChart data={chartData} />
+              <GoldChart data={displayChartData} />
               <div className="flex justify-between mt-3 text-[11px] text-white/50">
                 <span>Low: ₱{Math.round(chartMin).toLocaleString("en-PH")}</span>
                 <span>High: ₱{Math.round(chartMax).toLocaleString("en-PH")}</span>
