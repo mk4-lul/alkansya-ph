@@ -378,7 +378,7 @@ export default function GoldPage() {
   }, [historyData, goldPhp]);
 
   return (
-    <div className="min-h-screen bg-[#C8940A]">
+    <div className="min-h-screen bg-[#FFD700]">
       {/* Nav */}
       <nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[600px] mx-auto">
         <Link href="/" className="text-xl font-extrabold tracking-tight text-white no-underline">
@@ -549,7 +549,7 @@ export default function GoldPage() {
               {performance.map((p) => (
                 <div key={p.label} className="text-center flex-1">
                   <p className="text-[11px] font-semibold text-white/50 mb-1">{p.label}</p>
-                  <p className={`text-sm font-extrabold ${p.pct >= 0 ? "text-[#00e676]" : "text-[#ef4444]"}`}>
+                  <p className={`text-sm font-extrabold ${p.pct >= 0 ? "text-[#00e676]" : "text-[#ff1744]"}`}>
                     {p.pct >= 0 ? "+" : ""}{p.pct.toFixed(1)}%
                   </p>
                 </div>
