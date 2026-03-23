@@ -7,16 +7,16 @@ export default function FacebookCTA() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-  try {
-    if (!localStorage.getItem(STORAGE_KEY)) {
-      const t = setTimeout(() => setVisible(true), 2000);
+    try {
+      if (!localStorage.getItem(STORAGE_KEY)) {
+        const t = setTimeout(() => setVisible(true), 3000);
+        return () => clearTimeout(t);
+      }
+    } catch {
+      const t = setTimeout(() => setVisible(true), 3000);
       return () => clearTimeout(t);
     }
-  } catch {
-    const t = setTimeout(() => setVisible(true), 2000);
-    return () => clearTimeout(t);
-  }
-}, []);
+  }, []);
 
   function dismiss(e: React.MouseEvent) {
     e.preventDefault();
@@ -28,7 +28,13 @@ export default function FacebookCTA() {
   if (!visible) return null;
 
   return (
-    <div className="relative">
+    <div className="relative animate-[fadeSlideUp_0.4s_ease-out]">
+      <style>{`
+        @keyframes fadeSlideUp {
+          from { opacity: 0; transform: translateY(16px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
       <a
         href="https://www.facebook.com/alkansya/"
         target="_blank"
@@ -40,7 +46,7 @@ export default function FacebookCTA() {
         </svg>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-bold text-[#1a1a1a]">Follow Alkansya.ph on Facebook</p>
-          <p className="text-[11px] text-[#888]">For money tips and market updates,</p>
+          <p className="text-[11px] text-[#888]">For money tips and market updates</p>
         </div>
         <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0 fill-[#ccc]">
           <path d="M9.29 6.71a1 1 0 0 0 0 1.41L13.17 12l-3.88 3.88a1 1 0 1 0 1.41 1.41l4.59-4.59a1 1 0 0 0 0-1.41L10.7 6.71a1 1 0 0 0-1.41 0z"/>
