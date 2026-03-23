@@ -528,7 +528,7 @@ export default function GoldPage() {
               <GoldChart data={chartData} />
               <div className="flex justify-between mt-3 text-[11px] text-white/50">
                 <span>Low: ₱{Math.round(chartMin).toLocaleString("en-PH")}</span>
-                <span className={chartChange >= 0 ? "text-[#22c55e]" : "text-[#ef4444]"}>
+                <span className={chartChange >= 0 ? "text-[#00e676]" : "text-[#ff1744]"}>
                   {chartChange >= 0 ? "+" : ""}{chartChange.toFixed(1)}%
                 </span>
                 <span>High: ₱{Math.round(chartMax).toLocaleString("en-PH")}</span>
@@ -549,7 +549,7 @@ export default function GoldPage() {
               {performance.map((p) => (
                 <div key={p.label} className="text-center flex-1">
                   <p className="text-[11px] font-semibold text-white/50 mb-1">{p.label}</p>
-                  <p className={`text-sm font-extrabold ${p.pct >= 0 ? "text-[#22c55e]" : "text-[#ef4444]"}`}>
+                  <p className={`text-sm font-extrabold ${p.pct >= 0 ? "text-[#00e676]" : "text-[#ef4444]"}`}>
                     {p.pct >= 0 ? "+" : ""}{p.pct.toFixed(1)}%
                   </p>
                 </div>
