@@ -86,7 +86,7 @@ function GoldChart({ data, color = "white" }: { data: [number, number][]; color?
 
       // Y-axis labels
       ctx.font = "600 10px Inter, system-ui, sans-serif";
-      ctx.fillStyle = "rgba(255,255,255,0.4)";
+      ctx.fillStyle = "rgba(255,255,255,0.85)";
       ctx.textAlign = "right";
       const ySteps = 5;
       for (let i = 0; i <= ySteps; i++) {
@@ -100,7 +100,7 @@ function GoldChart({ data, color = "white" }: { data: [number, number][]; color?
 
       // X-axis labels
       ctx.textAlign = "center";
-      ctx.fillStyle = "rgba(255,255,255,0.4)";
+      ctx.fillStyle = "rgba(255,255,255,0.85)";
       const xLabels = 5;
       for (let i = 0; i <= xLabels; i++) {
         const idx = Math.floor((i / xLabels) * (data.length - 1));
@@ -170,7 +170,7 @@ function GoldChart({ data, color = "white" }: { data: [number, number][]; color?
         ctx.font = "800 13px Inter, system-ui, sans-serif";
         ctx.textAlign = "left";
         ctx.fillText(label, tx + 10, ty + 18);
-        ctx.fillStyle = "rgba(255,255,255,0.5)";
+        ctx.fillStyle = "rgba(255,255,255,0.8)";
         ctx.font = "500 10px Inter, system-ui, sans-serif";
         ctx.fillText(dateStr, tx + 10, ty + 36);
       }
@@ -246,7 +246,7 @@ export default function GoldPage() {
   const [usdPhp, setUsdPhp] = useState(FALLBACK_USDPHP);
   const [live, setLive] = useState(false);
   const [lastUpdated, setLastUpdated] = useState("");
-  const [period, setPeriod] = useState("all");
+  const [period, setPeriod] = useState("30");
   const [oz, setOz] = useState("1");
   const [grams, setGrams] = useState("");
   const [unit, setUnit] = useState<"oz" | "g">("oz");
