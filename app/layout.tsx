@@ -57,7 +57,7 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         {children}
-        <div className="max-w-[720px] mx-auto px-4 sm:px-6 pb-6">
+        <div className="fixed bottom-4 left-4 right-4 z-50 max-w-[720px] mx-auto">
           <FacebookCTA />
         </div>
         <Script id="glow-detect" strategy="afterInteractive">{`
