@@ -351,6 +351,32 @@ export default function GoldPage() {
   const chartStart = chartData.length > 0 ? chartData[0][1] : 0;
   const chartChange = chartStart > 0 ? ((goldPhp - chartStart) / chartStart * 100) : 0;
 
+  // Performance over fixed periods
+  const performance = useMemo(() => {
+    if (historyData.length === 0 || goldPhp === 0) return [];
+    const now = Date.now();
+    const periods = [
+      { label: "1D", days: 1 },
+      { label: "1W", days: 7 },
+      { label: "1M", days: 30 },
+      { label: "3M", days: 90 },
+      { label: "1Y", days: 365 },
+    ];
+    return periods.map(({ label, days }) => {
+      const cutoff = now - days * 86400000;
+      // Find the closest data point to the cutoff
+      let closest = historyData[0];
+      let minDiff = Math.abs(historyData[0][0] - cutoff);
+      for (const pt of historyData) {
+        const diff = Math.abs(pt[0] - cutoff);
+        if (diff < minDiff) { minDiff = diff; closest = pt; }
+        if (pt[0] > cutoff) break;
+      }
+      const pct = closest[1] > 0 ? ((goldPhp - closest[1]) / closest[1]) * 100 : 0;
+      return { label, pct };
+    });
+  }, [historyData, goldPhp]);
+
   return (
     <div className="min-h-screen bg-[#C8940A]">
       {/* Nav */}
@@ -514,6 +540,23 @@ export default function GoldPage() {
             </div>
           )}
         </div>
+
+        {/* Performance */}
+        {performance.length > 0 && (
+          <div className="bg-white/10 backdrop-blur-sm rounded-[20px] p-5 mb-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-3">Performance</p>
+            <div className="flex justify-between">
+              {performance.map((p) => (
+                <div key={p.label} className="text-center flex-1">
+                  <p className="text-[11px] font-semibold text-white/50 mb-1">{p.label}</p>
+                  <p className={`text-sm font-extrabold ${p.pct >= 0 ? "text-green-300" : "text-red-300"}`}>
+                    {p.pct >= 0 ? "+" : ""}{p.pct.toFixed(1)}%
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Quick reference */}
         <div className="bg-white/10 backdrop-blur-sm rounded-[20px] p-5 mb-4">
