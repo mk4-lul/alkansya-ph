@@ -549,7 +549,7 @@ export default function GoldPage() {
               {performance.map((p) => (
                 <div key={p.label} className="text-center flex-1">
                   <p className="text-[11px] font-semibold text-white/50 mb-1">{p.label}</p>
-                  <p className={`text-sm font-extrabold ${p.pct >= 0 ? "text-green-400" : "text-red-300"}`}>
+                  <p className={`text-sm font-extrabold ${p.pct >= 0 ? "text-green-400" : "text-red-400"}`}>
                     {p.pct >= 0 ? "+" : ""}{p.pct.toFixed(1)}%
                   </p>
                 </div>
