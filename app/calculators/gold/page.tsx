@@ -408,13 +408,13 @@ export default function GoldPage() {
 
         {/* Quick stats */}
         <div className="grid grid-cols-2 gap-3 mb-4">
-          <div className="bg-white/10 rounded-2xl px-4 py-3 text-center">
+          <div className="bg-white/15 rounded-2xl px-4 py-3 text-center">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-white/50">Per Gram (24K)</p>
             <p className="text-xl font-extrabold text-white">
               <AnimatedRate value={goldPhpPerGram} decimals={0} />
             </p>
           </div>
-          <div className="bg-white/10 rounded-2xl px-4 py-3 text-center">
+          <div className="bg-white/15 rounded-2xl px-4 py-3 text-center">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-white/50">USD / PHP Rate</p>
             <p className="text-xl font-extrabold text-white">
               <AnimatedRate value={usdPhp} decimals={2} />
@@ -423,12 +423,12 @@ export default function GoldPage() {
         </div>
 
         {/* Gold Calculator */}
-        <div className="bg-white/10 backdrop-blur-sm rounded-[20px] p-5 mb-4">
+        <div className="bg-white/15 backdrop-blur-sm rounded-[20px] p-5 mb-4">
           <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-3">Gold Calculator</p>
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Weight input — narrow */}
             <div className="w-[110px] sm:w-[130px] shrink-0">
-              <div className="flex items-center bg-white/10 rounded-xl px-3 py-3 h-[48px]">
+              <div className="flex items-center bg-white/15 rounded-xl px-3 py-3 h-[48px]">
                 {(() => {
                   const val = unit === "oz" ? oz : grams;
                   const len = val.length;
@@ -448,7 +448,7 @@ export default function GoldPage() {
                     />
                   );
                 })()}
-                <div className="flex bg-white/10 rounded-full p-0.5 ml-1 shrink-0">
+                <div className="flex bg-white/15 rounded-full p-0.5 ml-1 shrink-0">
                   <button onClick={() => { setUnit("oz"); setOz("1"); }}
                     className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold transition-all ${
                       unit === "oz" ? "bg-white text-[#C8940A]" : "text-white/50"
@@ -463,7 +463,7 @@ export default function GoldPage() {
             <span className="text-xl font-black text-white/20 shrink-0">=</span>
             {/* PHP output — takes remaining space, same height */}
             <div className="flex-1 min-w-0">
-              <div className="bg-white/10 rounded-xl px-4 py-3 h-[48px] flex items-center">
+              <div className="bg-white/15 rounded-xl px-4 py-3 h-[48px] flex items-center">
                 {(() => {
                   const v = unit === "oz" ? parseFloat(oz) : parseFloat(grams);
                   const total = isNaN(v) || v === 0 ? 0 : unit === "oz" ? v * goldPhp : v * goldPhpPerGram;
@@ -478,7 +478,7 @@ export default function GoldPage() {
         </div>
 
         {/* Karat pricing */}
-        <div className="bg-white/10 backdrop-blur-sm rounded-[20px] p-5 mb-4">
+        <div className="bg-white/15 backdrop-blur-sm rounded-[20px] p-5 mb-4">
           <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-3">Price per Gram by Karat</p>
           <div className="space-y-0">
             {[
@@ -510,14 +510,14 @@ export default function GoldPage() {
         </div>
 
         {/* Chart */}
-        <div className="bg-white/10 backdrop-blur-sm rounded-[20px] p-5 mb-4">
+        <div className="bg-white/15 backdrop-blur-sm rounded-[20px] p-5 mb-4">
           <div className="flex items-center justify-between mb-3">
             <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50">Gold Price in PHP</p>
             <div className="flex gap-1">
               {PERIODS.map((p) => (
                 <button key={p.days} onClick={() => setPeriod(p.days)}
                   className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-all ${
-                    period === p.days ? "bg-white text-[#C8940A]" : "bg-white/10 text-white/50"
+                    period === p.days ? "bg-white text-[#C8940A]" : "bg-white/15 text-white/50"
                   }`}>{p.label}</button>
               ))}
             </div>
@@ -528,9 +528,6 @@ export default function GoldPage() {
               <GoldChart data={chartData} />
               <div className="flex justify-between mt-3 text-[11px] text-white/50">
                 <span>Low: ₱{Math.round(chartMin).toLocaleString("en-PH")}</span>
-                <span className={chartChange >= 0 ? "text-[#00e676]" : "text-[#ff1744]"}>
-                  {chartChange >= 0 ? "+" : ""}{chartChange.toFixed(1)}%
-                </span>
                 <span>High: ₱{Math.round(chartMax).toLocaleString("en-PH")}</span>
               </div>
             </>
@@ -543,7 +540,7 @@ export default function GoldPage() {
 
         {/* Performance */}
         {performance.length > 0 && (
-          <div className="bg-white/10 backdrop-blur-sm rounded-[20px] p-5 mb-4">
+          <div className="bg-white/15 backdrop-blur-sm rounded-[20px] p-5 mb-4">
             <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-3">Performance</p>
             <div className="flex justify-between">
               {performance.map((p) => (
@@ -559,7 +556,7 @@ export default function GoldPage() {
         )}
 
         {/* Quick reference */}
-        <div className="bg-white/10 backdrop-blur-sm rounded-[20px] p-5 mb-4">
+        <div className="bg-white/15 backdrop-blur-sm rounded-[20px] p-5 mb-4">
           <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-3">Quick reference</p>
           <div className="grid grid-cols-2 gap-2">
             {[
