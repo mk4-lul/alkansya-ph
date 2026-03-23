@@ -250,6 +250,7 @@ export default function GoldPage() {
   const [oz, setOz] = useState("1");
   const [grams, setGrams] = useState("");
   const [unit, setUnit] = useState<"oz" | "g">("oz");
+  const [karatUnit, setKaratUnit] = useState<"g" | "oz">("g");
 
   const goldPhp = goldUsd * usdPhp;
   const goldPhpPerGram = goldPhp / 31.1035;
@@ -479,7 +480,19 @@ export default function GoldPage() {
 
         {/* Karat pricing */}
         <div className="bg-white/15 backdrop-blur-sm rounded-[20px] p-5 mb-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-3">Price per Gram by Karat</p>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50">Price by Karat</p>
+            <div className="flex bg-white/15 rounded-full p-0.5">
+              <button onClick={() => setKaratUnit("g")}
+                className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-all ${
+                  karatUnit === "g" ? "bg-white text-[#C8940A]" : "text-white/50"
+                }`}>per gram</button>
+              <button onClick={() => setKaratUnit("oz")}
+                className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-all ${
+                  karatUnit === "oz" ? "bg-white text-[#C8940A]" : "text-white/50"
+                }`}>per oz</button>
+            </div>
+          </div>
           <div className="space-y-0">
             {[
               { k: 24, purity: 1, note: "HK 足金 (Chuk Kam) 999.9 standard, bars, coins" },
@@ -488,20 +501,24 @@ export default function GoldPage() {
               { k: 18, purity: 18/24, note: "PH & Japan (K18) standard, HK karat jewelry" },
               { k: 14, purity: 14/24, note: "Common in PH & Japan (K14), everyday wear" },
               { k: 10, purity: 10/24, note: "Budget jewelry, Japan K10" },
-            ].map((row) => (
-              <div key={row.k} className="flex items-center justify-between py-2.5 border-b border-white/5 last:border-0">
-                <div>
-                  <p className="text-sm font-bold text-white">{row.k}K</p>
-                  <p className="text-[11px] text-white/50">{row.note}</p>
+            ].map((row) => {
+              const price = karatUnit === "g" ? goldPhpPerGram * row.purity : goldPhp * row.purity;
+              const suffix = karatUnit === "g" ? "/g" : "/oz";
+              return (
+                <div key={row.k} className="flex items-center justify-between py-2.5 border-b border-white/5 last:border-0">
+                  <div>
+                    <p className="text-sm font-bold text-white">{row.k}K</p>
+                    <p className="text-[11px] text-white/50">{row.note}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-extrabold text-white">
+                      ₱{Math.round(price).toLocaleString("en-PH")}{suffix}
+                    </p>
+                    <p className="text-[11px] text-white/50">{(row.purity * 100).toFixed(1)}% pure</p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-extrabold text-white">
-                    ₱{Math.round(goldPhpPerGram * row.purity).toLocaleString("en-PH")}/g
-                  </p>
-                  <p className="text-[11px] text-white/50">{(row.purity * 100).toFixed(1)}% pure</p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
           <p className="text-[11px] text-white/40 mt-3 leading-relaxed">
             Karat prices are calculated from 24K spot. Jewelry store prices will be higher due to labor, design, and markup.
