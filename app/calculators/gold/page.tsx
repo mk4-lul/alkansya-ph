@@ -373,7 +373,7 @@ export default function GoldPage() {
             <AnimatedRate value={goldUsd} decimals={2} prefix="$" /> USD
           </p>
           {live && (
-            <p className="text-[11px] text-white/30 mt-2">
+            <p className="text-[11px] text-white/45 mt-2">
               <span className="inline-block w-1.5 h-1.5 rounded-full bg-white/50 mr-1 animate-pulse" />
               Updated {lastUpdated}
             </p>
@@ -383,13 +383,13 @@ export default function GoldPage() {
         {/* Quick stats */}
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div className="bg-white/10 rounded-2xl px-4 py-3 text-center">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-white/50">Per Gram (24K)</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-white/50">Per Gram (24K)</p>
             <p className="text-xl font-extrabold text-white">
               <AnimatedRate value={goldPhpPerGram} decimals={0} />
             </p>
           </div>
           <div className="bg-white/10 rounded-2xl px-4 py-3 text-center">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-white/50">USD / PHP Rate</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-white/50">USD / PHP Rate</p>
             <p className="text-xl font-extrabold text-white">
               <AnimatedRate value={usdPhp} decimals={2} />
             </p>
@@ -417,18 +417,18 @@ export default function GoldPage() {
                         if (unit === "oz") { setUnit("oz"); setOz(e.target.value); }
                         else { setUnit("g"); setGrams(e.target.value); }
                       }}
-                      className={`bg-transparent font-extrabold ${fontSize} text-white outline-none min-w-0 flex-1 placeholder-white/30 transition-[font-size] duration-200`}
+                      className={`bg-transparent font-extrabold ${fontSize} text-white outline-none min-w-0 flex-1 placeholder-white/40 transition-[font-size] duration-200`}
                       placeholder="1"
                     />
                   );
                 })()}
                 <div className="flex bg-white/10 rounded-full p-0.5 ml-1 shrink-0">
                   <button onClick={() => { setUnit("oz"); setOz("1"); }}
-                    className={`px-1.5 py-0.5 rounded-full text-[8px] font-bold transition-all ${
+                    className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold transition-all ${
                       unit === "oz" ? "bg-white text-[#C8940A]" : "text-white/50"
                     }`}>oz</button>
                   <button onClick={() => { setUnit("g"); setGrams("1"); }}
-                    className={`px-1.5 py-0.5 rounded-full text-[8px] font-bold transition-all ${
+                    className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold transition-all ${
                       unit === "g" ? "bg-white text-[#C8940A]" : "text-white/50"
                     }`}>g</button>
                 </div>
@@ -466,18 +466,18 @@ export default function GoldPage() {
               <div key={row.k} className="flex items-center justify-between py-2.5 border-b border-white/5 last:border-0">
                 <div>
                   <p className="text-sm font-bold text-white">{row.k}K</p>
-                  <p className="text-[10px] text-white/35">{row.note}</p>
+                  <p className="text-[11px] text-white/50">{row.note}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-extrabold text-white">
                     ₱{Math.round(goldPhpPerGram * row.purity).toLocaleString("en-PH")}/g
                   </p>
-                  <p className="text-[10px] text-white/35">{(row.purity * 100).toFixed(1)}% pure</p>
+                  <p className="text-[11px] text-white/50">{(row.purity * 100).toFixed(1)}% pure</p>
                 </div>
               </div>
             ))}
           </div>
-          <p className="text-[10px] text-white/20 mt-3 leading-relaxed">
+          <p className="text-[11px] text-white/40 mt-3 leading-relaxed">
             Karat prices are calculated from 24K spot. Jewelry store prices will be higher due to labor, design, and markup.
             Saudi gold is typically 21K or 22K — ask your OFW to check the stamp.
           </p>
@@ -490,7 +490,7 @@ export default function GoldPage() {
             <div className="flex gap-1">
               {PERIODS.map((p) => (
                 <button key={p.days} onClick={() => setPeriod(p.days)}
-                  className={`px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
+                  className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-all ${
                     period === p.days ? "bg-white text-[#C8940A]" : "bg-white/10 text-white/50"
                   }`}>{p.label}</button>
               ))}
@@ -500,7 +500,7 @@ export default function GoldPage() {
           {chartData.length > 0 ? (
             <>
               <GoldChart data={chartData} />
-              <div className="flex justify-between mt-3 text-[10px] text-white/40">
+              <div className="flex justify-between mt-3 text-[11px] text-white/50">
                 <span>Low: ₱{Math.round(chartMin).toLocaleString("en-PH")}</span>
                 <span className={chartChange >= 0 ? "text-white/70" : "text-red-300"}>
                   {chartChange >= 0 ? "+" : ""}{chartChange.toFixed(1)}%
@@ -530,7 +530,7 @@ export default function GoldPage() {
               { label: "100 grams", val: goldPhpPerGram * 100 },
             ].map((r) => (
               <div key={r.label} className="flex justify-between text-sm py-1.5 border-b border-white/5 last:border-0">
-                <span className="text-white/50 font-medium">{r.label}</span>
+                <span className="text-white/60 font-medium">{r.label}</span>
                 <span className="text-white font-bold">₱{Math.round(r.val).toLocaleString("en-PH")}</span>
               </div>
             ))}
@@ -539,7 +539,7 @@ export default function GoldPage() {
 
         {/* Footer */}
         <footer className="text-center pt-4">
-          <p className="text-[10px] text-white/20 leading-relaxed max-w-md mx-auto">
+          <p className="text-[11px] text-white/40 leading-relaxed max-w-md mx-auto">
             Gold spot price via CoinGecko (PAX Gold). Historical data from Supabase. USD/PHP rate from CoinGecko USDT/PHP. Karat prices are calculated from 24K spot — actual jewelry prices include labor and markup.
           </p>
         </footer>
