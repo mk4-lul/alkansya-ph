@@ -412,7 +412,7 @@ export default function GoldPage() {
             </div>
           </div>
           <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-2">
-            Gold Price in PHP {displayUnit === "g" ? "/ Gram" : "/ Troy Oz"}
+            Global Gold Price in PHP {displayUnit === "g" ? "/ Gram" : "/ Troy Oz"}
           </p>
           <p className="text-5xl sm:text-6xl font-black tracking-tight text-white">
             <AnimatedRate value={displayPrice} decimals={displayUnit === "g" ? 0 : 0} />
@@ -430,27 +430,27 @@ export default function GoldPage() {
 
         {/* Quick stats */}
         <div className="grid grid-cols-2 gap-3 mb-4">
-          <div className="bg-white/15 rounded-2xl px-4 py-3 text-center">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-white/50">{displayUnit === "g" ? "Per Troy Oz" : "Per Gram"} (24K)</p>
-            <p className="text-xl font-extrabold text-white">
+          <div className="bg-gradient-to-br from-white to-amber-50 rounded-2xl px-4 py-3 text-center shadow-md">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-[#996515]">{displayUnit === "g" ? "Per Troy Oz" : "Per Gram"} (24K)</p>
+            <p className="text-xl font-extrabold text-[#1a1a1a]">
               <AnimatedRate value={displayUnit === "g" ? goldPhp : goldPhpPerGram} decimals={0} />
             </p>
           </div>
-          <div className="bg-white/15 rounded-2xl px-4 py-3 text-center">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-white/50">USD / PHP Rate</p>
-            <p className="text-xl font-extrabold text-white">
+          <div className="bg-gradient-to-br from-white to-amber-50 rounded-2xl px-4 py-3 text-center shadow-md">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-[#996515]">USD / PHP Rate</p>
+            <p className="text-xl font-extrabold text-[#1a1a1a]">
               <AnimatedRate value={usdPhp} decimals={2} />
             </p>
           </div>
         </div>
 
         {/* Gold Calculator */}
-        <div className="bg-white/15 backdrop-blur-sm rounded-[20px] p-5 mb-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-3">Gold Calculator</p>
+        <div className="bg-gradient-to-br from-white to-amber-50 rounded-[20px] p-5 mb-4 shadow-md">
+          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#996515] mb-3">Gold Calculator</p>
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Weight input — narrow */}
             <div className="w-[110px] sm:w-[130px] shrink-0">
-              <div className="flex items-center bg-white/15 rounded-xl px-3 py-3 h-[48px]">
+              <div className="flex items-center bg-black/5 rounded-xl px-3 py-3 h-[48px]">
                 {(() => {
                   const val = unit === "oz" ? oz : grams;
                   const len = val.length;
@@ -465,34 +465,34 @@ export default function GoldPage() {
                         if (unit === "oz") { setUnit("oz"); setOz(e.target.value); }
                         else { setUnit("g"); setGrams(e.target.value); }
                       }}
-                      className={`bg-transparent font-extrabold ${fontSize} text-white outline-none min-w-0 flex-1 placeholder-white/40 transition-[font-size] duration-200`}
+                      className={`bg-transparent font-extrabold ${fontSize} text-[#1a1a1a] outline-none min-w-0 flex-1 placeholder-black/30 transition-[font-size] duration-200`}
                       placeholder="1"
                     />
                   );
                 })()}
-                <div className="flex bg-white/15 rounded-full p-0.5 ml-1 shrink-0">
+                <div className="flex bg-black/5 rounded-full p-0.5 ml-1 shrink-0">
                   <button onClick={() => { setUnit("oz"); setOz("1"); }}
                     className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold transition-all ${
-                      unit === "oz" ? "bg-white text-[#C8940A]" : "text-white/50"
+                      unit === "oz" ? "bg-[#C8940A] text-white" : "text-[#999]"
                     }`}>oz</button>
                   <button onClick={() => { setUnit("g"); setGrams("1"); }}
                     className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold transition-all ${
-                      unit === "g" ? "bg-white text-[#C8940A]" : "text-white/50"
+                      unit === "g" ? "bg-[#C8940A] text-white" : "text-[#999]"
                     }`}>g</button>
                 </div>
               </div>
             </div>
-            <span className="text-xl font-black text-white/20 shrink-0">=</span>
+            <span className="text-xl font-black text-black/20 shrink-0">=</span>
             {/* PHP output — takes remaining space, same height */}
             <div className="flex-1 min-w-0">
-              <div className="bg-white/15 rounded-xl px-4 py-3 h-[48px] flex items-center">
+              <div className="bg-black/5 rounded-xl px-4 py-3 h-[48px] flex items-center">
                 {(() => {
                   const v = unit === "oz" ? parseFloat(oz) : parseFloat(grams);
                   const total = isNaN(v) || v === 0 ? 0 : unit === "oz" ? v * goldPhp : v * goldPhpPerGram;
                   const formatted = `₱${Math.round(total).toLocaleString("en-PH")}`;
                   const len = formatted.length;
                   const fontSize = len > 14 ? "text-sm" : len > 11 ? "text-base" : len > 8 ? "text-xl" : "text-2xl";
-                  return <p className={`${fontSize} font-extrabold text-white truncate transition-[font-size] duration-200`}>{formatted}</p>;
+                  return <p className={`${fontSize} font-extrabold text-[#1a1a1a] truncate transition-[font-size] duration-200`}>{formatted}</p>;
                 })()}
               </div>
             </div>
@@ -500,8 +500,8 @@ export default function GoldPage() {
         </div>
 
         {/* Karat pricing */}
-        <div className="bg-white/15 backdrop-blur-sm rounded-[20px] p-5 mb-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-3">Price by Karat</p>
+        <div className="bg-gradient-to-br from-white to-amber-50 rounded-[20px] p-5 mb-4 shadow-md">
+          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#996515] mb-3">Price by Karat</p>
           <div className="space-y-0">
             {[
               { k: 24, purity: 1, note: "HK 足金 (Chuk Kam) 999.9 standard, bars, coins" },
@@ -514,22 +514,22 @@ export default function GoldPage() {
               const price = displayUnit === "g" ? goldPhpPerGram * row.purity : goldPhp * row.purity;
               const suffix = displayUnit === "g" ? "/g" : "/oz";
               return (
-                <div key={row.k} className="flex items-center justify-between py-2.5 border-b border-white/5 last:border-0">
+                <div key={row.k} className="flex items-center justify-between py-2.5 border-b border-black/5 last:border-0">
                   <div>
-                    <p className="text-sm font-bold text-white">{row.k}K</p>
-                    <p className="text-[11px] text-white/50">{row.note}</p>
+                    <p className="text-sm font-bold text-[#1a1a1a]">{row.k}K</p>
+                    <p className="text-[11px] text-[#999]">{row.note}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-extrabold text-white">
+                    <p className="text-sm font-extrabold text-[#1a1a1a]">
                       ₱{Math.round(price).toLocaleString("en-PH")}{suffix}
                     </p>
-                    <p className="text-[11px] text-white/50">{(row.purity * 100).toFixed(1)}% pure</p>
+                    <p className="text-[11px] text-[#999]">{(row.purity * 100).toFixed(1)}% pure</p>
                   </div>
                 </div>
               );
             })}
           </div>
-          <p className="text-[11px] text-white/40 mt-3 leading-relaxed">
+          <p className="text-[11px] text-[#999] mt-3 leading-relaxed">
             Karat prices are calculated from 24K spot. Jewelry store prices will be higher due to labor, design, and markup.
             Saudi gold is typically 21K or 22K — ask your OFW to check the stamp.
           </p>
@@ -538,7 +538,7 @@ export default function GoldPage() {
         {/* Chart */}
         <div className="bg-white/15 backdrop-blur-sm rounded-[20px] p-5 mb-4">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50">Gold Price in PHP {displayUnit === "g" ? "/ Gram" : "/ Troy Oz"}</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50">Global Gold Price in PHP {displayUnit === "g" ? "/ Gram" : "/ Troy Oz"}</p>
             <div className="flex gap-1">
               {PERIODS.map((p) => (
                 <button key={p.days} onClick={() => setPeriod(p.days)}
@@ -566,13 +566,13 @@ export default function GoldPage() {
 
         {/* Performance */}
         {performance.length > 0 && (
-          <div className="bg-white/15 backdrop-blur-sm rounded-[20px] p-5 mb-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-3">Performance</p>
+          <div className="bg-gradient-to-br from-white to-amber-50 rounded-[20px] p-5 mb-4 shadow-md">
+            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#996515] mb-3">Performance</p>
             <div className="flex justify-between">
               {performance.map((p) => (
                 <div key={p.label} className="text-center flex-1">
-                  <p className="text-[11px] font-semibold text-white/50 mb-1">{p.label}</p>
-                  <p className={`text-sm font-extrabold ${p.pct >= 0 ? "text-[#00e676]" : "text-[#ff1744]"}`}>
+                  <p className="text-[11px] font-semibold text-[#999] mb-1">{p.label}</p>
+                  <p className={`text-sm font-extrabold ${p.pct >= 0 ? "text-[#16a34a]" : "text-[#dc2626]"}`}>
                     {p.pct >= 0 ? "+" : ""}{p.pct.toFixed(1)}%
                   </p>
                 </div>
@@ -582,8 +582,8 @@ export default function GoldPage() {
         )}
 
         {/* Quick reference */}
-        <div className="bg-white/15 backdrop-blur-sm rounded-[20px] p-5 mb-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-3">Quick reference</p>
+        <div className="bg-gradient-to-br from-white to-amber-50 rounded-[20px] p-5 mb-4 shadow-md">
+          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#996515] mb-3">Quick reference</p>
           <div className="grid grid-cols-2 gap-2">
             {[
               { label: "1 gram", val: goldPhpPerGram },
@@ -595,9 +595,9 @@ export default function GoldPage() {
               { label: "50 grams", val: goldPhpPerGram * 50 },
               { label: "100 grams", val: goldPhpPerGram * 100 },
             ].map((r) => (
-              <div key={r.label} className="flex justify-between text-sm py-1.5 border-b border-white/5 last:border-0">
-                <span className="text-white/60 font-medium">{r.label}</span>
-                <span className="text-white font-bold">₱{Math.round(r.val).toLocaleString("en-PH")}</span>
+              <div key={r.label} className="flex justify-between text-sm py-1.5 border-b border-black/5 last:border-0">
+                <span className="text-[#999] font-medium">{r.label}</span>
+                <span className="text-[#1a1a1a] font-bold">₱{Math.round(r.val).toLocaleString("en-PH")}</span>
               </div>
             ))}
           </div>
