@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Script from "next/script";
-import FacebookCTA from "@/components/FacebookCTA";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -57,8 +56,6 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         {children}
-        <div className="fixed bottom-4 left-4 right-4 z-50 max-w-[720px] mx-auto">
-          <FacebookCTA />
         </div>
         <Script id="glow-detect" strategy="afterInteractive">{`
           var _glowPath = '';
