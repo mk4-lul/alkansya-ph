@@ -56,7 +56,7 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         {children}
-        </div>
+        
         <Script id="glow-detect" strategy="afterInteractive">{`
           var _glowPath = '';
           var _orb = null;
