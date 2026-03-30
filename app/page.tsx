@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import NavMenu from "@/components/NavMenu";
+import MarketCards from "@/components/MarketCards";
 
 export const metadata: Metadata = {
   title: "Alkansya.ph — Free Financial Tools for Filipinos",
@@ -37,20 +38,6 @@ const TRENDING = [
 ];
 
 const TOOLS = [
-  {
-    href: "/usdphp",
-    emoji: "💱",
-    title: "USD to PHP Converter",
-    description: "Live exchange rate with historical chart — updated every minute",
-    tag: "forex",
-  },
-  {
-    href: "/gold",
-    emoji: "🥇",
-    title: "Global Gold Price in PHP",
-    description: "Live gold spot price with historical chart and karat pricing",
-    tag: "live",
-  },
   {
     href: "/rates",
     emoji: "💰",
@@ -138,6 +125,12 @@ export default function HomePage() {
               </Link>
             ))}
           </div>
+        </div>
+
+        {/* Market Data */}
+        <div className="px-4 sm:px-6 mb-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-2">Market Data</p>
+          <MarketCards />
         </div>
 
         {/* Tools */}
