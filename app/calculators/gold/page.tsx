@@ -411,9 +411,9 @@ export default function GoldPage() {
                 }`}>per troy oz</button>
             </div>
           </div>
-          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-2">
-            Global Gold Price in PHP {displayUnit === "g" ? "/ Gram" : "/ Troy Oz"}
-          </p>
+          <h1 className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50 mb-2">
+            Gold Price Today in Philippines {displayUnit === "g" ? "per Gram" : "per Troy Oz"}
+          </h1>
           <p className="text-5xl sm:text-6xl font-black tracking-tight text-white">
             <AnimatedRate value={displayPrice} decimals={displayUnit === "g" ? 0 : 0} />
           </p>
@@ -431,7 +431,7 @@ export default function GoldPage() {
         {/* Chart */}
         <div className="bg-white/15 backdrop-blur-sm rounded-[20px] p-5 mb-4">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50">Global Gold Price in PHP {displayUnit === "g" ? "/ Gram" : "/ Troy Oz"}</p>
+            <h2 className="text-[11px] font-semibold uppercase tracking-[1px] text-white/50">Gold Price Chart in PHP {displayUnit === "g" ? "/ Gram" : "/ Troy Oz"}</h2>
             <div className="flex gap-1">
               {PERIODS.map((p) => (
                 <button key={p.days} onClick={() => setPeriod(p.days)}
@@ -459,7 +459,7 @@ export default function GoldPage() {
 
         {/* Gold Calculator */}
         <div className="bg-gradient-to-br from-white to-amber-50 rounded-[20px] p-5 mb-4 shadow-md">
-          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#996515] mb-3">Gold Calculator</p>
+          <h2 className="text-[11px] font-semibold uppercase tracking-[1px] text-[#996515] mb-3">Gold Calculator (PHP)</h2>
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Weight input — narrow */}
             <div className="w-[110px] sm:w-[130px] shrink-0">
@@ -514,7 +514,7 @@ export default function GoldPage() {
 
         {/* Karat pricing */}
         <div className="bg-gradient-to-br from-white to-amber-50 rounded-[20px] p-5 mb-4 shadow-md">
-          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#996515] mb-3">Price by Karat</p>
+          <h2 className="text-[11px] font-semibold uppercase tracking-[1px] text-[#996515] mb-3">Gold Price by Karat in Philippines</h2>
           <div className="space-y-0">
             {[
               { k: 24, purity: 1, note: "HK 足金 (Chuk Kam) 999.9 standard, bars, coins" },
@@ -588,10 +588,28 @@ export default function GoldPage() {
           </div>
         </div>
 
+        {/* SEO Content */}
+        <section className="mt-6 mb-4">
+          <div className="bg-gradient-to-br from-white to-amber-50 rounded-[20px] p-5 shadow-md">
+            <h2 className="text-[13px] font-bold text-[#1a1a1a] mb-2">Gold Price in the Philippines Today</h2>
+            <p className="text-[12px] text-[#666] leading-relaxed mb-3">
+              This page shows the live gold price in Philippine Pesos (PHP), updated daily from global spot markets. Gold prices are displayed per gram and per troy ounce for 24K, 23K, 22K, 21K, 18K, 14K, and 10K purity levels. The price is derived from the international gold spot price (XAU/USD) and the current USD to PHP exchange rate.
+            </p>
+            <h3 className="text-[12px] font-bold text-[#1a1a1a] mb-1">Karat Guide for Filipino Gold Buyers</h3>
+            <p className="text-[12px] text-[#666] leading-relaxed mb-3">
+              In the Philippines, 18K gold is the most common purity for locally sold jewelry. OFWs frequently bring home 21K and 22K Saudi gold from the Middle East, 24K Chuk Kam (足金) from Hong Kong gold shops like Chow Tai Fook and Chow Sang Sang, and K18 Japanese gold kihei chains. Thai gold is typically 23K (96.5% purity). Karat prices shown above are calculated from the 24K spot price — actual jewelry store prices will be higher due to labor, design, and retail markup.
+            </p>
+            <h3 className="text-[12px] font-bold text-[#1a1a1a] mb-1">About This Tool</h3>
+            <p className="text-[12px] text-[#666] leading-relaxed">
+              Alkansya.ph provides free financial tools for Filipinos. Gold spot price is sourced via CoinGecko (PAX Gold). Historical data covers 2000 to present. USD/PHP exchange rate is sourced from CoinGecko USDT/PHP. This tool is for informational purposes only and is not financial advice.
+            </p>
+          </div>
+        </section>
+
         {/* Footer */}
-        <footer className="text-center pt-4">
+        <footer className="text-center pt-2 pb-4">
           <p className="text-[11px] text-white/40 leading-relaxed max-w-md mx-auto">
-            Gold spot price via CoinGecko (PAX Gold). Historical data from Supabase. USD/PHP rate from CoinGecko USDT/PHP. Karat prices are calculated from 24K spot — actual jewelry prices include labor and markup.
+            © {new Date().getFullYear()} Alkansya.ph — Free financial tools for Filipinos
           </p>
         </footer>
       </main>
