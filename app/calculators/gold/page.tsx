@@ -395,7 +395,7 @@ export default function GoldPage() {
         <NavMenu dark />
       </nav>
 
-      <main className="max-w-[600px] mx-auto px-4 sm:px-6 pb-8">
+      <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">
 
         {/* Price display */}
         <div className="text-center mb-6">

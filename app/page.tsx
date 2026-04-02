@@ -100,16 +100,16 @@ export default function HomePage() {
         <NavMenu />
       </nav>
 
-      <main className="max-w-[720px] mx-auto pb-8">
+      <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">
 
         {/* Market Data */}
-        <div className="px-4 sm:px-6 mb-4">
+        <div className="mb-4">
           <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-2">Market Data</p>
           <MarketCards />
         </div>
 
         {/* Tools */}
-        <div className="px-4 sm:px-6 mb-6">
+        <div className="mb-6">
           <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-2">Tools</p>
           <div className="space-y-2">
             {TOOLS.map((tool) => (
@@ -134,11 +134,11 @@ export default function HomePage() {
 
         {/* Explore — horizontal scroll */}
         <div className="mb-6">
-          <div className="flex items-center justify-between mb-2 px-4 sm:px-6">
+          <div className="flex items-center justify-between mb-2">
             <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888]">Explore</p>
             <p className="text-[12px] font-semibold text-[#aaa]">{"\u2039"} {"\u203A"}</p>
           </div>
-          <div className="flex gap-3 overflow-x-auto px-4 sm:px-6 pb-2 snap-x snap-mandatory" style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
+          <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory" style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
             {TRENDING.map((item) => (
               <Link
                 key={item.href}
@@ -165,7 +165,7 @@ export default function HomePage() {
         </div>
 
         {/* Footer */}
-        <footer className="mt-8 pt-4 px-4 sm:px-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+        <footer className="mt-8 pt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
           <span className="text-sm font-bold text-[#00e401]" style={{fontFamily:"var(--font-old-english)"}}>Sentral</span>
           <p className="text-[10px] text-[#aaa] max-w-md sm:text-right leading-relaxed">
             Independent financial tools for Filipinos. Not a financial advisor, broker, or bank.

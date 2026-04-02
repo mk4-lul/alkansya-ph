@@ -369,7 +369,7 @@ return (
   <NavMenu dark />
 </nav>
 
-  <main className="max-w-[600px] mx-auto px-4 sm:px-6 pb-8">
+  <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">
 
     <div className="text-center mb-2">
       <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#1a1a1a]/50 mb-3">USD / PHP</p>

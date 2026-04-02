@@ -164,7 +164,7 @@ export default function InflationPage() {
         <NavMenu />
       </nav>
 
-      <main className="max-w-[600px] mx-auto px-4 sm:px-6 pb-8">
+      <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">
         <h1 className="text-[22px] sm:text-[26px] font-extrabold text-[#1a1a1a] tracking-tight mb-1">
           Inflation Calculator
         </h1>
