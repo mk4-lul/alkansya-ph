@@ -289,7 +289,7 @@ export default function AffordCalculatorPage() {
       </div>
 
       {/* Nav */}
-      <nav className="relative z-10 flex justify-between items-center px-4 py-2 max-w-[520px] mx-auto w-full shrink-0">
+      <nav className="relative z-10 flex justify-between items-center px-4 py-2 max-w-[720px] mx-auto w-full shrink-0">
         <Link href="/" className="text-lg font-extrabold tracking-tight text-[#1a1a1a] no-underline">
           <span className="text-[#00e401]" style={{fontFamily:"var(--font-old-english)"}}>Sentral</span>
         </Link>
