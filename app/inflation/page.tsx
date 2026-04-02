@@ -202,32 +202,28 @@ export default function InflationPage() {
         {/* Result card */}
         {!loading && parsedAmount > 0 && fromCpi > 0 && toCpi > 0 && (
           <div className="bg-white rounded-[20px] p-5 mb-4 shadow-sm">
-            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-2">
-              ₱{parsedAmount.toLocaleString("en-PH")} in {displayFrom} is worth
-            </p>
-            <p className="text-4xl sm:text-5xl font-black text-[#1a1a1a] tracking-tight">
-              ₱{Math.round(displayAdjusted).toLocaleString("en-PH")}
-            </p>
-            <p className="text-[13px] text-[#888] mt-1">
-              in {displayTo} pesos
-            </p>
+            <div className="mb-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-2">
+                To buy what ₱{parsedAmount.toLocaleString("en-PH")} could buy in {displayFrom}
+              </p>
+              <p className="text-[13px] text-[#555] leading-relaxed">
+                You would need <strong className="text-4xl sm:text-5xl font-black text-[#1a1a1a] tracking-tight block mt-1">₱{Math.round(displayAdjusted).toLocaleString("en-PH")}</strong>
+              </p>
+              <p className="text-[13px] text-[#888] mt-1">
+                in {displayTo}. That's <strong className="text-[#1a1a1a]">{(displayAdjusted / parsedAmount).toFixed(1)}×</strong> more expensive.
+              </p>
+            </div>
 
-            <div className="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-[#f0f0f0]">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-0.5">Price increase</p>
-                <p className="text-[18px] font-extrabold text-[#1a1a1a]">
-                  {displayTo > displayFrom ? "+" : ""}{((displayAdjusted / parsedAmount - 1) * 100).toFixed(1)}%
-                </p>
-              </div>
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-0.5">Purchasing power</p>
-                <p className="text-[18px] font-extrabold text-[#dc2626]">
-                  ₱{Math.round(displayPower).toLocaleString("en-PH")}
-                </p>
-                <p className="text-[11px] text-[#888]">
-                  what ₱{parsedAmount.toLocaleString("en-PH")} today buys in {displayFrom} terms
-                </p>
-              </div>
+            <div className="pt-4 border-t border-[#f0f0f0]">
+              <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-2">
+                Meanwhile, your ₱{parsedAmount.toLocaleString("en-PH")} today
+              </p>
+              <p className="text-[13px] text-[#555] leading-relaxed">
+                only has the buying power of <strong className="text-[28px] font-black text-[#dc2626] block mt-1">₱{Math.round(displayPower).toLocaleString("en-PH")}</strong>
+              </p>
+              <p className="text-[13px] text-[#888] mt-1">
+                in {displayFrom} terms. The peso has lost <strong className="text-[#dc2626]">{(100 - (displayPower / parsedAmount) * 100).toFixed(1)}%</strong> of its value.
+              </p>
             </div>
           </div>
         )}
@@ -248,13 +244,13 @@ export default function InflationPage() {
             <h2 className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">What this means</h2>
             <div className="space-y-3 text-[13px] text-[#555] leading-relaxed">
               <p>
-                Prices increased by <strong className="text-[#1a1a1a]">{((displayAdjusted / parsedAmount - 1) * 100).toFixed(1)}%</strong> between {displayFrom} and {displayTo}. Something that cost <strong className="text-[#1a1a1a]">₱{parsedAmount.toLocaleString("en-PH")}</strong> in {displayFrom} would cost <strong className="text-[#1a1a1a]">₱{Math.round(displayAdjusted).toLocaleString("en-PH")}</strong> in {displayTo}.
+                Between {displayFrom} and {displayTo}, prices rose by <strong className="text-[#1a1a1a]">{((displayAdjusted / parsedAmount - 1) * 100).toFixed(1)}%</strong>. A bag of groceries that cost <strong className="text-[#1a1a1a]">₱{parsedAmount.toLocaleString("en-PH")}</strong> in {displayFrom} would cost you <strong className="text-[#1a1a1a]">₱{Math.round(displayAdjusted).toLocaleString("en-PH")}</strong> today.
               </p>
               <p>
-                Your <strong className="text-[#1a1a1a]">₱{parsedAmount.toLocaleString("en-PH")}</strong> today has the same buying power as <strong className="text-[#dc2626]">₱{Math.round(displayPower).toLocaleString("en-PH")}</strong> back in {displayFrom}. That's how much the peso has weakened.
+                If you kept <strong className="text-[#1a1a1a]">₱{parsedAmount.toLocaleString("en-PH")}</strong> in cash since {displayFrom} without investing it, it would only buy <strong className="text-[#dc2626]">₱{Math.round(displayPower).toLocaleString("en-PH")}</strong> worth of goods compared to what it could buy back then.
               </p>
               <p>
-                Average annual inflation over this period: <strong className="text-[#1a1a1a]">{(Math.pow(displayAdjusted / parsedAmount, 1 / (displayTo - displayFrom)) * 100 - 100).toFixed(1)}%</strong>
+                Average annual inflation: <strong className="text-[#1a1a1a]">{(Math.pow(displayAdjusted / parsedAmount, 1 / (displayTo - displayFrom)) * 100 - 100).toFixed(1)}% per year</strong>
               </p>
             </div>
           </div>
