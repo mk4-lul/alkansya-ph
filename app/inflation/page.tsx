@@ -60,6 +60,57 @@ function Chart({ data, fromYear, toYear }: { data: CpiRow[]; fromYear: number; t
   );
 }
 
+function DualSlider({
+  min, max, from, to, onFromChange, onToChange,
+}: {
+  min: number; max: number; from: number; to: number;
+  onFromChange: (v: number) => void; onToChange: (v: number) => void;
+}) {
+  const range = max - min || 1;
+  const lo = Math.min(from, to);
+  const hi = Math.max(from, to);
+  const loPercent = ((lo - min) / range) * 100;
+  const hiPercent = ((hi - min) / range) * 100;
+
+  return (
+    <div className="relative pt-1 pb-6">
+      <style>{`
+        .dual-range { -webkit-appearance: none; appearance: none; position: absolute; top: 0; left: 0; width: 100%; height: 20px; background: transparent; pointer-events: none; margin: 0; z-index: 3; }
+        .dual-range::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #00c853; border: 3px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.2); pointer-events: auto; cursor: pointer; position: relative; }
+        .dual-range::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: #00c853; border: 3px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.2); pointer-events: auto; cursor: pointer; }
+        .dual-range::-webkit-slider-runnable-track { height: 6px; }
+        .dual-range::-moz-range-track { height: 6px; background: transparent; }
+      `}</style>
+      {/* Track background */}
+      <div className="relative h-1.5 bg-[#e5e5e5] rounded-full top-[7px]">
+        <div
+          className="absolute h-full bg-[#00c853] rounded-full"
+          style={{ left: `${loPercent}%`, width: `${hiPercent - loPercent}%` }}
+        />
+      </div>
+      {/* From range */}
+      <input
+        type="range" min={min} max={max} step={1} value={from}
+        onChange={(e) => onFromChange(Number(e.target.value))}
+        className="dual-range"
+        style={{ zIndex: from > to ? 5 : 3 }}
+      />
+      {/* To range */}
+      <input
+        type="range" min={min} max={max} step={1} value={to}
+        onChange={(e) => onToChange(Number(e.target.value))}
+        className="dual-range"
+        style={{ zIndex: to >= from ? 5 : 3 }}
+      />
+      {/* Labels */}
+      <div className="flex justify-between mt-3 text-[10px] text-[#bbb]">
+        <span>{min}</span>
+        <span>{max}</span>
+      </div>
+    </div>
+  );
+}
+
 export default function InflationPage() {
   const currentYear = new Date().getFullYear();
   const [cpiData, setCpiData] = useState<CpiRow[]>([]);
@@ -118,42 +169,33 @@ export default function InflationPage() {
 
         {/* Input card */}
         <div className="bg-white rounded-[20px] p-5 mb-4 shadow-sm">
-          <div className="mb-4">
-            <label className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-1 block">Amount (₱)</label>
-            <input
-              type="text"
-              inputMode="decimal"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value.replace(/[^0-9.,]/g, ""))}
-              className="w-full text-3xl font-black text-[#1a1a1a] bg-transparent outline-none"
-              placeholder="100"
-            />
+          <div className="mb-5">
+            <label className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-1.5 block">Amount (₱)</label>
+            <div className="flex items-center bg-[#f5f5f5] rounded-xl px-4 py-3 border border-[#e5e5e5] focus-within:border-[#00c853] transition-colors">
+              <span className="text-[18px] font-bold text-[#aaa] mr-1">₱</span>
+              <input
+                type="text"
+                inputMode="decimal"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value.replace(/[^0-9.,]/g, ""))}
+                className="flex-1 text-[22px] font-extrabold text-[#1a1a1a] bg-transparent outline-none"
+                placeholder="100"
+              />
+            </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-1 block">From</label>
-              <select
-                value={fromYear}
-                onChange={(e) => setFromYear(Number(e.target.value))}
-                className="w-full bg-[#f5f5f5] rounded-xl px-3 py-2.5 text-[15px] font-bold text-[#1a1a1a] outline-none appearance-none cursor-pointer"
-              >
-                {years.map((y) => (
-                  <option key={y} value={y}>{y}</option>
-                ))}
-              </select>
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888]">Year range</span>
+              <span className="text-[13px] font-bold text-[#1a1a1a]">{displayFrom} — {displayTo}</span>
             </div>
-            <div>
-              <label className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-1 block">To</label>
-              <select
-                value={toYear}
-                onChange={(e) => setToYear(Number(e.target.value))}
-                className="w-full bg-[#f5f5f5] rounded-xl px-3 py-2.5 text-[15px] font-bold text-[#1a1a1a] outline-none appearance-none cursor-pointer"
-              >
-                {years.map((y) => (
-                  <option key={y} value={y}>{y}</option>
-                ))}
-              </select>
-            </div>
+            <DualSlider
+              min={minYear}
+              max={maxYear}
+              from={fromYear}
+              to={toYear}
+              onFromChange={setFromYear}
+              onToChange={setToYear}
+            />
           </div>
         </div>
 
