@@ -95,7 +95,37 @@ export default function HomePage() {
 
       <main className="max-w-[720px] mx-auto pb-8">
 
-        {/* Trending — horizontal scroll */}
+        {/* Market Data */}
+        <div className="px-4 sm:px-6 mb-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-2">Market Data</p>
+          <MarketCards />
+        </div>
+
+        {/* Tools */}
+        <div className="px-4 sm:px-6 mb-6">
+          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-2">Tools</p>
+          <div className="space-y-2">
+            {TOOLS.map((tool) => (
+              <Link
+                key={tool.href}
+                href={tool.href}
+                className="flex items-center gap-4 bg-white rounded-[20px] px-5 py-5 no-underline hover:bg-[#fafafa] transition-colors group"
+              >
+                <span className="text-3xl shrink-0">{tool.emoji}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <p className="text-[15px] font-bold text-[#1a1a1a]">{tool.title}</p>
+                    <span className="text-[10px] font-semibold text-[#00c853] bg-[#00c853]/10 px-2 py-0.5 rounded-full">{tool.tag}</span>
+                  </div>
+                  <p className="text-[12px] text-[#888] leading-relaxed">{tool.description}</p>
+                </div>
+                <span className="text-[#ccc] text-lg group-hover:text-[#1a1a1a] transition-colors shrink-0">→</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* Explore — horizontal scroll */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2 px-4 sm:px-6">
             <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888]">Explore</p>
@@ -122,36 +152,6 @@ export default function HomePage() {
                   <p className="text-[17px] sm:text-[18px] font-extrabold text-white leading-tight mt-2 tracking-tight">{item.title}</p>
                   <p className="text-[11px] text-white/60 mt-1 leading-snug">{item.description}</p>
                 </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* Market Data */}
-        <div className="px-4 sm:px-6 mb-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-2">Market Data</p>
-          <MarketCards />
-        </div>
-
-        {/* Tools */}
-        <div className="px-4 sm:px-6">
-          <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-2">Tools</p>
-          <div className="space-y-2">
-            {TOOLS.map((tool) => (
-              <Link
-                key={tool.href}
-                href={tool.href}
-                className="flex items-center gap-4 bg-white rounded-[20px] px-5 py-5 no-underline hover:bg-[#fafafa] transition-colors group"
-              >
-                <span className="text-3xl shrink-0">{tool.emoji}</span>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <p className="text-[15px] font-bold text-[#1a1a1a]">{tool.title}</p>
-                    <span className="text-[10px] font-semibold text-[#00c853] bg-[#00c853]/10 px-2 py-0.5 rounded-full">{tool.tag}</span>
-                  </div>
-                  <p className="text-[12px] text-[#888] leading-relaxed">{tool.description}</p>
-                </div>
-                <span className="text-[#ccc] text-lg group-hover:text-[#1a1a1a] transition-colors shrink-0">→</span>
               </Link>
             ))}
           </div>
