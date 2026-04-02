@@ -11,7 +11,6 @@ const PERIODS = [
 { label: "ALL", days: "all" },
 ] as const;
 
-// --- Animated number for rate display ---
 function AnimatedRate({ value, decimals = 2, prefix = "₱" }: { value: number; decimals?: number; prefix?: string }) {
   const [display, setDisplay] = useState(value);
   const prev = useRef(value);
@@ -36,7 +35,6 @@ function AnimatedRate({ value, decimals = 2, prefix = "₱" }: { value: number; 
   return <span>{prefix}{display.toLocaleString("en-PH", { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}</span>;
 }
 
-// --- Chart component ---------------------------------------------
 function RateChart({ data }: { data: [number, number][] }) {
 const canvasRef = useRef<HTMLCanvasElement>(null);
 const [dotPos, setDotPos] = useState<{ x: number; y: number } | null>(null);
@@ -64,7 +62,6 @@ const chartW = w - padLeft - padRight;
 const chartH = h - padTop - padBot;
 const totalDays = (data[data.length - 1][0] - data[0][0]) / 86400000;
 
-// Precompute point positions
 const points = data.map((d, i) => ({
   x: padLeft + (i / (data.length - 1)) * chartW,
   y: padTop + ((max - d[1]) / range) * chartH,
@@ -81,7 +78,6 @@ function draw(progress: number) {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, w, h);
 
-  // Grid lines + labels
   ctx.font = "10px Inter, system-ui, sans-serif";
   ctx.textAlign = "right";
   const gridLines = 5;
@@ -98,7 +94,6 @@ function draw(progress: number) {
     ctx.stroke();
   }
 
-  // X-axis labels
   ctx.textAlign = "center";
   ctx.fillStyle = "rgba(26,26,26,0.4)";
   const labelCount = Math.min(5, data.length);
@@ -107,14 +102,12 @@ function draw(progress: number) {
     ctx.fillText(formatDateLabel(new Date(data[idx][0])), points[idx].x, h - 8);
   }
 
-  // Clip for draw-in animation
   const clipX = padLeft + chartW * progress;
   ctx.save();
   ctx.beginPath();
   ctx.rect(0, 0, clipX + 2, h);
   ctx.clip();
 
-  // Line
   ctx.beginPath();
   ctx.strokeStyle = "#1a1a1a";
   ctx.lineWidth = 2;
@@ -124,7 +117,6 @@ function draw(progress: number) {
   });
   ctx.stroke();
 
-  // Fill under line
   ctx.lineTo(lastPt.x, padTop + chartH);
   ctx.lineTo(points[0].x, padTop + chartH);
   ctx.closePath();
@@ -134,24 +126,21 @@ function draw(progress: number) {
   ctx.fillStyle = grad;
   ctx.fill();
 
-  ctx.restore(); // end clip
+  ctx.restore();
 
   if (progress < 1) return;
 
-  // End dot
   ctx.beginPath();
   ctx.arc(lastPt.x, lastPt.y, 4, 0, Math.PI * 2);
   ctx.fillStyle = "#1a1a1a";
   ctx.fill();
 
-  // Hover
   const hi = hoverIdxRef.current;
   if (hi >= 0 && hi < points.length) {
     const hp = points[hi];
     const hd = data[hi];
     const date = new Date(hd[0]);
 
-    // Crosshair
     ctx.strokeStyle = "rgba(26,26,26,0.3)";
     ctx.lineWidth = 1;
     ctx.setLineDash([4, 3]);
@@ -161,7 +150,6 @@ function draw(progress: number) {
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Hover dot
     ctx.beginPath();
     ctx.arc(hp.x, hp.y, 5, 0, Math.PI * 2);
     ctx.fillStyle = "#1a1a1a";
@@ -170,7 +158,6 @@ function draw(progress: number) {
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // Tooltip
     const dateLabel = totalDays > 365
       ? `${date.toLocaleString("en", { month: "short" })} ${date.getDate()}, ${date.getFullYear()}`
       : `${date.toLocaleString("en", { month: "short" })} ${date.getDate()}`;
@@ -205,7 +192,6 @@ function draw(progress: number) {
   }
 }
 
-// Animate draw-in
 setDotPos(null);
 hoverIdxRef.current = -1;
 const start = performance.now();
@@ -225,7 +211,6 @@ function tick(now: number) {
 cancelAnimationFrame(rafRef.current);
 rafRef.current = requestAnimationFrame(tick);
 
-// Hover handlers
 function findClosest(clientX: number) {
   const r = canvas!.getBoundingClientRect();
   const relX = (clientX - r.left - padLeft) / chartW;
@@ -277,7 +262,6 @@ style={{ display: "block" }}
 );
 }
 
-// --- Page --------------------------------------------------------
 export default function UsdPhpPage() {
 const [rate, setRate] = useState(FALLBACK_RATE);
 const [live, setLive] = useState(false);
@@ -290,7 +274,6 @@ const [lastUpdated, setLastUpdated] = useState<string>("");
 const hasAnimated = useRef(false);
 const introRaf = useRef<number>(0);
 
-// Fetch live rate from CoinGecko
 useEffect(() => {
 async function fetchRate() {
 try {
@@ -309,7 +292,6 @@ const interval = setInterval(fetchRate, 60000);
 return () => clearInterval(interval);
 }, []);
 
-// Historical data from Frankfurter via API route (1999–today, Vercel caches 3hr)
 useEffect(() => {
 async function loadHistory() {
 try {
@@ -322,7 +304,6 @@ if (data?.prices?.length) setHistoryData(data.prices as [number, number][]);
 loadHistory();
 }, []);
 
-// Slice + sample based on period
 const chartData = useMemo(() => {
 if (historyData.length === 0) return [];
 
@@ -344,7 +325,6 @@ sampled.push(pts[pts.length - 1]);
 return sampled;
 }, [historyData, period]);
 
-// Conversion — animate on first load, instant after
 useEffect(() => {
 if (direction === "usd") {
 const v = parseFloat(usd);
@@ -375,7 +355,6 @@ setUsd(isNaN(v) || v === 0 ? "" : (v / rate).toFixed(2));
 }
 }, [php, rate, direction]);
 
-// Chart stats
 const chartMin = chartData.length > 0 ? Math.min(...chartData.map(d => d[1])) : 0;
 const chartMax = chartData.length > 0 ? Math.max(...chartData.map(d => d[1])) : 0;
 const chartStart = chartData.length > 0 ? chartData[0][1] : 0;
@@ -383,21 +362,18 @@ const chartChange = chartStart > 0 ? ((rate - chartStart) / chartStart * 100) : 
 
 return (
 <div className="min-h-screen bg-[#00c853]">
-{/* Nav */}
-<nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[600px] mx-auto">
-<Link href="/" className="text-xl font-extrabold tracking-tight text-white no-underline">
-alkansya<span className="text-white/60">.ph</span>
-</Link>
-<NavMenu dark />
+<nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[720px] mx-auto">
+  <Link href="/" className="no-underline">
+    <span className="text-white" style={{fontFamily:"var(--font-old-english)"}}>Sentral</span>
+  </Link>
+  <NavMenu dark />
 </nav>
 
   <main className="max-w-[600px] mx-auto px-4 sm:px-6 pb-8">
 
-    {/* Big converter */}
     <div className="text-center mb-2">
       <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#1a1a1a]/50 mb-3">USD / PHP</p>
       <div className="flex items-center justify-center gap-2 sm:gap-3">
-        {/* USD box */}
         <div className="flex items-center border border-white/30 rounded-2xl px-4 py-3 h-[60px] sm:h-[80px] w-[42%] overflow-hidden">
           <span className="text-3xl sm:text-5xl font-black text-white/50 mr-1 shrink-0">$</span>
           <input
@@ -413,7 +389,6 @@ alkansya<span className="text-white/60">.ph</span>
           />
         </div>
         <span className="text-2xl sm:text-4xl font-black text-white/30 shrink-0">=</span>
-        {/* PHP box */}
         <div className="flex items-center border border-white/30 rounded-2xl px-4 py-3 h-[60px] sm:h-[80px] w-[42%] overflow-hidden">
           <span className="text-3xl sm:text-5xl font-black text-white/50 mr-1 shrink-0">₱</span>
           <input
@@ -437,7 +412,6 @@ alkansya<span className="text-white/60">.ph</span>
       )}
     </div>
 
-    {/* Chart */}
     <div className="bg-white/10 backdrop-blur-sm rounded-[20px] p-5 mb-4">
       <div className="flex items-center justify-between mb-3">
         <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#1a1a1a]/50">Historical rate</p>
@@ -469,14 +443,6 @@ alkansya<span className="text-white/60">.ph</span>
       )}
     </div>
 
-    <p className="text-center mb-4">
-      <a href="https://www.binance.com/register?ref=ALKANSYA" target="_blank" rel="noopener noreferrer"
-        className="text-[11px] font-normal text-[#1a1a1a]/40 no-underline border-b border-[#1a1a1a]/20 pb-px hover:text-[#1a1a1a]/70 hover:border-[#1a1a1a]/40 transition-colors">
-        Buy USD and earn interest
-      </a>
-    </p>
-
-    {/* Quick reference */}
     <div className="bg-white/10 backdrop-blur-sm rounded-[20px] p-5 mb-4">
       <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#1a1a1a]/50 mb-3">Quick reference</p>
       <div className="grid grid-cols-2 gap-2">
@@ -489,7 +455,6 @@ alkansya<span className="text-white/60">.ph</span>
       </div>
     </div>
 
-    {/* Footer */}
     <footer className="text-center pt-4">
       <p className="text-[10px] text-[#1a1a1a]/25 leading-relaxed max-w-md mx-auto">
         Live rate from USDT/PHP via CoinGecko. Historical chart from ECB via Frankfurter. May differ slightly from bank rates.
@@ -497,6 +462,5 @@ alkansya<span className="text-white/60">.ph</span>
     </footer>
   </main>
 </div>
-
 );
 }
