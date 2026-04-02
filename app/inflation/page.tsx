@@ -202,28 +202,21 @@ export default function InflationPage() {
         {/* Result card */}
         {!loading && parsedAmount > 0 && fromCpi > 0 && toCpi > 0 && (
           <div className="bg-white rounded-[20px] p-5 mb-4 shadow-sm">
-            <div className="mb-4">
-              <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-2">
-                To buy what ₱{parsedAmount.toLocaleString("en-PH")} could buy in {displayFrom}
-              </p>
-              <p className="text-[13px] text-[#555] leading-relaxed">
-                You would need <strong className="text-4xl sm:text-5xl font-black text-[#1a1a1a] tracking-tight block mt-1">₱{Math.round(displayAdjusted).toLocaleString("en-PH")}</strong>
-              </p>
-              <p className="text-[13px] text-[#888] mt-1">
-                in {displayTo}. That's <strong className="text-[#1a1a1a]">{(displayAdjusted / parsedAmount).toFixed(1)}×</strong> more expensive.
-              </p>
-            </div>
-
-            <div className="pt-4 border-t border-[#f0f0f0]">
-              <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-2">
-                Meanwhile, your ₱{parsedAmount.toLocaleString("en-PH")} today
-              </p>
-              <p className="text-[13px] text-[#555] leading-relaxed">
-                only has the buying power of <strong className="text-[28px] font-black text-[#dc2626] block mt-1">₱{Math.round(displayPower).toLocaleString("en-PH")}</strong>
-              </p>
-              <p className="text-[13px] text-[#888] mt-1">
-                in {displayFrom} terms. The peso has lost <strong className="text-[#dc2626]">{(100 - (displayPower / parsedAmount) * 100).toFixed(1)}%</strong> of its value.
-              </p>
+            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-1">
+              ₱{parsedAmount.toLocaleString("en-PH")} from {displayFrom} can only buy
+            </p>
+            <p className="text-4xl sm:text-5xl font-black text-[#1a1a1a] tracking-tight mt-1">
+              ₱{displayPower < 1 ? displayPower.toFixed(2) : Math.round(displayPower).toLocaleString("en-PH")}
+            </p>
+            <p className="text-[13px] text-[#888] mt-1 mb-4">
+              worth of goods in {displayTo}
+            </p>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 text-[14px] font-bold text-[#dc2626] bg-[#dc2626]/10 px-3 py-1.5 rounded-full">
+                <span className="text-[12px]">▼</span>
+                {(100 - (displayPower / parsedAmount) * 100).toFixed(1)}%
+              </span>
+              <span className="text-[12px] text-[#888]">purchasing power lost</span>
             </div>
           </div>
         )}
@@ -244,13 +237,13 @@ export default function InflationPage() {
             <h2 className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-3">What this means</h2>
             <div className="space-y-3 text-[13px] text-[#555] leading-relaxed">
               <p>
-                Between {displayFrom} and {displayTo}, prices rose by <strong className="text-[#1a1a1a]">{((displayAdjusted / parsedAmount - 1) * 100).toFixed(1)}%</strong>. A bag of groceries that cost <strong className="text-[#1a1a1a]">₱{parsedAmount.toLocaleString("en-PH")}</strong> in {displayFrom} would cost you <strong className="text-[#1a1a1a]">₱{Math.round(displayAdjusted).toLocaleString("en-PH")}</strong> today.
+                If you kept <strong className="text-[#1a1a1a]">₱{parsedAmount.toLocaleString("en-PH")}</strong> in cash since {displayFrom}, it would only buy <strong className="text-[#dc2626]">₱{displayPower < 1 ? displayPower.toFixed(2) : Math.round(displayPower).toLocaleString("en-PH")}</strong> worth of goods today. Everything else was eaten by inflation.
               </p>
               <p>
-                If you kept <strong className="text-[#1a1a1a]">₱{parsedAmount.toLocaleString("en-PH")}</strong> in cash since {displayFrom} without investing it, it would only buy <strong className="text-[#dc2626]">₱{Math.round(displayPower).toLocaleString("en-PH")}</strong> worth of goods compared to what it could buy back then.
+                To match the same buying power, you'd need <strong className="text-[#1a1a1a]">₱{Math.round(displayAdjusted).toLocaleString("en-PH")}</strong> today — that's <strong className="text-[#1a1a1a]">{(displayAdjusted / parsedAmount).toFixed(1)}×</strong> more.
               </p>
               <p>
-                Average annual inflation: <strong className="text-[#1a1a1a]">{(Math.pow(displayAdjusted / parsedAmount, 1 / (displayTo - displayFrom)) * 100 - 100).toFixed(1)}% per year</strong>
+                Average inflation: <strong className="text-[#1a1a1a]">{(Math.pow(displayAdjusted / parsedAmount, 1 / (displayTo - displayFrom)) * 100 - 100).toFixed(1)}% per year</strong> over {displayTo - displayFrom} years.
               </p>
             </div>
           </div>
