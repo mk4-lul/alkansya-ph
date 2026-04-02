@@ -390,7 +390,7 @@ export default function GoldPage() {
       {/* Nav */}
       <nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[600px] mx-auto">
         <Link href="/" className="text-xl font-extrabold tracking-tight text-white no-underline">
-          alkansya<span className="text-white/60">.ph</span>
+          <span className="text-white" style={{fontFamily:"var(--font-old-english)"}}>Sentral</span>
         </Link>
         <NavMenu dark />
       </nav>
@@ -601,7 +601,7 @@ export default function GoldPage() {
             </p>
             <h3 className="text-[12px] font-bold text-[#1a1a1a] mb-1">About This Tool</h3>
             <p className="text-[12px] text-[#666] leading-relaxed">
-              Alkansya.ph provides free financial tools for Filipinos. Gold spot price is sourced via CoinGecko (PAX Gold). Historical data covers 2000 to present. USD/PHP exchange rate is sourced from CoinGecko USDT/PHP. This tool is for informational purposes only and is not financial advice.
+              Sentral provides free financial tools for Filipinos. Gold spot price is sourced via CoinGecko (PAX Gold). Historical data covers 2000 to present. USD/PHP exchange rate is sourced from CoinGecko USDT/PHP. This tool is for informational purposes only and is not financial advice.
             </p>
           </div>
         </section>
@@ -609,7 +609,7 @@ export default function GoldPage() {
         {/* Footer */}
         <footer className="text-center pt-2 pb-4">
           <p className="text-[11px] text-white/40 leading-relaxed max-w-md mx-auto">
-            © {new Date().getFullYear()} Alkansya.ph — Free financial tools for Filipinos
+            © {new Date().getFullYear()} Sentral — Free financial tools for Filipinos
           </p>
         </footer>
       </main>
