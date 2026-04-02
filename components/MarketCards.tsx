@@ -6,18 +6,18 @@ const NOISE_SVG = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='h
 
 function WaveLines({ color = "rgba(255,255,255,0.08)" }: { color?: string }) {
   return (
-    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 200 160" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <svg className="absolute right-0 top-0 h-full w-1/2" viewBox="0 0 100 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
       <style>{`
-        @keyframes wave1 { 0%,100% { d: path("M-20,80 C30,40 70,120 120,60 170,0 200,80 220,60"); } 50% { d: path("M-20,80 C30,100 70,30 120,90 170,130 200,50 220,60"); } }
-        @keyframes wave2 { 0%,100% { d: path("M-20,110 C20,70 60,140 110,90 160,40 190,110 220,90"); } 50% { d: path("M-20,110 C20,130 60,60 110,120 160,150 190,70 220,90"); } }
-        @keyframes wave3 { 0%,100% { d: path("M-20,50 C40,80 80,20 130,70 170,110 200,40 220,50"); } 50% { d: path("M-20,50 C40,20 80,90 130,30 170,10 200,80 220,50"); } }
-        .w1 { animation: wave1 8s ease-in-out infinite; }
-        .w2 { animation: wave2 10s ease-in-out infinite; }
-        .w3 { animation: wave3 12s ease-in-out infinite; }
+        @keyframes drift1 { 0%,100% { d: path("M60,-10 C40,40 80,80 50,120 30,160 70,180 60,210"); } 50% { d: path("M60,-10 C80,30 40,70 70,110 90,150 50,190 60,210"); } }
+        @keyframes drift2 { 0%,100% { d: path("M75,-10 C55,50 95,90 65,130 45,170 85,190 75,210"); } 50% { d: path("M75,-10 C95,40 55,80 85,120 100,160 60,200 75,210"); } }
+        @keyframes drift3 { 0%,100% { d: path("M90,-10 C70,45 100,85 80,125 60,165 95,195 90,210"); } 50% { d: path("M90,-10 C100,35 70,75 95,115 105,155 75,205 90,210"); } }
+        .d1 { animation: drift1 16s ease-in-out infinite; }
+        .d2 { animation: drift2 20s ease-in-out infinite; }
+        .d3 { animation: drift3 24s ease-in-out infinite; }
       `}</style>
-      <path className="w1" d="M-20,80 C30,40 70,120 120,60 170,0 200,80 220,60" fill="none" stroke={color} strokeWidth="1" />
-      <path className="w2" d="M-20,110 C20,70 60,140 110,90 160,40 190,110 220,90" fill="none" stroke={color} strokeWidth="0.8" />
-      <path className="w3" d="M-20,50 C40,80 80,20 130,70 170,110 200,40 220,50" fill="none" stroke={color} strokeWidth="0.6" />
+      <path className="d1" d="M60,-10 C40,40 80,80 50,120 30,160 70,180 60,210" fill="none" stroke={color} strokeWidth="1.2" />
+      <path className="d2" d="M75,-10 C55,50 95,90 65,130 45,170 85,190 75,210" fill="none" stroke={color} strokeWidth="0.9" />
+      <path className="d3" d="M90,-10 C70,45 100,85 80,125 60,165 95,195 90,210" fill="none" stroke={color} strokeWidth="0.6" />
     </svg>
   );
 }
