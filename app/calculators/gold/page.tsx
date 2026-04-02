@@ -389,7 +389,7 @@ export default function GoldPage() {
     <div className="min-h-screen bg-[#C8940A]">
       {/* Nav */}
       <nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[720px] mx-auto">
-        <Link href="/" className="text-xl font-extrabold tracking-tight text-white no-underline">
+        <Link href="/" className="no-underline">
           <span className="text-white" style={{fontFamily:"var(--font-old-english)"}}>Sentral</span>
         </Link>
         <NavMenu dark />
