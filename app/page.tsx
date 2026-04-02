@@ -4,12 +4,12 @@ import NavMenu from "@/components/NavMenu";
 import MarketCards from "@/components/MarketCards";
 
 export const metadata: Metadata = {
-  title: "Alkansya.ph — Free Financial Tools for Filipinos",
+  title: "Sentral — Free Financial Tools for Filipinos",
   description: "Compare bank interest rates, calculate compound interest, project Pag-IBIG MP2 dividends, and explore investment returns. Free tools built for Filipinos.",
   openGraph: {
-    title: "Alkansya.ph — Free Financial Tools for Filipinos",
+    title: "Sentral — Free Financial Tools for Filipinos",
     description: "Compare bank rates, calculate compound interest, and more. Built for Filipinos.",
-    url: "https://alkansya.ph",
+    url: "https://sentral.ph",
   },
 };
 
@@ -88,7 +88,7 @@ export default function HomePage() {
       {/* Nav */}
       <nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[720px] mx-auto">
         <span className="text-xl font-extrabold tracking-tight text-[#1a1a1a]">
-          alkansya<span className="text-[#00c853]">.ph</span>
+          <span className="text-[#00e401]" style={{fontFamily:"var(--font-old-english)"}}>Sentral</span>
         </span>
         <NavMenu />
       </nav>
@@ -159,7 +159,7 @@ export default function HomePage() {
 
         {/* Footer */}
         <footer className="mt-8 pt-4 px-4 sm:px-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-          <span className="text-sm font-bold text-[#888]">alkansya<span className="text-[#00c853]">.ph</span></span>
+          <span className="text-sm font-bold text-[#00e401]" style={{fontFamily:"var(--font-old-english)"}}>Sentral</span>
           <p className="text-[10px] text-[#aaa] max-w-md sm:text-right leading-relaxed">
             Independent financial tools for Filipinos. Not a financial advisor, broker, or bank.
           </p>
