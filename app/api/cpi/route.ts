@@ -1,22 +1,33 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!url || !key) {
+    return NextResponse.json({ error: "No config" }, { status: 500 });
+  }
+
+  const cleanUrl = url.trim().replace(/^["']|["']$/g, "");
+  const cleanKey = key.trim().replace(/^["']|["']$/g, "");
+
+  const resp = await fetch(
+    `${cleanUrl}/rest/v1/cpi_annual?select=year,cpi&order=year.asc`,
+    {
+      headers: {
+        apikey: cleanKey,
+        Authorization: `Bearer ${cleanKey}`,
+      },
+    }
   );
 
-  const { data, error } = await supabase
-    .from("cpi_annual")
-    .select("year, cpi")
-    .order("year", { ascending: true });
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  if (!resp.ok) {
+    return NextResponse.json({ error: `Supabase ${resp.status}` }, { status: 502 });
   }
+
+  const data = await resp.json();
 
   return NextResponse.json(data, {
     headers: {
