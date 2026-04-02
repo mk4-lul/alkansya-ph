@@ -6,14 +6,14 @@ const NOISE_SVG = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='h
 
 function WaveLines({ color = "rgba(255,255,255,0.08)" }: { color?: string }) {
   return (
-    <svg className="absolute right-0 top-0 h-full w-1/2" viewBox="0 0 100 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <svg className="absolute right-[-20%] top-[-20%] h-[140%] w-[80%]" viewBox="0 0 100 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style={{ transform: "rotate(62deg)" }}>
       <style>{`
         @keyframes drift1 { 0%,100% { d: path("M60,-10 C40,40 80,80 50,120 30,160 70,180 60,210"); } 50% { d: path("M60,-10 C80,30 40,70 70,110 90,150 50,190 60,210"); } }
         @keyframes drift2 { 0%,100% { d: path("M75,-10 C55,50 95,90 65,130 45,170 85,190 75,210"); } 50% { d: path("M75,-10 C95,40 55,80 85,120 100,160 60,200 75,210"); } }
         @keyframes drift3 { 0%,100% { d: path("M90,-10 C70,45 100,85 80,125 60,165 95,195 90,210"); } 50% { d: path("M90,-10 C100,35 70,75 95,115 105,155 75,205 90,210"); } }
-        .d1 { animation: drift1 16s ease-in-out infinite; }
-        .d2 { animation: drift2 20s ease-in-out infinite; }
-        .d3 { animation: drift3 24s ease-in-out infinite; }
+        .d1 { animation: drift1 48s ease-in-out infinite; }
+        .d2 { animation: drift2 60s ease-in-out infinite; }
+        .d3 { animation: drift3 72s ease-in-out infinite; }
       `}</style>
       <path className="d1" d="M60,-10 C40,40 80,80 50,120 30,160 70,180 60,210" fill="none" stroke={color} strokeWidth="1.2" />
       <path className="d2" d="M75,-10 C55,50 95,90 65,130 45,170 85,190 75,210" fill="none" stroke={color} strokeWidth="0.9" />
