@@ -53,6 +53,13 @@ const TOOLS = [
     tag: "calculator",
   },
   {
+    href: "/inflation",
+    emoji: "📉",
+    title: "Inflation Calculator",
+    description: "How much has the peso lost? See what ₱100 from any year is worth today",
+    tag: "1959–today",
+  },
+  {
     href: "/mp2",
     emoji: "🏛️",
     title: "Pag-IBIG MP2 Income Calculator",
