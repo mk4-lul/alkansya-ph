@@ -308,7 +308,7 @@ export default function WhatIfPage() {
       {/* Nav */}
       <nav className="flex justify-between items-center px-4 py-2 max-w-[600px] mx-auto w-full shrink-0">
         <Link href="/" className="text-lg font-extrabold tracking-tight text-[#1a1a1a] no-underline">
-          alkansya<span className="text-[#00c853]">.ph</span>
+          <span className="text-[#00e401]" style={{fontFamily:"var(--font-old-english)"}}>Sentral</span>
         </Link>
         <NavMenu />
       </nav>
@@ -506,7 +506,7 @@ export default function WhatIfPage() {
               ctx.textAlign = "center";
               ctx.font = "800 14px Inter, system-ui, sans-serif";
               ctx.fillStyle = "#1a1a1a";
-              ctx.fillText("alkansya.ph/what-if", w / 2, h - 34);
+              ctx.fillText("sentral.ph/what-if", w / 2, h - 34);
               ctx.font = "400 9px Inter, system-ui, sans-serif";
               ctx.fillStyle = "#ccc";
               ctx.fillText("Pang-guilt trip lang 'to, hindi financial advice.", w / 2, h - 16);
