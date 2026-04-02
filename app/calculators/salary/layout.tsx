@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Magkano Sahod Abroad? — Alkansya.ph",
+  title: "Magkano Sahod Abroad? — Sentral",
   description: "Compare estimated salaries for Filipino professionals abroad. Nurse, engineer, BPO, caregiver, and more — across 12 countries.",
   openGraph: {
-    title: "Magkano Sahod Abroad? — Alkansya.ph",
+    title: "Magkano Sahod Abroad? — Sentral",
     description: "Compare estimated salaries for Filipino professionals abroad.",
-    url: "https://alkansya.ph/salary",
+    url: "https://sentral.ph/salary",
   },
 };
 
