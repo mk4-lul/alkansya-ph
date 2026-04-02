@@ -157,7 +157,7 @@ export default function InflationPage() {
 
   return (
     <div className="min-h-screen bg-[#f5f5f5] glow-bg">
-      <nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[600px] mx-auto">
+      <nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[720px] mx-auto">
         <Link href="/" className="no-underline">
           <span className="text-[#00e401]" style={{ fontFamily: "var(--font-old-english)" }}>Sentral</span>
         </Link>
