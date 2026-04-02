@@ -144,11 +144,11 @@ export default function UtangPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f5]">
+    <div className="min-h-screen bg-[#f5f5f5] glow-bg">
       {/* Nav */}
       <nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[720px] mx-auto">
         <Link href="/" className="text-xl font-extrabold tracking-tight text-[#1a1a1a] no-underline">
-          alkansya<span className="text-[#00c853]">.ph</span>
+          <span className="text-[#00e401]" style={{fontFamily:"var(--font-old-english)"}}>Sentral</span>
         </Link>
         <NavMenu />
       </nav>
@@ -375,7 +375,7 @@ export default function UtangPage() {
 
         {/* Footer */}
         <footer className="mt-8 pt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-          <span className="text-sm font-bold text-[#888]">alkansya<span className="text-[#00c853]">.ph</span></span>
+          <span className="text-sm font-bold text-[#00e401]" style={{fontFamily:"var(--font-old-english)"}}>Sentral</span>
           <p className="text-[10px] text-[#aaa] max-w-md sm:text-right leading-relaxed">
             Standard amortization formula. Actual rates may vary by lender. Hindi &apos;to financial advice — pang-guilt trip lang &apos;to.
           </p>
