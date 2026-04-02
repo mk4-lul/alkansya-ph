@@ -94,9 +94,9 @@ export default function HomePage() {
     <div className="min-h-screen bg-[#f5f5f5] relative">
       {/* Nav */}
       <nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[720px] mx-auto">
-        <span className="text-xl font-extrabold tracking-tight text-[#1a1a1a]">
+        <Link href="/" className="no-underline">
           <span className="text-[#00e401]" style={{fontFamily:"var(--font-old-english)"}}>Sentral</span>
-        </span>
+        </Link>
         <NavMenu />
       </nav>
 
