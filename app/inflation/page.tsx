@@ -123,7 +123,12 @@ export default function InflationPage() {
     fetch("/api/cpi")
       .then((r) => r.json())
       .then((d) => {
-        setCpiData(d);
+        if (Array.isArray(d)) {
+          setCpiData(d.map((row: { year: number; cpi: number | string }) => ({
+            year: Number(row.year),
+            cpi: Number(row.cpi),
+          })));
+        }
         setLoading(false);
       })
       .catch(() => setLoading(false));
