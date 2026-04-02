@@ -165,7 +165,7 @@ function VerdictCard({ result, onTryAgain }: { result: VR; onTryAgain: () => voi
     // Branding — always at bottom
     ctx.font = "bold 16px Inter, system-ui, sans-serif";
     ctx.fillStyle = tc;
-    ctx.fillText("alkansya.ph", w / 2, h - 35);
+    ctx.fillText("sentral.ph", w / 2, h - 35);
     ctx.font = "11px Inter, system-ui, sans-serif";
     ctx.fillStyle = result.verdict === "yellow" ? "rgba(26,26,26,0.3)" : "rgba(255,255,255,0.3)";
     ctx.fillText("Afford ko ba 'to?", w / 2, h - 16);
@@ -176,7 +176,7 @@ function VerdictCard({ result, onTryAgain }: { result: VR; onTryAgain: () => voi
 
       if (navigator.share && navigator.canShare?.({ files: [file] })) {
         try {
-          await navigator.share({ files: [file], title: "Afford ko ba 'to?", text: "alkansya.ph/afford" });
+          await navigator.share({ files: [file], title: "Afford ko ba 'to?", text: "sentral.ph/afford" });
         } catch {}
       } else {
         // Fallback: download
@@ -260,7 +260,7 @@ export default function AffordCalculatorPage() {
   const result = useMemo(() => isReady ? getVerdict(income, price, savings) : null, [income, price, savings, isReady]);
 
   return (
-    <div className="h-[100dvh] bg-[#f5f5f5] flex flex-col overflow-hidden relative">
+    <div className="h-[100dvh] bg-[#f5f5f5] flex flex-col overflow-hidden relative glow-bg">
       <style>{`
         input[type="range"] { -webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:999px;outline:none;cursor:pointer; }
         input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none;appearance:none;width:28px;height:28px;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.2);cursor:grab; }
@@ -291,7 +291,7 @@ export default function AffordCalculatorPage() {
       {/* Nav */}
       <nav className="relative z-10 flex justify-between items-center px-4 py-2 max-w-[520px] mx-auto w-full shrink-0">
         <Link href="/" className="text-lg font-extrabold tracking-tight text-[#1a1a1a] no-underline">
-          alkansya<span className="text-[#00c853]">.ph</span>
+          <span className="text-[#00e401]" style={{fontFamily:"var(--font-old-english)"}}>Sentral</span>
         </Link>
         <NavMenu />
       </nav>
