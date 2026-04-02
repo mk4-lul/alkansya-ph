@@ -17,5 +17,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/gkk`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
     { url: `${base}/salary`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
     { url: `${base}/gold`, lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
+    { url: `${base}/inflation`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
   ];
 }
