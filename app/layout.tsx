@@ -5,7 +5,7 @@ import Script from "next/script";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
-const oldEnglish = localFont({ src: "../public/fonts/OPTIEngraversOldEnglish.otf", variable: "--font-old-english" });
+const oldEnglish = localFont({ src: "../public/fonts/EngraversOldEnglishBold.otf", variable: "--font-old-english" });
 const GA_ID = "G-NTCRT0NSFX";
 
 export const metadata: Metadata = {
