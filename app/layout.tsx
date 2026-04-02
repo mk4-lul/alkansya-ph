@@ -5,7 +5,7 @@ import Script from "next/script";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
-const oldEnglish = localFont({ src: "../public/fonts/EngraversOldEnglishBold.otf", variable: "--font-old-english" });
+const oldEnglish = localFont({ src: "../public/fonts/EngraversOldEnglishBold.otf", weight: "400", variable: "--font-old-english" });
 const GA_ID = "G-NTCRT0NSFX";
 
 export const metadata: Metadata = {
@@ -80,7 +80,7 @@ export default function RootLayout({
                 _orb.style.transform = 'translate(-50%, -50%)';
               }
               _orb.style.opacity = '1';
-            } else {
+            } else if (_glowPath !== location.pathname) {
               if (_orb) _orb.style.opacity = '0';
               _glowPath = '';
             }
