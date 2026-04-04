@@ -311,7 +311,7 @@ export default function MP2CalculatorPage() {
       {/* Nav */}
       <nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[720px] mx-auto">
         <Link href="/" className="no-underline">
-          <span className="text-[#00e401]" style={{fontFamily:"var(--font-old-english)"}}>Sentral</span>
+          <span className="text-[#00e401] text-2xl leading-none" style={{fontFamily:"var(--font-old-english)"}}>Sentral</span>
         </Link>
         <NavMenu />
       </nav>
