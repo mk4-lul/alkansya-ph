@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
-import NavMenu from "@/components/NavMenu";
+import SiteHeader from "@/components/SiteHeader";
 
 // ─── 2023 FIES Income Distribution Data ──────────────────────────
 //
@@ -110,12 +110,7 @@ export default function GKKPage() {
   return (
     <div className="min-h-screen bg-[#f5f5f5] glow-bg">
       {/* Nav */}
-      <nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[720px] mx-auto">
-        <Link href="/" className="no-underline">
-          <span className="text-[#00e401] text-2xl leading-none" style={{fontFamily:"var(--font-old-english)"}}>Sentral</span>
-        </Link>
-        <NavMenu />
-      </nav>
+      <SiteHeader />
 
       <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">
 

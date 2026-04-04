@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { getBanksWithRates, BankWithRates, TimeDepositRate } from "@/lib/supabase";
 import Dashboard from "@/components/Dashboard";
-import NavMenu from "@/components/NavMenu";
-import Link from "next/link";
+import SiteHeader from "@/components/SiteHeader";
 
 export const metadata: Metadata = {
   title: "Compare Bank Interest Rates — Sentral",
@@ -291,12 +290,7 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen bg-[#f5f5f5] glow-bg">
       {/* Nav */}
-      <nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[720px] mx-auto">
-        <Link href="/" className="no-underline">
-          <span className="text-[#00e401] text-2xl leading-none" style={{fontFamily:"var(--font-old-english)"}}>Sentral</span>
-        </Link>
-        <NavMenu />
-      </nav>
+      <SiteHeader />
 
       {/* Main */}
       <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">

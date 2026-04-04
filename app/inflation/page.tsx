@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
-import Link from "next/link";
-import NavMenu from "@/components/NavMenu";
+import SiteHeader from "@/components/SiteHeader";
 
 type CpiRow = { year: number; cpi: number };
 
@@ -157,12 +156,7 @@ export default function InflationPage() {
 
   return (
     <div className="min-h-screen bg-[#f5f5f5] glow-bg">
-      <nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[720px] mx-auto w-full">
-        <Link href="/" className="no-underline">
-          <span className="text-[#00e401] text-2xl leading-none" style={{ fontFamily: "var(--font-old-english)" }}>Sentral</span>
-        </Link>
-        <NavMenu />
-      </nav>
+      <SiteHeader />
 
       <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">
         <h1 className="text-[22px] sm:text-[26px] font-extrabold text-[#1a1a1a] tracking-tight mb-1">
