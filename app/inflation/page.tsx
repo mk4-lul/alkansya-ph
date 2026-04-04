@@ -159,12 +159,12 @@ export default function InflationPage() {
     <div className="min-h-screen bg-[#f5f5f5] glow-bg">
       <nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[720px] mx-auto">
         <Link href="/" className="no-underline">
-          <span className="text-[#00e401]" style={{ fontFamily: "var(--font-old-english)" }}>Sentral</span>
+          <span className="text-[#00e401] text-2xl leading-none" style={{ fontFamily: "var(--font-old-english)" }}>Sentral</span>
         </Link>
         <NavMenu />
       </nav>
 
-      <main className="max-w-[600px] mx-auto px-4 sm:px-6 pb-8">
+      <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">
         <h1 className="text-[22px] sm:text-[26px] font-extrabold text-[#1a1a1a] tracking-tight mb-1">
           Inflation Calculator
         </h1>
