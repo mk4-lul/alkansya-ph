@@ -305,7 +305,7 @@ export default function WhatIfPage() {
   return (
     <div className="h-[100dvh] bg-white flex flex-col overflow-hidden">
       {/* Nav */}
-      <SiteHeader />
+      <SiteHeader className="w-full" />
 
       {/* Toggle */}
       <div className="flex justify-center gap-1 shrink-0 mb-2">

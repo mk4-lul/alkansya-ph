@@ -288,7 +288,7 @@ export default function AffordCalculatorPage() {
       </div>
 
       {/* Nav */}
-      <SiteHeader className="relative z-10" />
+      <SiteHeader className="relative z-10 w-full" />
 
       {/* Content */}
       <main className="relative z-10 flex-1 flex flex-col justify-center max-w-[720px] mx-auto px-4 sm:px-6 w-full min-h-0">
