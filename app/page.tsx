@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import NavMenu from "@/components/NavMenu";
+import SiteHeader from "@/components/SiteHeader";
 import MarketCards from "@/components/MarketCards";
 
 export const metadata: Metadata = {
@@ -93,12 +93,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-[#f5f5f5] relative">
       {/* Nav */}
-      <nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[720px] mx-auto">
-        <Link href="/" className="no-underline">
-          <span className="text-[#00e401]" style={{fontFamily:"var(--font-old-english)"}}>Sentral</span>
-        </Link>
-        <NavMenu />
-      </nav>
+      <SiteHeader />
 
       <main className="max-w-[720px] mx-auto pb-8">
 
