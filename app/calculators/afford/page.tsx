@@ -291,13 +291,13 @@ export default function AffordCalculatorPage() {
       {/* Nav */}
       <nav className="relative z-10 flex justify-between items-center px-4 sm:px-6 py-4 max-w-[720px] mx-auto">
         <Link href="/" className="no-underline">
-          <span className="text-[#00e401]" style={{fontFamily:"var(--font-old-english)"}}>Sentral</span>
+          <span className="text-[#00e401] text-2xl leading-none" style={{fontFamily:"var(--font-old-english)"}}>Sentral</span>
         </Link>
         <NavMenu />
       </nav>
 
       {/* Content */}
-      <main className="relative z-10 flex-1 flex flex-col justify-center max-w-[520px] mx-auto px-5 w-full min-h-0">
+      <main className="relative z-10 flex-1 flex flex-col justify-center max-w-[720px] mx-auto px-4 sm:px-6 w-full min-h-0">
 
         {!revealed ? (
           <div>
