@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import Link from "next/link";
-import NavMenu from "@/components/NavMenu";
+import SiteHeader from "@/components/SiteHeader";
 
 // ─── Price Data ──────────────────────────────────────────────────
 // Yearly mean prices (USD)
@@ -306,12 +305,7 @@ export default function WhatIfPage() {
   return (
     <div className="h-[100dvh] bg-white flex flex-col overflow-hidden">
       {/* Nav */}
-      <nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[720px] mx-auto">
-        <Link href="/" className="no-underline">
-          <span className="text-[#00e401]" style={{fontFamily:"var(--font-old-english)"}}>Sentral</span>
-        </Link>
-        <NavMenu />
-      </nav>
+      <SiteHeader className="w-full" />
 
       {/* Toggle */}
       <div className="flex justify-center gap-1 shrink-0 mb-2">
@@ -326,7 +320,7 @@ export default function WhatIfPage() {
       </div>
 
       {/* Main content */}
-      <main className="flex-1 flex flex-col justify-center max-w-[600px] mx-auto px-5 w-full min-h-0">
+      <main className="flex-1 flex flex-col justify-center max-w-[720px] mx-auto px-4 sm:px-6 w-full min-h-0">
         <div className={`transition-opacity duration-300 ${show ? "opacity-100" : "opacity-0"}`}>
 
           {/* The text */}
