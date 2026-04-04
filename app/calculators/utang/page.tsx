@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import NavMenu from "@/components/NavMenu";
+import SiteHeader from "@/components/SiteHeader";
 import ScrollingPeso from "@/components/ScrollingPeso";
 
 // ─── Loan types ──────────────────────────────────────────────────
@@ -146,12 +146,7 @@ export default function UtangPage() {
   return (
     <div className="min-h-screen bg-[#f5f5f5] glow-bg">
       {/* Nav */}
-      <nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[720px] mx-auto">
-        <Link href="/" className="no-underline">
-          <span className="text-[#00e401]" style={{fontFamily:"var(--font-old-english)"}}>Sentral</span>
-        </Link>
-        <NavMenu />
-      </nav>
+      <SiteHeader />
 
       <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">
         <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1a1a1a] tracking-tight mb-4">Magkano nawawala sa&apos;yo?</h1>
