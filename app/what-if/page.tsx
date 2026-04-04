@@ -306,7 +306,7 @@ export default function WhatIfPage() {
   return (
     <div className="h-[100dvh] bg-white flex flex-col overflow-hidden">
       {/* Nav */}
-      <nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[720px] mx-auto">
+      <nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[720px] mx-auto w-full">
         <Link href="/" className="no-underline">
           <span className="text-[#00e401] text-2xl leading-none" style={{fontFamily:"var(--font-old-english)"}}>Sentral</span>
         </Link>
