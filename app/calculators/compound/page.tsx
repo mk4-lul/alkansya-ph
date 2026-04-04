@@ -3,7 +3,7 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import Link from "next/link";
 import { formatPeso } from "@/lib/utils";
-import NavMenu from "@/components/NavMenu";
+import SiteHeader from "@/components/SiteHeader";
 import ScrollingPeso from "@/components/ScrollingPeso";
 
 const YEAR_OPTIONS = [1, 2, 3, 5, 10, 15, 20, 30];
@@ -222,12 +222,7 @@ export default function CalculatorPage() {
   return (
     <div className="min-h-screen bg-[#f5f5f5] glow-bg">
       {/* Nav */}
-      <nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[720px] mx-auto">
-        <Link href="/" className="no-underline">
-          <span className="text-[#00e401]" style={{fontFamily:"var(--font-old-english)"}}>Sentral</span>
-        </Link>
-        <NavMenu />
-      </nav>
+      <SiteHeader />
 
       <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">
         <div className="flex items-center gap-2 mb-4">

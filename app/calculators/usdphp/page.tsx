@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo } from "react";
-import Link from "next/link";
-import NavMenu from "@/components/NavMenu";
+import SiteHeader from "@/components/SiteHeader";
 
 const FALLBACK_RATE = 57;
 
@@ -362,14 +361,9 @@ const chartChange = chartStart > 0 ? ((rate - chartStart) / chartStart * 100) : 
 
 return (
 <div className="min-h-screen bg-[#00c853]">
-<nav className="flex justify-between items-center px-4 sm:px-6 py-4 max-w-[720px] mx-auto">
-  <Link href="/" className="no-underline">
-    <span className="text-white" style={{fontFamily:"var(--font-old-english)"}}>Sentral</span>
-  </Link>
-  <NavMenu dark />
-</nav>
+      <SiteHeader dark />
 
-  <main className="max-w-[600px] mx-auto px-4 sm:px-6 pb-8">
+  <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">
 
     <div className="text-center mb-2">
       <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#1a1a1a]/50 mb-3">USD / PHP</p>
