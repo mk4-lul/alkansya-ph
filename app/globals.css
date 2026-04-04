@@ -15,6 +15,10 @@
   --border: rgba(0,0,0,0.06);
 }
 
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   background: var(--bg);
   color: var(--text);
