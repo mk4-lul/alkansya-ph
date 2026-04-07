@@ -35,6 +35,18 @@ function dedupeAndSort(points: DebtPoint[]): DebtPoint[] {
   return Array.from(uniq.values()).sort((a, b) => a.isoDate.localeCompare(b.isoDate));
 }
 
+function filterKnownBadPoints(points: DebtPoint[]): DebtPoint[] {
+  return points.filter((point) => {
+    // OSDEBT_1993-2025.pdf should represent total national debt in trillion-level pesos
+    // for modern years. Some parsed rows are malformed (hundreds of billions) and create
+    // artificial chart cliffs/spikes, so we drop only those clearly invalid rows.
+    if (point.sourceUrl.includes("OSDEBT_1993-2025.pdf") && point.isoDate >= "2010-01-01" && point.debt < 1e12) {
+      return false;
+    }
+    return true;
+  });
+}
+
 function isFresh(points: DebtPoint[], maxAgeDays = 70): boolean {
   if (points.length === 0) return false;
   const latestIso = points[points.length - 1].isoDate;
@@ -64,7 +76,7 @@ async function readLocalDebtJsonSeries(): Promise<DebtPoint[]> {
       }];
     });
 
-    return dedupeAndSort(rows);
+    return dedupeAndSort(filterKnownBadPoints(rows));
   } catch {
     return [];
   }
