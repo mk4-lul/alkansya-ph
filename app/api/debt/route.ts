@@ -1,4 +1,6 @@
 import { inflateSync } from "node:zlib";
+import { promises as fs } from "node:fs";
+import path from "node:path";
 import { NextResponse } from "next/server";
 
 type DebtPoint = {
@@ -11,6 +13,7 @@ type DebtPoint = {
 const DEBT_LISTING_URL = "https://www.treasury.gov.ph/?page_id=12407";
 const OSDEBT_SERIES_URL = "https://www.treasury.gov.ph/wp-content/uploads/2026/03/OSDEBT_1993-2025.pdf";
 const ANNUAL_DEBT_SERIES_URL = "https://www.treasury.gov.ph/wp-content/uploads/2026/03/Debt-Stock-Annual-1986-2025.pdf";
+const LOCAL_DEBT_PDF_DIR = path.join(process.cwd(), "data", "debt-pdfs");
 
 const FALLBACK_DATA: DebtPoint[] = [
   { label: "Dec 2025", isoDate: "2025-12-31", debt: 17.71e12, sourceUrl: "https://www.treasury.gov.ph/wp-content/uploads/2026/02/NG-Debt-Press-Release-December-2025-2.pdf" },
@@ -20,17 +23,29 @@ const FALLBACK_DATA: DebtPoint[] = [
 
 const monthMap: Record<string, number> = {
   january: 0,
+  jan: 0,
   february: 1,
+  feb: 1,
   march: 2,
+  mar: 2,
   april: 3,
+  apr: 3,
   may: 4,
   june: 5,
+  jun: 5,
   july: 6,
+  jul: 6,
   august: 7,
+  aug: 7,
   september: 8,
+  sep: 8,
+  sept: 8,
   october: 9,
+  oct: 9,
   november: 10,
+  nov: 10,
   december: 11,
+  dec: 11,
 };
 
 function cleanPdfLiteralText(input: string): string {
@@ -151,9 +166,29 @@ function extractPdfLinks(html: string): string[] {
 
 function monthYearFromUrl(url: string): { month: string; year: number } | null {
   const clean = decodeURIComponent(url);
-  const m = clean.match(/(January|February|March|April|May|June|July|August|September|October|November|December)[-_\s]*(\d{4})/i);
+  const m = clean.match(/(January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[-_\s]*(\d{4})/i);
   if (!m) return null;
   return { month: m[1], year: Number(m[2]) };
+}
+
+async function readLocalDebtPdfFiles(): Promise<Array<{ sourceUrl: string; raw: string }>> {
+  try {
+    const entries = await fs.readdir(LOCAL_DEBT_PDF_DIR, { withFileTypes: true });
+    const pdfs = entries.filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith(".pdf"));
+
+    return Promise.all(
+      pdfs.map(async (entry) => {
+        const filePath = path.join(LOCAL_DEBT_PDF_DIR, entry.name);
+        const buf = await fs.readFile(filePath);
+        return {
+          sourceUrl: `local://${entry.name}`,
+          raw: extractTextFromPdfBuffer(buf),
+        };
+      }),
+    );
+  } catch {
+    return [];
+  }
 }
 
 function parseOsDebtDecemberSeries(text: string, sourceUrl: string): DebtPoint[] {
@@ -206,54 +241,55 @@ function parseAnnualLegacySeries(text: string, sourceUrl: string): DebtPoint[] {
 }
 
 async function scrapeViaDebtListingPage(): Promise<DebtPoint[]> {
-  const listRes = await fetch(DEBT_LISTING_URL, { next: { revalidate: 21600 } });
-  if (!listRes.ok) return [];
-  const listingHtml = await listRes.text();
-  const pdfLinks = extractPdfLinks(listingHtml);
+  const localPdfData = await readLocalDebtPdfFiles();
+  let remotePdfData: Array<{ sourceUrl: string; raw: string }> = [];
 
-  const rows = await Promise.all(
-    pdfLinks.map(async (url) => {
-      const lowerUrl = url.toLowerCase();
+  try {
+    const listRes = await fetch(DEBT_LISTING_URL, { next: { revalidate: 21600 } });
+    if (listRes.ok) {
+      const listingHtml = await listRes.text();
+      const pdfLinks = extractPdfLinks(listingHtml);
 
-      const pdfRes = await fetch(url, { next: { revalidate: 21600 } });
-      if (!pdfRes.ok) return [] as DebtPoint[];
-      const buf = Buffer.from(await pdfRes.arrayBuffer());
-      const raw = extractTextFromPdfBuffer(buf);
+      remotePdfData = await Promise.all(
+        pdfLinks.map(async (url) => {
+          const pdfRes = await fetch(url, { next: { revalidate: 21600 } });
+          if (!pdfRes.ok) return null;
+          const buf = Buffer.from(await pdfRes.arrayBuffer());
+          return {
+            sourceUrl: url,
+            raw: extractTextFromPdfBuffer(buf),
+          };
+        }),
+      ).then((rows) => rows.filter((row): row is { sourceUrl: string; raw: string } => !!row));
+    }
+  } catch {
+    // Ignore network errors. Local PDFs can still be parsed.
+  }
 
-      if (lowerUrl.includes("osdebt")) {
-        return parseOsDebtDecemberSeries(raw, url);
-      }
+  const pdfData = [...remotePdfData, ...localPdfData];
 
-      if (lowerUrl.includes("debt-stock-annual")) {
-        return parseAnnualLegacySeries(raw, url);
-      }
+  const rows = pdfData.map(({ sourceUrl, raw }) => {
+    const lowerSource = sourceUrl.toLowerCase();
 
-      const monthYear = monthYearFromUrl(url);
-      if (!monthYear) return [] as DebtPoint[];
+    if (lowerSource.includes("osdebt")) {
+      return parseOsDebtDecemberSeries(raw, sourceUrl);
+    }
 
-      const date = toMonthEnd(monthYear.month, monthYear.year);
-      if (!date) return [] as DebtPoint[];
+    if (lowerSource.includes("debt-stock-annual")) {
+      return parseAnnualLegacySeries(raw, sourceUrl);
+    }
 
-      if (lowerUrl.includes("osdebt")) {
-        return parseOsDebtDecemberSeries(raw, url);
-      }
+    const monthYear = monthYearFromUrl(sourceUrl);
+    if (!monthYear) return [] as DebtPoint[];
 
-      if (lowerUrl.includes("debt-stock-annual")) {
-        return parseAnnualLegacySeries(raw, url);
-      }
+    const date = toMonthEnd(monthYear.month, monthYear.year);
+    if (!date) return [] as DebtPoint[];
 
-      const monthYear = monthYearFromUrl(url);
-      if (!monthYear) return [] as DebtPoint[];
+    const debt = parseDebtFromText(raw);
+    if (!debt) return [] as DebtPoint[];
 
-      const date = toMonthEnd(monthYear.month, monthYear.year);
-      if (!date) return [] as DebtPoint[];
-
-      const debt = parseDebtFromText(raw);
-      if (!debt) return [] as DebtPoint[];
-
-      return [{ ...date, debt, sourceUrl: url }];
-    }),
-  );
+    return [{ ...date, debt, sourceUrl }];
+  });
 
   return dedupeAndSort(rows.flat());
 }
