@@ -23,6 +23,37 @@ function formatPeso(value: number) {
   return `₱${Math.round(value).toLocaleString("en-PH")}`;
 }
 
+function ScrollingDebtValue({ value }: { value: number }) {
+  const [display, setDisplay] = useState(0);
+  const [previous, setPrevious] = useState(0);
+
+  useEffect(() => {
+    const from = previous;
+    const to = value;
+    if (from === to) return;
+
+    const start = performance.now();
+    const duration = 900;
+    let raf = 0;
+
+    const tick = (now: number) => {
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplay(from + (to - from) * eased);
+      if (progress < 1) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        setPrevious(to);
+      }
+    };
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [value]);
+
+  return <>{formatPeso(display)}</>;
+}
+
 function DebtChart({ points, debtGdpPoints }: { points: DebtPoint[]; debtGdpPoints: DebtGdpPoint[] }) {
   if (points.length < 2) return null;
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
@@ -210,7 +241,7 @@ export default function DebtPage() {
 
         <section className="bg-[#111] text-white rounded-[20px] p-5 mb-4 shadow-sm">
           <p className="text-[11px] uppercase tracking-[1px] text-white/70 font-semibold mb-1">Latest reported total</p>
-          <p className="text-[40px] sm:text-[52px] font-black tracking-tight leading-none">{latest ? formatPeso(latest.debt) : "—"}</p>
+          <p className="text-[40px] sm:text-[52px] font-black tracking-tight leading-none">{latest ? <ScrollingDebtValue value={latest.debt} /> : "—"}</p>
           <p className="text-[12px] text-white/70 mt-2">
             {latest ? `As of ${latest.label}` : loading ? "Loading..." : "No data yet"}
           </p>
@@ -247,6 +278,12 @@ export default function DebtPage() {
           <p className="text-[11px] text-[#888] mt-2">Hover or drag across the chart to inspect each data point.</p>
         </section>
 
+        <footer className="mt-8 pt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+          <span className="text-sm font-bold text-[#00e401]" style={{fontFamily:"var(--font-old-english)"}}>Sentral</span>
+          <p className="text-[10px] text-[#aaa] max-w-md sm:text-right leading-relaxed">
+            National debt figures are sourced from the Bureau of the Treasury and may update after official revisions. Sentral is an independent informational tool, not financial advice.
+          </p>
+        </footer>
       </main>
     </div>
   );
