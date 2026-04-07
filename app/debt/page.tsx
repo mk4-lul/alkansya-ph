@@ -18,6 +18,7 @@ function formatPeso(value: number) {
 
 function DebtChart({ points }: { points: DebtPoint[] }) {
   if (points.length < 2) return null;
+  const [hoverIdx, setHoverIdx] = useState<number | null>(null);
 
   const w = 620;
   const h = 220;
@@ -41,9 +42,15 @@ function DebtChart({ points }: { points: DebtPoint[] }) {
 
   const path = coords.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
   const area = `${path} L${coords[coords.length - 1].x},${padT + cH} L${coords[0].x},${padT + cH} Z`;
+  const hoverPoint = hoverIdx !== null ? coords[hoverIdx] : null;
 
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="w-full">
+    <svg
+      viewBox={`0 0 ${w} ${h}`}
+      className="w-full"
+      onMouseLeave={() => setHoverIdx(null)}
+      onTouchEnd={() => setHoverIdx(null)}
+    >
       <defs>
         <linearGradient id="debtFill" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#00c853" stopOpacity="0.28" />
@@ -72,6 +79,38 @@ function DebtChart({ points }: { points: DebtPoint[] }) {
 
       <path d={area} fill="url(#debtFill)" />
       <path d={path} fill="none" stroke="#00c853" strokeWidth="2.4" strokeLinejoin="round" strokeLinecap="round" />
+
+      <rect
+        x={padL}
+        y={padT}
+        width={cW}
+        height={cH}
+        fill="transparent"
+        onMouseMove={(e) => {
+          const box = e.currentTarget.getBoundingClientRect();
+          const relX = Math.max(0, Math.min(1, (e.clientX - box.left) / box.width));
+          setHoverIdx(Math.round(relX * (points.length - 1)));
+        }}
+        onTouchMove={(e) => {
+          const touch = e.touches[0];
+          if (!touch) return;
+          const box = e.currentTarget.getBoundingClientRect();
+          const relX = Math.max(0, Math.min(1, (touch.clientX - box.left) / box.width));
+          setHoverIdx(Math.round(relX * (points.length - 1)));
+        }}
+      />
+
+      {hoverPoint && (
+        <>
+          <line x1={hoverPoint.x} y1={padT} x2={hoverPoint.x} y2={padT + cH} stroke="#00a844" strokeWidth="1" strokeDasharray="4 3" opacity="0.5" />
+          <circle cx={hoverPoint.x} cy={hoverPoint.y} r="4.5" fill="#00c853" stroke="white" strokeWidth="2" />
+          <g transform={`translate(${Math.min(w - 130, Math.max(8, hoverPoint.x - 58))}, ${Math.max(8, hoverPoint.y - 42)})`}>
+            <rect width="120" height="36" rx="8" fill="#111" opacity="0.93" />
+            <text x="8" y="14" fontSize="9" fill="#ddd">{hoverPoint.label}</text>
+            <text x="8" y="28" fontSize="10" fill="#fff" fontWeight="700">{formatPeso(hoverPoint.debt)}</text>
+          </g>
+        </>
+      )}
     </svg>
   );
 }
@@ -143,6 +182,7 @@ export default function DebtPage() {
         <section className="bg-white rounded-[20px] p-4 shadow-sm mb-3">
           <p className="text-[11px] uppercase tracking-[1px] text-[#888] font-semibold mb-2">Trend over time</p>
           {points.length > 1 ? <DebtChart points={points} /> : <p className="text-[13px] text-[#888] py-8 text-center">{loading ? "Loading chart..." : "Not enough data yet."}</p>}
+          <p className="text-[11px] text-[#888] mt-2">Hover or drag across the chart to inspect each data point.</p>
         </section>
 
       </main>
