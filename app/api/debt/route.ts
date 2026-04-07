@@ -234,6 +234,20 @@ async function scrapeViaDebtListingPage(): Promise<DebtPoint[]> {
       const date = toMonthEnd(monthYear.month, monthYear.year);
       if (!date) return [] as DebtPoint[];
 
+      if (lowerUrl.includes("osdebt")) {
+        return parseOsDebtDecemberSeries(raw, url);
+      }
+
+      if (lowerUrl.includes("debt-stock-annual")) {
+        return parseAnnualLegacySeries(raw, url);
+      }
+
+      const monthYear = monthYearFromUrl(url);
+      if (!monthYear) return [] as DebtPoint[];
+
+      const date = toMonthEnd(monthYear.month, monthYear.year);
+      if (!date) return [] as DebtPoint[];
+
       const debt = parseDebtFromText(raw);
       if (!debt) return [] as DebtPoint[];
 
