@@ -79,7 +79,6 @@ function DebtChart({ points }: { points: DebtPoint[] }) {
 export default function DebtPage() {
   const [points, setPoints] = useState<DebtPoint[]>([]);
   const [loading, setLoading] = useState(true);
-  const [usingFallback, setUsingFallback] = useState(false);
 
   useEffect(() => {
     fetch("/api/debt")
@@ -87,7 +86,6 @@ export default function DebtPage() {
       .then((d) => {
         if (Array.isArray(d?.points)) {
           setPoints(d.points);
-          setUsingFallback(Boolean(d.usedFallback));
         }
       })
       .finally(() => setLoading(false));
@@ -147,11 +145,6 @@ export default function DebtPage() {
           {points.length > 1 ? <DebtChart points={points} /> : <p className="text-[13px] text-[#888] py-8 text-center">{loading ? "Loading chart..." : "Not enough data yet."}</p>}
         </section>
 
-        {usingFallback && (
-          <p className="text-[11px] text-[#a16207] bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
-            Couldn’t reach live BTr pages right now. Showing last known fallback points.
-          </p>
-        )}
       </main>
     </div>
   );
