@@ -14,6 +14,7 @@ const NAV = [
   { label: "Pag-IBIG MP2 Calculator", href: "/mp2", description: "Tax-free government savings program" },
   { label: "Investment Calculator", href: "/investment", description: "What if you invested in Bitcoin, gold, stocks?" },
   { label: "Inflation Calculator", href: "/inflation", description: "How much has the peso lost since 1959?" },
+  { label: "PH National Debt", href: "/debt", description: "Simple chart of the country's national debt" },
   { section: "For Fun" },
   { label: "Afford ko ba 'to?", href: "/afford", description: "Alamin bago bilhin" },
   { label: "Magkano nawawala sa'yo?", href: "/utang", description: "Alamin ang totoong cost ng utang mo" },
