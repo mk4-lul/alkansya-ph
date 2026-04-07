@@ -11,6 +11,13 @@ type DebtPoint = {
   sourceUrl: string;
 };
 
+type DebtGdpPoint = {
+  label: string;
+  isoDate: string;
+  debtGdpPct: number;
+  sourceUrl: string;
+};
+
 type LocalDebtJsonPoint = {
   isoDate: string;
   debt: number;
@@ -18,8 +25,16 @@ type LocalDebtJsonPoint = {
   sourceUrl?: string;
 };
 
+type LocalDebtGdpJsonPoint = {
+  isoDate: string;
+  debtGdpPct: number;
+  label?: string;
+  sourceUrl?: string;
+};
+
 const DEBT_LISTING_URL = "https://www.treasury.gov.ph/?page_id=12407";
 const LOCAL_DEBT_JSON_PATH = path.join(process.cwd(), "data", "debt-pdfs", "debt-history.json");
+const LOCAL_DEBT_GDP_JSON_PATH = path.join(process.cwd(), "data", "debt-pdfs", "debt-gdp.json");
 const SCRAPE_TIMEOUT_MS = 1500;
 const MIN_POINTS_TO_USE_LIVE = 2;
 
@@ -31,6 +46,12 @@ const FALLBACK_DATA: DebtPoint[] = [
 
 function dedupeAndSort(points: DebtPoint[]): DebtPoint[] {
   const uniq = new Map<string, DebtPoint>();
+  points.forEach((row) => uniq.set(row.isoDate, row));
+  return Array.from(uniq.values()).sort((a, b) => a.isoDate.localeCompare(b.isoDate));
+}
+
+function dedupeAndSortDebtGdp(points: DebtGdpPoint[]): DebtGdpPoint[] {
+  const uniq = new Map<string, DebtGdpPoint>();
   points.forEach((row) => uniq.set(row.isoDate, row));
   return Array.from(uniq.values()).sort((a, b) => a.isoDate.localeCompare(b.isoDate));
 }
@@ -70,11 +91,45 @@ async function readLocalDebtJsonSeries(): Promise<DebtPoint[]> {
   }
 }
 
+async function readLocalDebtGdpJsonSeries(): Promise<DebtGdpPoint[]> {
+  try {
+    const raw = await fs.readFile(LOCAL_DEBT_GDP_JSON_PATH, "utf-8");
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+
+    const rows = parsed.flatMap((entry: LocalDebtGdpJsonPoint) => {
+      if (!entry || typeof entry.isoDate !== "string" || !Number.isFinite(entry.debtGdpPct)) return [] as DebtGdpPoint[];
+
+      const isoDate = entry.isoDate.slice(0, 10);
+      const date = new Date(`${isoDate}T00:00:00Z`);
+      if (Number.isNaN(date.getTime())) return [] as DebtGdpPoint[];
+
+      return [{
+        isoDate,
+        label: entry.label
+          ?? date.toLocaleDateString("en-US", { month: "short", year: "numeric", timeZone: "UTC" }),
+        debtGdpPct: Number(entry.debtGdpPct),
+        sourceUrl: entry.sourceUrl ?? "local://debt-gdp.json",
+      }];
+    });
+
+    return dedupeAndSortDebtGdp(rows);
+  } catch {
+    return [];
+  }
+}
+
 export async function GET() {
   try {
-    const points = await Promise.race([
-      readLocalDebtJsonSeries(),
-      new Promise<DebtPoint[]>((resolve) => setTimeout(() => resolve([]), SCRAPE_TIMEOUT_MS)),
+    const [points, debtGdpPoints] = await Promise.all([
+      Promise.race([
+        readLocalDebtJsonSeries(),
+        new Promise<DebtPoint[]>((resolve) => setTimeout(() => resolve([]), SCRAPE_TIMEOUT_MS)),
+      ]),
+      Promise.race([
+        readLocalDebtGdpJsonSeries(),
+        new Promise<DebtGdpPoint[]>((resolve) => setTimeout(() => resolve([]), SCRAPE_TIMEOUT_MS)),
+      ]),
     ]);
 
     if (points.length >= MIN_POINTS_TO_USE_LIVE) {
@@ -82,6 +137,7 @@ export async function GET() {
         source: "Bureau of the Treasury (Philippines)",
         sourceUrl: DEBT_LISTING_URL,
         points,
+        debtGdpPoints,
         usedFallback: false,
         staleLiveData: !isFresh(points),
       });
@@ -91,6 +147,7 @@ export async function GET() {
       source: "Bureau of the Treasury (Philippines)",
       sourceUrl: DEBT_LISTING_URL,
       points: FALLBACK_DATA,
+      debtGdpPoints,
       usedFallback: true,
       staleLiveData: true,
     });
@@ -99,6 +156,7 @@ export async function GET() {
       source: "Bureau of the Treasury (Philippines)",
       sourceUrl: DEBT_LISTING_URL,
       points: FALLBACK_DATA,
+      debtGdpPoints: [],
       usedFallback: true,
     });
   }

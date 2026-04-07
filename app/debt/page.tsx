@@ -10,22 +10,29 @@ type DebtPoint = {
   sourceUrl: string;
 };
 
+type DebtGdpPoint = {
+  label: string;
+  isoDate: string;
+  debtGdpPct: number;
+  sourceUrl: string;
+};
+
 function formatPeso(value: number) {
   if (value >= 1e12) return `₱${(value / 1e12).toFixed(2)}T`;
   if (value >= 1e9) return `₱${(value / 1e9).toFixed(1)}B`;
   return `₱${Math.round(value).toLocaleString("en-PH")}`;
 }
 
-function DebtChart({ points }: { points: DebtPoint[] }) {
+function DebtChart({ points, debtGdpPoints }: { points: DebtPoint[]; debtGdpPoints: DebtGdpPoint[] }) {
   if (points.length < 2) return null;
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
 
   const w = 620;
-  const h = 220;
-  const padL = 40;
-  const padR = 10;
-  const padT = 14;
-  const padB = 30;
+  const h = 230;
+  const padL = 46;
+  const padR = 42;
+  const padT = 16;
+  const padB = 32;
   const cW = w - padL - padR;
   const cH = h - padT - padB;
 
@@ -34,15 +41,35 @@ function DebtChart({ points }: { points: DebtPoint[] }) {
   const max = Math.max(...values);
   const range = max - min || 1;
 
+  const debtGdpByIsoDate = new Map(debtGdpPoints.map((p) => [p.isoDate, p]));
+  const debtGdpValues = debtGdpPoints.map((p) => p.debtGdpPct);
+  const gdpMin = debtGdpValues.length ? Math.min(...debtGdpValues) : 0;
+  const gdpMax = debtGdpValues.length ? Math.max(...debtGdpValues) : 100;
+  const gdpRange = gdpMax - gdpMin || 1;
+
   const coords = points.map((p, i) => ({
     ...p,
     x: padL + (i / (points.length - 1)) * cW,
     y: padT + ((max - p.debt) / range) * cH,
   }));
 
+  const gdpCoords = coords.flatMap((p) => {
+    const gdpPoint = debtGdpByIsoDate.get(p.isoDate);
+    if (!gdpPoint) return [];
+
+    return [{
+      ...gdpPoint,
+      x: p.x,
+      y: padT + ((gdpMax - gdpPoint.debtGdpPct) / gdpRange) * cH,
+    }];
+  });
+
   const path = coords.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
+  const gdpPath = gdpCoords.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
   const area = `${path} L${coords[coords.length - 1].x},${padT + cH} L${coords[0].x},${padT + cH} Z`;
+
   const hoverPoint = hoverIdx !== null ? coords[hoverIdx] : null;
+  const hoverDebtGdp = hoverPoint ? debtGdpByIsoDate.get(hoverPoint.isoDate) : null;
 
   return (
     <svg
@@ -64,9 +91,14 @@ function DebtChart({ points }: { points: DebtPoint[] }) {
         return (
           <g key={f}>
             <line x1={padL} x2={padL + cW} y1={y} y2={y} stroke="#ececec" strokeWidth="1" />
-            <text x={padL - 5} y={y + 4} textAnchor="end" fontSize="9" fill="#aaa">
+            <text x={padL - 6} y={y + 4} textAnchor="end" fontSize="9" fill="#aaa">
               {(val / 1e12).toFixed(1)}T
             </text>
+            {debtGdpValues.length > 0 && (
+              <text x={padL + cW + 6} y={y + 4} textAnchor="start" fontSize="9" fill="#aaa">
+                {(gdpMin + gdpRange * (1 - f)).toFixed(1)}%
+              </text>
+            )}
           </g>
         );
       })}
@@ -79,6 +111,17 @@ function DebtChart({ points }: { points: DebtPoint[] }) {
 
       <path d={area} fill="url(#debtFill)" />
       <path d={path} fill="none" stroke="#00c853" strokeWidth="2.4" strokeLinejoin="round" strokeLinecap="round" />
+      {gdpCoords.length > 1 && (
+        <path
+          d={gdpPath}
+          fill="none"
+          stroke="#1e88e5"
+          strokeWidth="2.2"
+          strokeDasharray="7 5"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+        />
+      )}
 
       <rect
         x={padL}
@@ -104,10 +147,21 @@ function DebtChart({ points }: { points: DebtPoint[] }) {
         <>
           <line x1={hoverPoint.x} y1={padT} x2={hoverPoint.x} y2={padT + cH} stroke="#00a844" strokeWidth="1" strokeDasharray="4 3" opacity="0.5" />
           <circle cx={hoverPoint.x} cy={hoverPoint.y} r="4.5" fill="#00c853" stroke="white" strokeWidth="2" />
-          <g transform={`translate(${Math.min(w - 130, Math.max(8, hoverPoint.x - 58))}, ${Math.max(8, hoverPoint.y - 42)})`}>
-            <rect width="120" height="36" rx="8" fill="#111" opacity="0.93" />
+          {hoverDebtGdp && (
+            <circle
+              cx={hoverPoint.x}
+              cy={padT + ((gdpMax - hoverDebtGdp.debtGdpPct) / gdpRange) * cH}
+              r="4.5"
+              fill="#1e88e5"
+              stroke="white"
+              strokeWidth="2"
+            />
+          )}
+          <g transform={`translate(${Math.min(w - 140, Math.max(8, hoverPoint.x - 62))}, ${Math.max(8, hoverPoint.y - 58)})`}>
+            <rect width="130" height={hoverDebtGdp ? "52" : "36"} rx="8" fill="#111" opacity="0.93" />
             <text x="8" y="14" fontSize="9" fill="#ddd">{hoverPoint.label}</text>
             <text x="8" y="28" fontSize="10" fill="#fff" fontWeight="700">{formatPeso(hoverPoint.debt)}</text>
+            {hoverDebtGdp && <text x="8" y="42" fontSize="10" fill="#90caf9" fontWeight="700">Debt/GDP: {hoverDebtGdp.debtGdpPct.toFixed(1)}%</text>}
           </g>
         </>
       )}
@@ -117,6 +171,7 @@ function DebtChart({ points }: { points: DebtPoint[] }) {
 
 export default function DebtPage() {
   const [points, setPoints] = useState<DebtPoint[]>([]);
+  const [debtGdpPoints, setDebtGdpPoints] = useState<DebtGdpPoint[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -125,6 +180,9 @@ export default function DebtPage() {
       .then((d) => {
         if (Array.isArray(d?.points)) {
           setPoints(d.points);
+        }
+        if (Array.isArray(d?.debtGdpPoints)) {
+          setDebtGdpPoints(d.debtGdpPoints);
         }
       })
       .finally(() => setLoading(false));
@@ -180,8 +238,12 @@ export default function DebtPage() {
         </section>
 
         <section className="bg-white rounded-[20px] p-4 shadow-sm mb-3">
-          <p className="text-[11px] uppercase tracking-[1px] text-[#888] font-semibold mb-2">Trend over time</p>
-          {points.length > 1 ? <DebtChart points={points} /> : <p className="text-[13px] text-[#888] py-8 text-center">{loading ? "Loading chart..." : "Not enough data yet."}</p>}
+          <p className="text-[11px] uppercase tracking-[1px] text-[#888] font-semibold mb-1">Trend over time</p>
+          <div className="flex items-center gap-4 text-[11px] mb-2 text-[#666]">
+            <span className="inline-flex items-center gap-1.5"><span className="h-[2px] w-7 bg-[#00c853] inline-block" />Debt stock</span>
+            <span className="inline-flex items-center gap-1.5"><span className="h-[2px] w-7 border-t-2 border-dashed border-[#1e88e5] inline-block" />Debt-to-GDP</span>
+          </div>
+          {points.length > 1 ? <DebtChart points={points} debtGdpPoints={debtGdpPoints} /> : <p className="text-[13px] text-[#888] py-8 text-center">{loading ? "Loading chart..." : "Not enough data yet."}</p>}
           <p className="text-[11px] text-[#888] mt-2">Hover or drag across the chart to inspect each data point.</p>
         </section>
 
