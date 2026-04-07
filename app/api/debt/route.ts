@@ -20,6 +20,14 @@ const MAX_LOCAL_PDF_PARSE_BYTES = 300_000;
 const SCRAPE_TIMEOUT_MS = 4500;
 const MIN_POINTS_TO_USE_LIVE = 2;
 
+
+type LocalDebtJsonPoint = {
+  isoDate: string;
+  debt: number;
+  label?: string;
+  sourceUrl?: string;
+};
+
 const FALLBACK_DATA: DebtPoint[] = [
   { label: "Dec 2025", isoDate: "2025-12-31", debt: 17.71e12, sourceUrl: "https://www.treasury.gov.ph/wp-content/uploads/2026/02/NG-Debt-Press-Release-December-2025-2.pdf" },
   { label: "Jan 2026", isoDate: "2026-01-31", debt: 18.13e12, sourceUrl: "https://www.treasury.gov.ph/?p=74627" },
@@ -172,6 +180,37 @@ function monthYearFromUrl(url: string): { month: string; year: number } | null {
   return { month: m[1], year: Number(m[2]) };
 }
 
+
+async function readLocalDebtJsonSeries(): Promise<DebtPoint[]> {
+  const jsonPath = path.join(LOCAL_DEBT_PDF_DIR, "debt-history.json");
+
+  try {
+    const raw = await fs.readFile(jsonPath, "utf-8");
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+
+    const rows = parsed.flatMap((entry: LocalDebtJsonPoint) => {
+      if (!entry || typeof entry.isoDate !== "string" || !Number.isFinite(entry.debt)) return [] as DebtPoint[];
+
+      const isoDate = entry.isoDate.slice(0, 10);
+      const date = new Date(`${isoDate}T00:00:00Z`);
+      if (Number.isNaN(date.getTime())) return [] as DebtPoint[];
+
+      return [{
+        isoDate,
+        label: entry.label
+          ?? date.toLocaleDateString("en-US", { month: "short", year: "numeric", timeZone: "UTC" }),
+        debt: Number(entry.debt),
+        sourceUrl: entry.sourceUrl ?? `local://debt-history.json`,
+      }];
+    });
+
+    return dedupeAndSort(rows);
+  } catch {
+    return [];
+  }
+}
+
 async function readLocalDebtPdfFiles(): Promise<Array<{ sourceUrl: string; raw: string }>> {
   try {
     const entries = await fs.readdir(LOCAL_DEBT_PDF_DIR, { withFileTypes: true });
@@ -181,7 +220,13 @@ async function readLocalDebtPdfFiles(): Promise<Array<{ sourceUrl: string; raw: 
       pdfs.map(async (entry) => {
         const filePath = path.join(LOCAL_DEBT_PDF_DIR, entry.name);
         const buf = await fs.readFile(filePath);
-        const shouldParse = buf.byteLength <= MAX_LOCAL_PDF_PARSE_BYTES || entry.name.toLowerCase().includes("debt-web");
+        const lowerName = entry.name.toLowerCase();
+        const shouldParse = (
+          buf.byteLength <= MAX_LOCAL_PDF_PARSE_BYTES
+          || lowerName.includes("debt-web")
+          || lowerName.includes("osdebt")
+          || lowerName.includes("debt-stock-annual")
+        );
         return {
           sourceUrl: `local://${entry.name}`,
           raw: shouldParse ? extractTextFromPdfBuffer(buf) : "",
@@ -243,6 +288,11 @@ function parseAnnualLegacySeries(text: string, sourceUrl: string): DebtPoint[] {
 }
 
 async function scrapeViaDebtListingPage(): Promise<DebtPoint[]> {
+  const localJsonPoints = await readLocalDebtJsonSeries();
+  if (localJsonPoints.length >= MIN_POINTS_TO_USE_LIVE) {
+    return localJsonPoints;
+  }
+
   const localPdfData = await readLocalDebtPdfFiles();
 
   const parseRows = (pdfData: Array<{ sourceUrl: string; raw: string }>) => {
@@ -272,7 +322,7 @@ async function scrapeViaDebtListingPage(): Promise<DebtPoint[]> {
     return dedupeAndSort(rows.flat());
   };
 
-  const localPoints = parseRows(localPdfData);
+  const localPoints = dedupeAndSort([...localJsonPoints, ...parseRows(localPdfData)]);
   if (localPoints.length >= 10) {
     return localPoints;
   }
@@ -315,7 +365,7 @@ async function scrapeViaDebtListingPage(): Promise<DebtPoint[]> {
     // Ignore network errors. Local PDFs can still be parsed.
   }
 
-  return parseRows([...remotePdfData, ...localPdfData]);
+  return dedupeAndSort([...localJsonPoints, ...parseRows([...remotePdfData, ...localPdfData])]);
 }
 
 export async function GET() {

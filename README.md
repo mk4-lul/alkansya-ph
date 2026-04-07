@@ -95,6 +95,9 @@ Put these files in `data/debt-pdfs/` (filename matters for date detection):
 
 `app/api/debt/route.ts` reads local PDFs from `data/debt-pdfs/*.pdf` and merges them with live data when available.
 
+Optional: add `data/debt-pdfs/debt-history.json` with pre-parsed historical points to avoid relying only on runtime PDF parsing.
+
+
 ---
 
 ## Project Structure
