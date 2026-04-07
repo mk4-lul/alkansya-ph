@@ -205,6 +205,19 @@ function parseAnnualLegacySeries(text: string, sourceUrl: string): DebtPoint[] {
   return rows;
 }
 
+function parseMonthlyDebtPointFromPdfUrl(url: string, text: string): DebtPoint[] {
+  const monthYearInfo = monthYearFromUrl(url);
+  if (!monthYearInfo) return [];
+
+  const monthEndDate = toMonthEnd(monthYearInfo.month, monthYearInfo.year);
+  if (!monthEndDate) return [];
+
+  const debt = parseDebtFromText(text);
+  if (!debt) return [];
+
+  return [{ ...monthEndDate, debt, sourceUrl: url }];
+}
+
 async function scrapeViaDebtListingPage(): Promise<DebtPoint[]> {
   const listRes = await fetch(DEBT_LISTING_URL, { next: { revalidate: 21600 } });
   if (!listRes.ok) return [];
@@ -228,30 +241,7 @@ async function scrapeViaDebtListingPage(): Promise<DebtPoint[]> {
         return parseAnnualLegacySeries(raw, url);
       }
 
-      const monthYear = monthYearFromUrl(url);
-      if (!monthYear) return [] as DebtPoint[];
-
-      const date = toMonthEnd(monthYear.month, monthYear.year);
-      if (!date) return [] as DebtPoint[];
-
-      if (lowerUrl.includes("osdebt")) {
-        return parseOsDebtDecemberSeries(raw, url);
-      }
-
-      if (lowerUrl.includes("debt-stock-annual")) {
-        return parseAnnualLegacySeries(raw, url);
-      }
-
-      const monthYear = monthYearFromUrl(url);
-      if (!monthYear) return [] as DebtPoint[];
-
-      const date = toMonthEnd(monthYear.month, monthYear.year);
-      if (!date) return [] as DebtPoint[];
-
-      const debt = parseDebtFromText(raw);
-      if (!debt) return [] as DebtPoint[];
-
-      return [{ ...date, debt, sourceUrl: url }];
+      return parseMonthlyDebtPointFromPdfUrl(url, raw);
     }),
   );
 
