@@ -60,6 +60,13 @@ const TOOLS = [
     tag: "1959–today",
   },
   {
+    href: "/debt",
+    emoji: "🏦",
+    title: "Philippine National Debt",
+    description: "Normie-friendly chart of the country's debt trend",
+    tag: "BTr data",
+  },
+  {
     href: "/mp2",
     emoji: "🏛️",
     title: "Pag-IBIG MP2 Income Calculator",
