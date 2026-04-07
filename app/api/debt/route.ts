@@ -1,3 +1,4 @@
+import { inflateSync } from "node:zlib";
 import { NextResponse } from "next/server";
 
 type DebtPoint = {
@@ -31,6 +32,60 @@ const monthMap: Record<string, number> = {
   november: 10,
   december: 11,
 };
+
+function cleanPdfLiteralText(input: string): string {
+  const octalDecoded = input.replace(/\\([0-7]{1,3})/g, (_, oct) => String.fromCharCode(Number.parseInt(oct, 8)));
+  return octalDecoded
+    .replace(/\\n/g, "\n")
+    .replace(/\\r/g, "\r")
+    .replace(/\\t/g, "\t")
+    .replace(/\\\(/g, "(")
+    .replace(/\\\)/g, ")")
+    .replace(/\\\\/g, "\\");
+}
+
+function extractTextFromPdfBuffer(buf: Buffer): string {
+  const binary = buf.toString("latin1");
+  const chunks: string[] = [];
+
+  let cursor = 0;
+  while (cursor < binary.length) {
+    const streamIdx = binary.indexOf("stream", cursor);
+    if (streamIdx < 0) break;
+
+    let start = streamIdx + 6;
+    if (binary[start] === "\r" && binary[start + 1] === "\n") start += 2;
+    else if (binary[start] === "\n") start += 1;
+
+    const end = binary.indexOf("endstream", start);
+    if (end < 0) break;
+
+    const compressed = buf.subarray(start, end);
+    try {
+      const inflated = inflateSync(compressed).toString("latin1");
+
+      for (const match of inflated.matchAll(/\(([^()]*(?:\\.[^()]*)*)\)\s*Tj/g)) {
+        chunks.push(cleanPdfLiteralText(match[1]));
+      }
+
+      for (const match of inflated.matchAll(/\[(.*?)\]\s*TJ/gs)) {
+        for (const piece of match[1].matchAll(/\(([^()]*(?:\\.[^()]*)*)\)/g)) {
+          chunks.push(cleanPdfLiteralText(piece[1]));
+        }
+      }
+    } catch {
+      // Not a deflate-compressed text stream. Skip.
+    }
+
+    cursor = end + 9;
+  }
+
+  if (chunks.length === 0) {
+    return binary;
+  }
+
+  return chunks.join(" ");
+}
 
 function parseDebtFromText(text: string): number | null {
   const normalized = text.replace(/\s+/g, " ");
@@ -126,27 +181,26 @@ function parseOsDebtDecemberSeries(text: string, sourceUrl: string): DebtPoint[]
 
 function parseAnnualLegacySeries(text: string, sourceUrl: string): DebtPoint[] {
   const rows: DebtPoint[] = [];
-  const yearOrder = [1986, 1987, 1988, 1989, 1996, 1997, 1990, 1991, 1992, 1993, 1994, 1995, 1998, 1999, 2000];
+  const tableRegex = /Particulars\s+((?:19|20)\d{2}[\s\S]{10,300}?)T\s*O\s*T\s*A\s*L\s+((?:[\d,]+\s+){5,25})/gi;
 
-  const headerIdx = text.search(/Particulars\s+1986\s+1987\s+1988\s+1989/i);
-  if (headerIdx < 0) return rows;
+  let match: RegExpExecArray | null = tableRegex.exec(text);
+  while (match) {
+    const years = Array.from(match[1].matchAll(/\b((?:19|20)\d{2})\b/g)).map((x) => Number(x[1]));
+    const values = (match[2].match(/[\d,]+/g) ?? [])
+      .map((raw) => Number(raw.replace(/,/g, "")))
+      .filter((n) => Number.isFinite(n));
 
-  const nearby = text.slice(Math.max(0, headerIdx - 400), headerIdx + 2500);
-  const totalMatch = nearby.match(/T\s*O\s*T\s*A\s*L\s+((?:[\d,]+\s+){10,20})/i);
-  if (!totalMatch) return rows;
+    if (years.length > 0 && values.length >= years.length) {
+      years.forEach((year, idx) => {
+        const value = values[idx];
+        if (!Number.isFinite(value)) return;
+        const date = toYearEnd(year);
+        rows.push({ ...date, debt: value * 1e6, sourceUrl });
+      });
+    }
 
-  const values = (totalMatch[1].match(/[\d,]+/g) ?? [])
-    .map((raw) => Number(raw.replace(/,/g, "")))
-    .filter((n) => Number.isFinite(n));
-
-  if (values.length < yearOrder.length) return rows;
-
-  yearOrder.forEach((year, idx) => {
-    const value = values[idx];
-    if (!Number.isFinite(value)) return;
-    const date = toYearEnd(year);
-    rows.push({ ...date, debt: value * 1e6, sourceUrl });
-  });
+    match = tableRegex.exec(text);
+  }
 
   return rows;
 }
@@ -164,7 +218,21 @@ async function scrapeViaDebtListingPage(): Promise<DebtPoint[]> {
       const pdfRes = await fetch(url, { next: { revalidate: 21600 } });
       if (!pdfRes.ok) return [] as DebtPoint[];
       const buf = Buffer.from(await pdfRes.arrayBuffer());
-      const raw = buf.toString("latin1");
+      const raw = extractTextFromPdfBuffer(buf);
+
+      if (lowerUrl.includes("osdebt")) {
+        return parseOsDebtDecemberSeries(raw, url);
+      }
+
+      if (lowerUrl.includes("debt-stock-annual")) {
+        return parseAnnualLegacySeries(raw, url);
+      }
+
+      const monthYear = monthYearFromUrl(url);
+      if (!monthYear) return [] as DebtPoint[];
+
+      const date = toMonthEnd(monthYear.month, monthYear.year);
+      if (!date) return [] as DebtPoint[];
 
       if (lowerUrl.includes("osdebt")) {
         return parseOsDebtDecemberSeries(raw, url);
