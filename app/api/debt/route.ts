@@ -31,11 +31,15 @@ const monthMap: Record<string, number> = {
 };
 
 function parseDebtFromText(text: string): number | null {
-  const match = text.match(/(?:₱|PHP|P)\s?([\d.,]+)\s*trillion/i);
+  const normalized = text.replace(/\s+/g, " ");
+  const match = normalized.match(/(?:₱|PHP|P)\s*([\d.,]+)\s*(trillion|billion)/i);
   if (!match) return null;
-  const trillions = Number(match[1].replace(/,/g, ""));
-  if (!Number.isFinite(trillions)) return null;
-  return trillions * 1e12;
+
+  const base = Number(match[1].replace(/,/g, ""));
+  if (!Number.isFinite(base)) return null;
+
+  const unit = match[2].toLowerCase();
+  return unit === "trillion" ? base * 1e12 : base * 1e9;
 }
 
 function toMonthEnd(monthName: string, year: number): { isoDate: string; label: string } | null {
@@ -62,13 +66,17 @@ function isFresh(points: DebtPoint[], maxAgeDays = 70): boolean {
 }
 
 function extractPdfLinks(html: string): string[] {
-  const links = Array.from(html.matchAll(/href="(https:\/\/www\.treasury\.gov\.ph\/wp-content\/uploads\/[^"]*NG-Debt-Press-Release[^"]*\.pdf)"/gi)).map((m) => m[1]);
-  return Array.from(new Set(links)).slice(0, 24);
+  const allPdfLinks = Array.from(html.matchAll(/href="(https:\/\/www\.treasury\.gov\.ph\/wp-content\/uploads\/[^"]+\.pdf)"/gi)).map((m) => m[1]);
+  const debtLinks = allPdfLinks.filter((url) => {
+    const clean = decodeURIComponent(url).toLowerCase();
+    return clean.includes("debt") && clean.includes("press") && clean.includes("release");
+  });
+  return Array.from(new Set(debtLinks));
 }
 
 function monthYearFromUrl(url: string): { month: string; year: number } | null {
   const clean = decodeURIComponent(url);
-  const m = clean.match(/(?:-|_)(January|February|March|April|May|June|July|August|September|October|November|December)[-_\s]?(\d{4})/i);
+  const m = clean.match(/(January|February|March|April|May|June|July|August|September|October|November|December)[-_\s]*(\d{4})/i);
   if (!m) return null;
   return { month: m[1], year: Number(m[2]) };
 }
@@ -105,12 +113,13 @@ async function scrapeViaDebtListingPage(): Promise<DebtPoint[]> {
 export async function GET() {
   try {
     const points = await scrapeViaDebtListingPage();
-    if (points.length >= 3 && isFresh(points)) {
+    if (points.length >= 3) {
       return NextResponse.json({
         source: "Bureau of the Treasury (Philippines)",
         sourceUrl: DEBT_LISTING_URL,
         points,
         usedFallback: false,
+        staleLiveData: !isFresh(points),
       });
     }
 
