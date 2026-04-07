@@ -16,6 +16,9 @@ const DEBT_LISTING_URL = "https://www.treasury.gov.ph/?page_id=12407";
 const OSDEBT_SERIES_URL = "https://www.treasury.gov.ph/wp-content/uploads/2026/03/OSDEBT_1993-2025.pdf";
 const ANNUAL_DEBT_SERIES_URL = "https://www.treasury.gov.ph/wp-content/uploads/2026/03/Debt-Stock-Annual-1986-2025.pdf";
 const LOCAL_DEBT_PDF_DIR = path.join(process.cwd(), "data", "debt-pdfs");
+const MAX_LOCAL_PDF_PARSE_BYTES = 300_000;
+const SCRAPE_TIMEOUT_MS = 4500;
+const MIN_POINTS_TO_USE_LIVE = 2;
 
 const FALLBACK_DATA: DebtPoint[] = [
   { label: "Dec 2025", isoDate: "2025-12-31", debt: 17.71e12, sourceUrl: "https://www.treasury.gov.ph/wp-content/uploads/2026/02/NG-Debt-Press-Release-December-2025-2.pdf" },
@@ -178,9 +181,10 @@ async function readLocalDebtPdfFiles(): Promise<Array<{ sourceUrl: string; raw: 
       pdfs.map(async (entry) => {
         const filePath = path.join(LOCAL_DEBT_PDF_DIR, entry.name);
         const buf = await fs.readFile(filePath);
+        const shouldParse = buf.byteLength <= MAX_LOCAL_PDF_PARSE_BYTES || entry.name.toLowerCase().includes("debt-web");
         return {
           sourceUrl: `local://${entry.name}`,
-          raw: extractTextFromPdfBuffer(buf),
+          raw: shouldParse ? extractTextFromPdfBuffer(buf) : "",
         };
       }),
     );
@@ -316,8 +320,11 @@ async function scrapeViaDebtListingPage(): Promise<DebtPoint[]> {
 
 export async function GET() {
   try {
-    const points = await scrapeViaDebtListingPage();
-    if (points.length >= 10) {
+    const points = await Promise.race([
+      scrapeViaDebtListingPage(),
+      new Promise<DebtPoint[]>((resolve) => setTimeout(() => resolve([]), SCRAPE_TIMEOUT_MS)),
+    ]);
+    if (points.length >= MIN_POINTS_TO_USE_LIVE) {
       return NextResponse.json({
         source: "Bureau of the Treasury (Philippines)",
         sourceUrl: DEBT_LISTING_URL,
