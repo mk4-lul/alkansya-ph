@@ -1,20 +1,1310 @@
 [
   {
+    "label": "Dec 1986",
+    "isoDate": "1986-12-31",
+    "debt": 528347000000,
+    "sourceUrl": "local://Debt-Stock-Annual-1986-2025.pdf"
+  },
+  {
+    "label": "Dec 1987",
+    "isoDate": "1987-12-31",
+    "debt": 566447000000,
+    "sourceUrl": "local://Debt-Stock-Annual-1986-2025.pdf"
+  },
+  {
+    "label": "Dec 1988",
+    "isoDate": "1988-12-31",
+    "debt": 580682000000,
+    "sourceUrl": "local://Debt-Stock-Annual-1986-2025.pdf"
+  },
+  {
+    "label": "Dec 1989",
+    "isoDate": "1989-12-31",
+    "debt": 605106000000,
+    "sourceUrl": "local://Debt-Stock-Annual-1986-2025.pdf"
+  },
+  {
+    "label": "Dec 1990",
+    "isoDate": "1990-12-31",
+    "debt": 701129000000,
+    "sourceUrl": "local://Debt-Stock-Annual-1986-2025.pdf"
+  },
+  {
+    "label": "Dec 1991",
+    "isoDate": "1991-12-31",
+    "debt": 768469000000,
+    "sourceUrl": "local://Debt-Stock-Annual-1986-2025.pdf"
+  },
+  {
+    "label": "Dec 1992",
+    "isoDate": "1992-12-31",
+    "debt": 976387000000,
+    "sourceUrl": "local://Debt-Stock-Annual-1986-2025.pdf"
+  },
+  {
+    "label": "Dec 1993",
+    "isoDate": "1993-12-31",
+    "debt": 1268768000000,
+    "sourceUrl": "local://Debt-Stock-Annual-1986-2025.pdf"
+  },
+  {
+    "label": "Dec 1994",
+    "isoDate": "1994-12-31",
+    "debt": 1227472000000,
+    "sourceUrl": "local://Debt-Stock-Annual-1986-2025.pdf"
+  },
+  {
+    "label": "Dec 1995",
+    "isoDate": "1995-12-31",
+    "debt": 1325539000000,
+    "sourceUrl": "local://Debt-Stock-Annual-1986-2025.pdf"
+  },
+  {
+    "label": "Dec 1996",
+    "isoDate": "1996-12-31",
+    "debt": 1331848000000,
+    "sourceUrl": "local://Debt-Stock-Annual-1986-2025.pdf"
+  },
+  {
+    "label": "Dec 1997",
+    "isoDate": "1997-12-31",
+    "debt": 1624000000000,
+    "sourceUrl": "local://Debt-Stock-Annual-1986-2025.pdf"
+  },
+  {
+    "label": "Dec 1998",
+    "isoDate": "1998-12-31",
+    "debt": 1800413000000,
+    "sourceUrl": "local://Debt-Stock-Annual-1986-2025.pdf"
+  },
+  {
+    "label": "Dec 1999",
+    "isoDate": "1999-12-31",
+    "debt": 2142220000000,
+    "sourceUrl": "local://Debt-Stock-Annual-1986-2025.pdf"
+  },
+  {
+    "label": "Dec 2000",
+    "isoDate": "2000-12-31",
+    "debt": 2648808000000,
+    "sourceUrl": "local://Debt-Stock-Annual-1986-2025.pdf"
+  },
+  {
+    "label": "Dec 2001",
+    "isoDate": "2001-12-31",
+    "debt": 2880695000000,
+    "sourceUrl": "local://Debt-Stock-Annual-1986-2025.pdf"
+  },
+  {
+    "label": "Dec 2002",
+    "isoDate": "2002-12-31",
+    "debt": 3407206000000,
+    "sourceUrl": "local://Debt-Stock-Annual-1986-2025.pdf"
+  },
+  {
+    "label": "Dec 2003",
+    "isoDate": "2003-12-31",
+    "debt": 4063647000000,
+    "sourceUrl": "local://Debt-Stock-Annual-1986-2025.pdf"
+  },
+  {
+    "label": "Dec 2004",
+    "isoDate": "2004-12-31",
+    "debt": 4645662000000,
+    "sourceUrl": "local://Debt-Stock-Annual-1986-2025.pdf"
+  },
+  {
+    "label": "Dec 2005",
+    "isoDate": "2005-12-31",
+    "debt": 4474581000000,
+    "sourceUrl": "local://Debt-Stock-Annual-1986-2025.pdf"
+  },
+  {
+    "label": "Dec 2006",
+    "isoDate": "2006-12-31",
+    "debt": 4421433000000,
+    "sourceUrl": "local://Debt-Stock-Annual-1986-2025.pdf"
+  },
+  {
+    "label": "Dec 2007",
+    "isoDate": "2007-12-31",
+    "debt": 4196671000000,
+    "sourceUrl": "local://Debt-Stock-Annual-1986-2025.pdf"
+  },
+  {
+    "label": "Dec 2008",
+    "isoDate": "2008-12-31",
+    "debt": 4766480000000,
+    "sourceUrl": "local://Debt-Stock-Annual-1986-2025.pdf"
+  },
+  {
+    "label": "Dec 2009",
+    "isoDate": "2009-12-31",
+    "debt": 5010773000000,
+    "sourceUrl": "local://Debt-Stock-Annual-1986-2025.pdf"
+  },
+  {
+    "label": "Jan 2010",
+    "isoDate": "2010-01-31",
+    "debt": 619741000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Feb 2010",
+    "isoDate": "2010-02-28",
+    "debt": 617342000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Mar 2010",
+    "isoDate": "2010-03-31",
+    "debt": 585715000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Apr 2010",
+    "isoDate": "2010-04-30",
+    "debt": 603829000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "May 2010",
+    "isoDate": "2010-05-31",
+    "debt": 616435000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jun 2010",
+    "isoDate": "2010-06-30",
+    "debt": 609444000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jul 2010",
+    "isoDate": "2010-07-31",
+    "debt": 575951000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Aug 2010",
+    "isoDate": "2010-08-31",
+    "debt": 575546000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Sep 2010",
+    "isoDate": "2010-09-30",
+    "debt": 560663000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Oct 2010",
+    "isoDate": "2010-10-31",
+    "debt": 559209000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Nov 2010",
+    "isoDate": "2010-11-30",
+    "debt": 560023000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Dec 2010",
+    "isoDate": "2010-12-31",
+    "debt": 549808000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jan 2011",
+    "isoDate": "2011-01-31",
+    "debt": 549746000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Feb 2011",
+    "isoDate": "2011-02-28",
+    "debt": 545917000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Mar 2011",
+    "isoDate": "2011-03-31",
+    "debt": 525131000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Apr 2011",
+    "isoDate": "2011-04-30",
+    "debt": 518691000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "May 2011",
+    "isoDate": "2011-05-31",
+    "debt": 569298000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jun 2011",
+    "isoDate": "2011-06-30",
+    "debt": 594942000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jul 2011",
+    "isoDate": "2011-07-31",
+    "debt": 586614000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Aug 2011",
+    "isoDate": "2011-08-31",
+    "debt": 574750000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Sep 2011",
+    "isoDate": "2011-09-30",
+    "debt": 583387000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Oct 2011",
+    "isoDate": "2011-10-31",
+    "debt": 577830000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Nov 2011",
+    "isoDate": "2011-11-30",
+    "debt": 578698000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Dec 2011",
+    "isoDate": "2011-12-31",
+    "debt": 573372000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jan 2012",
+    "isoDate": "2012-01-31",
+    "debt": 569000000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Feb 2012",
+    "isoDate": "2012-02-29",
+    "debt": 554657000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Mar 2012",
+    "isoDate": "2012-03-31",
+    "debt": 549496000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Apr 2012",
+    "isoDate": "2012-04-30",
+    "debt": 548964000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "May 2012",
+    "isoDate": "2012-05-31",
+    "debt": 558831000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jun 2012",
+    "isoDate": "2012-06-30",
+    "debt": 544911000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jul 2012",
+    "isoDate": "2012-07-31",
+    "debt": 543370000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Aug 2012",
+    "isoDate": "2012-08-31",
+    "debt": 543646000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Sep 2012",
+    "isoDate": "2012-09-30",
+    "debt": 540470000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Oct 2012",
+    "isoDate": "2012-10-31",
+    "debt": 528544000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Nov 2012",
+    "isoDate": "2012-11-30",
+    "debt": 508836000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Dec 2012",
+    "isoDate": "2012-12-31",
+    "debt": 632146000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jan 2013",
+    "isoDate": "2013-01-31",
+    "debt": 487281000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Feb 2013",
+    "isoDate": "2013-02-28",
+    "debt": 484240000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Mar 2013",
+    "isoDate": "2013-03-31",
+    "debt": 479929000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Apr 2013",
+    "isoDate": "2013-04-30",
+    "debt": 475052000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "May 2013",
+    "isoDate": "2013-05-31",
+    "debt": 479360000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jun 2013",
+    "isoDate": "2013-06-30",
+    "debt": 490698000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jul 2013",
+    "isoDate": "2013-07-31",
+    "debt": 492057000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Aug 2013",
+    "isoDate": "2013-08-31",
+    "debt": 499890000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Sep 2013",
+    "isoDate": "2013-09-30",
+    "debt": 486770000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Oct 2013",
+    "isoDate": "2013-10-31",
+    "debt": 484036000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Nov 2013",
+    "isoDate": "2013-11-30",
+    "debt": 471093000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Dec 2013",
+    "isoDate": "2013-12-31",
+    "debt": 597826000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jan 2014",
+    "isoDate": "2014-01-31",
+    "debt": 5593748000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Feb 2014",
+    "isoDate": "2014-02-28",
+    "debt": 5591534000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Mar 2014",
+    "isoDate": "2014-03-31",
+    "debt": 5628425000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Apr 2014",
+    "isoDate": "2014-04-30",
+    "debt": 5640224000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "May 2014",
+    "isoDate": "2014-05-31",
+    "debt": 5632603000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jun 2014",
+    "isoDate": "2014-06-30",
+    "debt": 5650882000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jul 2014",
+    "isoDate": "2014-07-31",
+    "debt": 5683003000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Aug 2014",
+    "isoDate": "2014-08-31",
+    "debt": 5713545000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Sep 2014",
+    "isoDate": "2014-09-30",
+    "debt": 5723006000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Oct 2014",
+    "isoDate": "2014-10-31",
+    "debt": 5713604000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Nov 2014",
+    "isoDate": "2014-11-30",
+    "debt": 5716299000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Dec 2014",
+    "isoDate": "2014-12-31",
+    "debt": 5735242000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jan 2015",
+    "isoDate": "2015-01-31",
+    "debt": 527188000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Feb 2015",
+    "isoDate": "2015-02-28",
+    "debt": 523501000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Mar 2015",
+    "isoDate": "2015-03-31",
+    "debt": 525417000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Apr 2015",
+    "isoDate": "2015-04-30",
+    "debt": 511254000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "May 2015",
+    "isoDate": "2015-05-31",
+    "debt": 508614000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jun 2015",
+    "isoDate": "2015-06-30",
+    "debt": 511073000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jul 2015",
+    "isoDate": "2015-07-31",
+    "debt": 511458000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Aug 2015",
+    "isoDate": "2015-08-31",
+    "debt": 553007000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Sep 2015",
+    "isoDate": "2015-09-30",
+    "debt": 552918000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Oct 2015",
+    "isoDate": "2015-10-31",
+    "debt": 546632000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Nov 2015",
+    "isoDate": "2015-11-30",
+    "debt": 547629000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Dec 2015",
+    "isoDate": "2015-12-31",
+    "debt": 545092000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jan 2016",
+    "isoDate": "2016-01-31",
+    "debt": 537281000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Feb 2016",
+    "isoDate": "2016-02-29",
+    "debt": 561391000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Mar 2016",
+    "isoDate": "2016-03-31",
+    "debt": 549543000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Apr 2016",
+    "isoDate": "2016-04-30",
+    "debt": 564487000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "May 2016",
+    "isoDate": "2016-05-31",
+    "debt": 554555000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jun 2016",
+    "isoDate": "2016-06-30",
+    "debt": 563258000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jul 2016",
+    "isoDate": "2016-07-31",
+    "debt": 562405000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Aug 2016",
+    "isoDate": "2016-08-31",
+    "debt": 554024000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Sep 2016",
+    "isoDate": "2016-09-30",
+    "debt": 564953000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Oct 2016",
+    "isoDate": "2016-10-31",
+    "debt": 560652000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Nov 2016",
+    "isoDate": "2016-11-30",
+    "debt": 532093000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Dec 2016",
+    "isoDate": "2016-12-31",
+    "debt": 513673000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jan 2017",
+    "isoDate": "2017-01-31",
+    "debt": 519111000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Feb 2017",
+    "isoDate": "2017-02-28",
+    "debt": 521826000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Mar 2017",
+    "isoDate": "2017-03-31",
+    "debt": 516798000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Apr 2017",
+    "isoDate": "2017-04-30",
+    "debt": 495080000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "May 2017",
+    "isoDate": "2017-05-31",
+    "debt": 493624000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jun 2017",
+    "isoDate": "2017-06-30",
+    "debt": 493179000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jul 2017",
+    "isoDate": "2017-07-31",
+    "debt": 495137000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Aug 2017",
+    "isoDate": "2017-08-31",
+    "debt": 497538000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Sep 2017",
+    "isoDate": "2017-09-30",
+    "debt": 489064000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Oct 2017",
+    "isoDate": "2017-10-31",
+    "debt": 489088000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Nov 2017",
+    "isoDate": "2017-11-30",
+    "debt": 478788000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Dec 2017",
+    "isoDate": "2017-12-31",
+    "debt": 478113000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jan 2018",
+    "isoDate": "2018-01-31",
+    "debt": 489454000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Feb 2018",
+    "isoDate": "2018-02-28",
+    "debt": 503682000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Mar 2018",
+    "isoDate": "2018-03-31",
+    "debt": 501820000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Apr 2018",
+    "isoDate": "2018-04-30",
+    "debt": 494445000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "May 2018",
+    "isoDate": "2018-05-31",
+    "debt": 492296000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jun 2018",
+    "isoDate": "2018-06-30",
+    "debt": 488160000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jul 2018",
+    "isoDate": "2018-07-31",
+    "debt": 483899000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Aug 2018",
+    "isoDate": "2018-08-31",
+    "debt": 484968000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Sep 2018",
+    "isoDate": "2018-09-30",
+    "debt": 481303000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Oct 2018",
+    "isoDate": "2018-10-31",
+    "debt": 484711000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Nov 2018",
+    "isoDate": "2018-11-30",
+    "debt": 471799000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Dec 2018",
+    "isoDate": "2018-12-31",
+    "debt": 487586000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jan 2019",
+    "isoDate": "2019-01-31",
+    "debt": 487285000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Feb 2019",
+    "isoDate": "2019-02-28",
+    "debt": 473371000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Mar 2019",
+    "isoDate": "2019-03-31",
+    "debt": 479667000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Apr 2019",
+    "isoDate": "2019-04-30",
+    "debt": 482982000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "May 2019",
+    "isoDate": "2019-05-31",
+    "debt": 486158000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jun 2019",
+    "isoDate": "2019-06-30",
+    "debt": 486597000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jul 2019",
+    "isoDate": "2019-07-31",
+    "debt": 483813000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Aug 2019",
+    "isoDate": "2019-08-31",
+    "debt": 490278000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Sep 2019",
+    "isoDate": "2019-09-30",
+    "debt": 484429000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Oct 2019",
+    "isoDate": "2019-10-31",
+    "debt": 477652000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Nov 2019",
+    "isoDate": "2019-11-30",
+    "debt": 474997000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Dec 2019",
+    "isoDate": "2019-12-31",
+    "debt": 488746000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jan 2020",
+    "isoDate": "2020-01-31",
+    "debt": 488294000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Feb 2020",
+    "isoDate": "2020-02-29",
+    "debt": 484355000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Mar 2020",
+    "isoDate": "2020-03-31",
+    "debt": 481821000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Apr 2020",
+    "isoDate": "2020-04-30",
+    "debt": 477682000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "May 2020",
+    "isoDate": "2020-05-31",
+    "debt": 465877000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jun 2020",
+    "isoDate": "2020-06-30",
+    "debt": 460008000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jul 2020",
+    "isoDate": "2020-07-31",
+    "debt": 458831000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Aug 2020",
+    "isoDate": "2020-08-31",
+    "debt": 446997000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Sep 2020",
+    "isoDate": "2020-09-30",
+    "debt": 445398000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Oct 2020",
+    "isoDate": "2020-10-31",
+    "debt": 447848000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Nov 2020",
+    "isoDate": "2020-11-30",
+    "debt": 442825000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Dec 2020",
+    "isoDate": "2020-12-31",
+    "debt": 458348000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jan 2021",
+    "isoDate": "2021-01-31",
+    "debt": 456387000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Feb 2021",
+    "isoDate": "2021-02-28",
+    "debt": 446722000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Mar 2021",
+    "isoDate": "2021-03-31",
+    "debt": 435811000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Apr 2021",
+    "isoDate": "2021-04-30",
+    "debt": 434740000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "May 2021",
+    "isoDate": "2021-05-31",
+    "debt": 426591000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jun 2021",
+    "isoDate": "2021-06-30",
+    "debt": 438600000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jul 2021",
+    "isoDate": "2021-07-31",
+    "debt": 444307000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Aug 2021",
+    "isoDate": "2021-08-31",
+    "debt": 432218000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Sep 2021",
+    "isoDate": "2021-09-30",
+    "debt": 432863000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Oct 2021",
+    "isoDate": "2021-10-31",
+    "debt": 426464000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Nov 2021",
+    "isoDate": "2021-11-30",
+    "debt": 417847000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Dec 2021",
+    "isoDate": "2021-12-31",
+    "debt": 423917000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jan 2022",
+    "isoDate": "2022-01-31",
+    "debt": 422516000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Feb 2022",
+    "isoDate": "2022-02-28",
+    "debt": 416204000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Mar 2022",
+    "isoDate": "2022-03-31",
+    "debt": 411044000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Apr 2022",
+    "isoDate": "2022-04-30",
+    "debt": 413428000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "May 2022",
+    "isoDate": "2022-05-31",
+    "debt": 399716000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jun 2022",
+    "isoDate": "2022-06-30",
+    "debt": 413927000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jul 2022",
+    "isoDate": "2022-07-31",
+    "debt": 407999000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Aug 2022",
+    "isoDate": "2022-08-31",
+    "debt": 392759000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Sep 2022",
+    "isoDate": "2022-09-30",
+    "debt": 397220000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Oct 2022",
+    "isoDate": "2022-10-31",
+    "debt": 386534000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Nov 2022",
+    "isoDate": "2022-11-30",
+    "debt": 388000000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Dec 2022",
+    "isoDate": "2022-12-31",
+    "debt": 399046000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jan 2023",
+    "isoDate": "2023-01-31",
+    "debt": 393835000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Feb 2023",
+    "isoDate": "2023-02-28",
+    "debt": 387190000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Mar 2023",
+    "isoDate": "2023-03-31",
+    "debt": 384118000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Apr 2023",
+    "isoDate": "2023-04-30",
+    "debt": 380694000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "May 2023",
+    "isoDate": "2023-05-31",
+    "debt": 379712000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jun 2023",
+    "isoDate": "2023-06-30",
+    "debt": 369727000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jul 2023",
+    "isoDate": "2023-07-31",
+    "debt": 363392000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Aug 2023",
+    "isoDate": "2023-08-31",
+    "debt": 366570000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Sep 2023",
+    "isoDate": "2023-09-30",
+    "debt": 362218000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Oct 2023",
+    "isoDate": "2023-10-31",
+    "debt": 360999000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Nov 2023",
+    "isoDate": "2023-11-30",
+    "debt": 353138000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Dec 2023",
+    "isoDate": "2023-12-31",
+    "debt": 349440000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jan 2024",
+    "isoDate": "2024-01-31",
+    "debt": 348660000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Feb 2024",
+    "isoDate": "2024-02-29",
+    "debt": 344929000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Mar 2024",
+    "isoDate": "2024-03-31",
+    "debt": 346041000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Apr 2024",
+    "isoDate": "2024-04-30",
+    "debt": 356057000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "May 2024",
+    "isoDate": "2024-05-31",
+    "debt": 350203000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jun 2024",
+    "isoDate": "2024-06-30",
+    "debt": 343647000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jul 2024",
+    "isoDate": "2024-07-31",
+    "debt": 344791000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Aug 2024",
+    "isoDate": "2024-08-31",
+    "debt": 364026000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Sep 2024",
+    "isoDate": "2024-09-30",
+    "debt": 372862000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Oct 2024",
+    "isoDate": "2024-10-31",
+    "debt": 411759000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Nov 2024",
+    "isoDate": "2024-11-30",
+    "debt": 422034000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Dec 2024",
+    "isoDate": "2024-12-31",
+    "debt": 346659000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jan 2025",
+    "isoDate": "2025-01-31",
+    "debt": 16312772000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Feb 2025",
+    "isoDate": "2025-02-28",
+    "debt": 16632029000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Mar 2025",
+    "isoDate": "2025-03-31",
+    "debt": 16683985000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Apr 2025",
+    "isoDate": "2025-04-30",
+    "debt": 16752675000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "May 2025",
+    "isoDate": "2025-05-31",
+    "debt": 16918881000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jun 2025",
+    "isoDate": "2025-06-30",
+    "debt": 17267328000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Jul 2025",
+    "isoDate": "2025-07-31",
+    "debt": 17563521000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Aug 2025",
+    "isoDate": "2025-08-31",
+    "debt": 17468448000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Sep 2025",
+    "isoDate": "2025-09-30",
+    "debt": 17455359000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Oct 2025",
+    "isoDate": "2025-10-31",
+    "debt": 17562138000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
+    "label": "Nov 2025",
+    "isoDate": "2025-11-30",
+    "debt": 17647979000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
+  },
+  {
     "label": "Dec 2025",
     "isoDate": "2025-12-31",
-    "debt": 17710000000000,
-    "sourceUrl": "https://www.treasury.gov.ph/wp-content/uploads/2026/02/NG-Debt-Press-Release-December-2025-2.pdf"
+    "debt": 17707814000000,
+    "sourceUrl": "local://OSDEBT_1993-2025.pdf"
   },
   {
     "label": "Jan 2026",
     "isoDate": "2026-01-31",
-    "debt": 18130000000000,
-    "sourceUrl": "https://www.treasury.gov.ph/?p=74627"
+    "debt": 18133963000000,
+    "sourceUrl": "local://NG-Debt-web_Feb2026.pdf"
   },
   {
     "label": "Feb 2026",
     "isoDate": "2026-02-28",
-    "debt": 18160000000000,
-    "sourceUrl": "https://www.treasury.gov.ph/?p=75001"
+    "debt": 18159698000000,
+    "sourceUrl": "local://NG-Debt-web_Feb2026.pdf"
   }
 ]
