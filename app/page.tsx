@@ -63,7 +63,7 @@ const TOOLS = [
     href: "/debt",
     emoji: "🏦",
     title: "Philippine National Debt",
-    description: "Normie-friendly chart of the country's debt trend",
+    description: "An easy-to-understand chart showing the country's debt trend.",
     tag: "BTr data",
   },
   {

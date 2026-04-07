@@ -237,7 +237,7 @@ export default function DebtPage() {
 
       <main className="max-w-[720px] mx-auto px-4 sm:px-6 pb-8">
         <h1 className="text-[22px] sm:text-[26px] font-extrabold text-[#1a1a1a] tracking-tight mb-1">Philippine National Debt</h1>
-        <p className="text-[13px] text-[#888] mb-6">Simple, no-BS view of the national debt based on Bureau of the Treasury releases.</p>
+        <p className="text-[13px] text-[#888] mb-6">A straightforward view of the national debt based on Bureau of the Treasury releases.</p>
 
         <section className="bg-[#111] text-white rounded-[20px] p-5 mb-4 shadow-sm">
           <p className="text-[11px] uppercase tracking-[1px] text-white/70 font-semibold mb-1">Latest reported total</p>
