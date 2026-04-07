@@ -80,6 +80,21 @@ python scraper.py                    # Full run
    - `SUPABASE_SERVICE_KEY`
 5. Railway will auto-detect the cron schedule from `railway.toml`
 
+### 4. Keep debt PDFs locally (optional but recommended)
+
+If the Bureau of the Treasury blocks automated downloads or changes their listing page format, keep debt PDFs in-repo so `/api/debt` can still parse long-term history.
+
+```bash
+mkdir -p data/debt-pdfs
+```
+
+Put these files in `data/debt-pdfs/` (filename matters for date detection):
+- `NG-Debt-web_Feb2026.pdf` (monthly updates)
+- `OSDEBT_1993-2025.pdf` (December year-end historical series)
+- `Debt-Stock-Annual-1986-2025.pdf` (legacy annual series)
+
+`app/api/debt/route.ts` reads local PDFs from `data/debt-pdfs/*.pdf` and merges them with live data when available.
+
 ---
 
 ## Project Structure
