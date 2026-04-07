@@ -288,10 +288,12 @@ function parseAnnualLegacySeries(text: string, sourceUrl: string): DebtPoint[] {
 }
 
 async function scrapeViaDebtListingPage(): Promise<DebtPoint[]> {
-  const [localJsonPoints, localPdfData] = await Promise.all([
-    readLocalDebtJsonSeries(),
-    readLocalDebtPdfFiles(),
-  ]);
+  const localJsonPoints = await readLocalDebtJsonSeries();
+  if (localJsonPoints.length >= MIN_POINTS_TO_USE_LIVE) {
+    return localJsonPoints;
+  }
+
+  const localPdfData = await readLocalDebtPdfFiles();
 
   const parseRows = (pdfData: Array<{ sourceUrl: string; raw: string }>) => {
     const rows = pdfData.map(({ sourceUrl, raw }) => {
