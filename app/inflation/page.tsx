@@ -205,7 +205,7 @@ export default function InflationPage() {
             style={{ backgroundImage: "url('/miscphotos/marketcrash.jpg')" }}
           >
             <div className="absolute inset-0 bg-[#7f1d1d]/75" aria-hidden="true" />
-            <div className="relative z-10 h-full flex flex-col items-center justify-center">
+            <div className="relative z-10 flex min-h-[170px] flex-col items-center justify-center">
               <p className="text-[11px] uppercase tracking-[1px] text-white/70 font-semibold mb-1">
                 ₱{parsedAmount.toLocaleString("en-PH")} from {displayFrom} can only buy
               </p>
@@ -215,13 +215,13 @@ export default function InflationPage() {
               <p className="text-[12px] text-white/70 mt-2">
                 worth of goods in {displayTo}
               </p>
-              <div className="mt-4 flex justify-center">
-                <div className="inline-flex items-center gap-2 bg-white/10 rounded-full px-3 py-1.5">
-                  <span className="text-[12px] font-bold text-[#fecaca]">
-                    ▼ {(100 - (displayPower / parsedAmount) * 100).toFixed(1)}%
-                  </span>
-                  <span className="text-[11px] text-white/70">purchasing power lost</span>
-                </div>
+            </div>
+            <div className="relative z-10 mt-4 flex justify-center">
+              <div className="inline-flex items-center gap-2 bg-white/10 rounded-full px-3 py-1.5">
+                <span className="text-[12px] font-bold text-[#fecaca]">
+                  ▼ {(100 - (displayPower / parsedAmount) * 100).toFixed(1)}%
+                </span>
+                <span className="text-[11px] text-white/70">purchasing power lost</span>
               </div>
             </div>
           </div>
