@@ -255,18 +255,23 @@ export default function DebtPage() {
         <h1 className="text-[22px] sm:text-[26px] font-extrabold text-[#1a1a1a] tracking-tight mb-1">Philippine National Debt</h1>
         <p className="text-[13px] text-[#888] mb-6">A straightforward view of the national debt based on Bureau of the Treasury releases.</p>
 
-        <section className="bg-[#111] text-white rounded-[20px] p-5 mb-4 shadow-sm">
-          <p className="text-[11px] uppercase tracking-[1px] text-white/70 font-semibold mb-1">Latest reported total</p>
-          <p className="text-[40px] sm:text-[52px] font-black tracking-tight leading-none">{latest ? <ScrollingDebtValue value={latest.debt} /> : "—"}</p>
-          <p className="text-[12px] text-white/70 mt-2">
-            {latest ? `As of ${latest.label}` : loading ? "Loading..." : "No data yet"}
-          </p>
+        <section className="relative overflow-hidden rounded-[20px] p-5 mb-4 shadow-sm text-white text-center bg-[url('/miscphotos/povertyphoto.jpg')] bg-cover bg-center">
+          <div className="absolute inset-0 bg-black/70" aria-hidden="true" />
+          <div className="relative z-10 flex flex-col items-center">
+            <p className="text-[11px] uppercase tracking-[1px] text-white/70 font-semibold mb-1">Latest reported total</p>
+            <p className="text-[40px] sm:text-[52px] font-black tracking-tight leading-none">{latest ? <ScrollingDebtValue value={latest.debt} /> : "—"}</p>
+            <p className="text-[12px] text-white/70 mt-2">
+              {latest ? `As of ${latest.label}` : loading ? "Loading..." : "No data yet"}
+            </p>
+          </div>
           {trend && (
-            <div className="mt-4 inline-flex items-center gap-2 bg-white/10 rounded-full px-3 py-1.5">
-              <span className={`text-[12px] font-bold ${trend.change >= 0 ? "text-[#ff8a80]" : "text-[#86efac]"}`}>
-                {trend.change >= 0 ? "▲" : "▼"} {formatPeso(Math.abs(trend.change))}
-              </span>
-              <span className="text-[11px] text-white/70">({Math.abs(trend.pct).toFixed(2)}% vs prior report)</span>
+            <div className="relative z-10 mt-4 flex justify-center">
+              <div className="inline-flex items-center gap-2 bg-white/10 rounded-full px-3 py-1.5">
+                <span className={`text-[12px] font-bold ${trend.change >= 0 ? "text-[#ff8a80]" : "text-[#86efac]"}`}>
+                  {trend.change >= 0 ? "▲" : "▼"} {formatPeso(Math.abs(trend.change))}
+                </span>
+                <span className="text-[11px] text-white/70">({Math.abs(trend.pct).toFixed(2)}% vs prior report)</span>
+              </div>
             </div>
           )}
         </section>
