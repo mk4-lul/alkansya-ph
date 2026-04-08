@@ -54,12 +54,22 @@ function ScrollingDebtValue({ value }: { value: number }) {
   return <>{formatPeso(display)}</>;
 }
 
-function DebtChart({ points, debtGdpPoints }: { points: DebtPoint[]; debtGdpPoints: DebtGdpPoint[] }) {
+function DebtChart({
+  points,
+  debtGdpPoints,
+  showDebtStock,
+  showDebtGdp,
+}: {
+  points: DebtPoint[];
+  debtGdpPoints: DebtGdpPoint[];
+  showDebtStock: boolean;
+  showDebtGdp: boolean;
+}) {
   if (points.length < 2) return null;
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
 
   const w = 620;
-  const h = 230;
+  const h = 288;
   const padL = 46;
   const padR = 42;
   const padT = 16;
@@ -125,7 +135,7 @@ function DebtChart({ points, debtGdpPoints }: { points: DebtPoint[]; debtGdpPoin
             <text x={padL - 6} y={y + 4} textAnchor="end" fontSize="9" fill="#aaa">
               {(val / 1e12).toFixed(1)}T
             </text>
-            {debtGdpValues.length > 0 && (
+            {showDebtGdp && debtGdpValues.length > 0 && (
               <text x={padL + cW + 6} y={y + 4} textAnchor="start" fontSize="9" fill="#aaa">
                 {(gdpMin + gdpRange * (1 - f)).toFixed(1)}%
               </text>
@@ -140,9 +150,9 @@ function DebtChart({ points, debtGdpPoints }: { points: DebtPoint[]; debtGdpPoin
         </text>
       ))}
 
-      <path d={area} fill="url(#debtFill)" />
-      <path d={path} fill="none" stroke="#00c853" strokeWidth="2.4" strokeLinejoin="round" strokeLinecap="round" />
-      {gdpCoords.length > 1 && (
+      {showDebtStock && <path d={area} fill="url(#debtFill)" />}
+      {showDebtStock && <path d={path} fill="none" stroke="#00c853" strokeWidth="2.4" strokeLinejoin="round" strokeLinecap="round" />}
+      {showDebtGdp && gdpCoords.length > 1 && (
         <path
           d={gdpPath}
           fill="none"
@@ -177,8 +187,8 @@ function DebtChart({ points, debtGdpPoints }: { points: DebtPoint[]; debtGdpPoin
       {hoverPoint && (
         <>
           <line x1={hoverPoint.x} y1={padT} x2={hoverPoint.x} y2={padT + cH} stroke="#00a844" strokeWidth="1" strokeDasharray="4 3" opacity="0.5" />
-          <circle cx={hoverPoint.x} cy={hoverPoint.y} r="4.5" fill="#00c853" stroke="white" strokeWidth="2" />
-          {hoverDebtGdp && (
+          {showDebtStock && <circle cx={hoverPoint.x} cy={hoverPoint.y} r="4.5" fill="#00c853" stroke="white" strokeWidth="2" />}
+          {showDebtGdp && hoverDebtGdp && (
             <circle
               cx={hoverPoint.x}
               cy={padT + ((gdpMax - hoverDebtGdp.debtGdpPct) / gdpRange) * cH}
@@ -189,10 +199,14 @@ function DebtChart({ points, debtGdpPoints }: { points: DebtPoint[]; debtGdpPoin
             />
           )}
           <g transform={`translate(${Math.min(w - 140, Math.max(8, hoverPoint.x - 62))}, ${Math.max(8, hoverPoint.y - 58)})`}>
-            <rect width="130" height={hoverDebtGdp ? "52" : "36"} rx="8" fill="#111" opacity="0.93" />
+            <rect width="130" height={showDebtGdp && hoverDebtGdp ? "52" : "36"} rx="8" fill="#111" opacity="0.93" />
             <text x="8" y="14" fontSize="9" fill="#ddd">{hoverPoint.label}</text>
-            <text x="8" y="28" fontSize="10" fill="#fff" fontWeight="700">{formatPeso(hoverPoint.debt)}</text>
-            {hoverDebtGdp && <text x="8" y="42" fontSize="10" fill="#90caf9" fontWeight="700">Debt/GDP: {hoverDebtGdp.debtGdpPct.toFixed(1)}%</text>}
+            {showDebtStock && <text x="8" y="28" fontSize="10" fill="#fff" fontWeight="700">{formatPeso(hoverPoint.debt)}</text>}
+            {showDebtGdp && hoverDebtGdp && (
+              <text x="8" y={showDebtStock ? "42" : "28"} fontSize="10" fill="#90caf9" fontWeight="700">
+                Debt/GDP: {hoverDebtGdp.debtGdpPct.toFixed(1)}%
+              </text>
+            )}
           </g>
         </>
       )}
@@ -204,6 +218,8 @@ export default function DebtPage() {
   const [points, setPoints] = useState<DebtPoint[]>([]);
   const [debtGdpPoints, setDebtGdpPoints] = useState<DebtGdpPoint[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showDebtStock, setShowDebtStock] = useState(true);
+  const [showDebtGdp, setShowDebtGdp] = useState(true);
 
   useEffect(() => {
     fetch("/api/debt")
@@ -270,11 +286,36 @@ export default function DebtPage() {
 
         <section className="bg-white rounded-[20px] p-4 shadow-sm mb-3">
           <p className="text-[11px] uppercase tracking-[1px] text-[#888] font-semibold mb-1">Trend over time</p>
-          <div className="flex items-center gap-4 text-[11px] mb-2 text-[#666]">
-            <span className="inline-flex items-center gap-1.5"><span className="h-[2px] w-7 bg-[#00c853] inline-block" />Debt stock</span>
-            <span className="inline-flex items-center gap-1.5"><span className="h-[2px] w-7 border-t-2 border-dashed border-[#1e88e5] inline-block" />Debt-to-GDP</span>
+          <div className="flex flex-wrap items-center gap-2 text-[11px] mb-3 text-[#666]">
+            <button
+              type="button"
+              onClick={() => setShowDebtStock((prev) => !prev)}
+              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 transition ${showDebtStock ? "border-[#00c853] bg-[#00c853]/10 text-[#0a7d36]" : "border-[#ddd] bg-white text-[#888]"}`}
+            >
+              <span className={`h-[2px] w-7 inline-block ${showDebtStock ? "bg-[#00c853]" : "bg-[#bbb]"}`} />
+              Debt stock
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowDebtGdp((prev) => !prev)}
+              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 transition ${showDebtGdp ? "border-[#1e88e5] bg-[#1e88e5]/10 text-[#1565c0]" : "border-[#ddd] bg-white text-[#888]"}`}
+            >
+              <span className={`h-[2px] w-7 border-t-2 border-dashed inline-block ${showDebtGdp ? "border-[#1e88e5]" : "border-[#bbb]"}`} />
+              Debt-to-GDP
+            </button>
           </div>
-          {points.length > 1 ? <DebtChart points={points} debtGdpPoints={debtGdpPoints} /> : <p className="text-[13px] text-[#888] py-8 text-center">{loading ? "Loading chart..." : "Not enough data yet."}</p>}
+          {!showDebtStock && !showDebtGdp ? (
+            <p className="text-[13px] text-[#888] py-8 text-center">Turn on at least one series to view the chart.</p>
+          ) : points.length > 1 ? (
+            <DebtChart
+              points={points}
+              debtGdpPoints={debtGdpPoints}
+              showDebtStock={showDebtStock}
+              showDebtGdp={showDebtGdp}
+            />
+          ) : (
+            <p className="text-[13px] text-[#888] py-8 text-center">{loading ? "Loading chart..." : "Not enough data yet."}</p>
+          )}
           <p className="text-[11px] text-[#888] mt-2">Hover or drag across the chart to inspect each data point.</p>
         </section>
 
