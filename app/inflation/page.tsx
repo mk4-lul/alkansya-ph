@@ -200,22 +200,25 @@ export default function InflationPage() {
 
         {/* Result card */}
         {!loading && parsedAmount > 0 && fromCpi > 0 && toCpi > 0 && (
-          <div className="bg-white rounded-[20px] p-5 mb-4 shadow-sm">
-            <p className="text-[11px] font-semibold uppercase tracking-[1px] text-[#888] mb-1">
-              ₱{parsedAmount.toLocaleString("en-PH")} from {displayFrom} can only buy
-            </p>
-            <p className="text-4xl sm:text-5xl font-black text-[#1a1a1a] tracking-tight mt-1">
-              ₱{displayPower < 1 ? displayPower.toFixed(2) : Math.round(displayPower).toLocaleString("en-PH")}
-            </p>
-            <p className="text-[13px] text-[#888] mt-1 mb-4">
-              worth of goods in {displayTo}
-            </p>
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1 text-[14px] font-bold text-[#dc2626] bg-[#dc2626]/10 px-3 py-1.5 rounded-full">
-                <span className="text-[12px]">▼</span>
-                {(100 - (displayPower / parsedAmount) * 100).toFixed(1)}%
-              </span>
-              <span className="text-[12px] text-[#888]">purchasing power lost</span>
+          <div className="relative overflow-hidden rounded-[20px] p-5 mb-4 shadow-sm text-white text-center bg-[url('/miscphotos/marketcrash.jpg')] bg-cover bg-center">
+            <div className="absolute inset-0 bg-[#7f1d1d]/75" aria-hidden="true" />
+            <div className="relative z-10 flex flex-col items-center">
+              <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/80 mb-1">
+                ₱{parsedAmount.toLocaleString("en-PH")} from {displayFrom} can only buy
+              </p>
+              <p className="text-4xl sm:text-5xl font-black tracking-tight mt-1">
+                ₱{displayPower < 1 ? displayPower.toFixed(2) : Math.round(displayPower).toLocaleString("en-PH")}
+              </p>
+              <p className="text-[13px] text-white/80 mt-1 mb-4">
+                worth of goods in {displayTo}
+              </p>
+              <div className="flex items-center justify-center gap-2">
+                <span className="inline-flex items-center gap-1 text-[14px] font-bold text-[#fecaca] bg-white/15 px-3 py-1.5 rounded-full">
+                  <span className="text-[12px]">▼</span>
+                  {(100 - (displayPower / parsedAmount) * 100).toFixed(1)}%
+                </span>
+                <span className="text-[12px] text-white/80">purchasing power lost</span>
+              </div>
             </div>
           </div>
         )}
