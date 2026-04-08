@@ -206,21 +206,22 @@ export default function InflationPage() {
           >
             <div className="absolute inset-0 bg-[#7f1d1d]/75" aria-hidden="true" />
             <div className="relative z-10 h-full flex flex-col items-center justify-center">
-              <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/80 mb-1">
+              <p className="text-[11px] uppercase tracking-[1px] text-white/70 font-semibold mb-1">
                 ₱{parsedAmount.toLocaleString("en-PH")} from {displayFrom} can only buy
               </p>
-              <p className="text-4xl sm:text-5xl font-black tracking-tight mt-1">
+              <p className="text-[40px] sm:text-[52px] font-black tracking-tight leading-none">
                 ₱{displayPower < 1 ? displayPower.toFixed(2) : Math.round(displayPower).toLocaleString("en-PH")}
               </p>
-              <p className="text-[13px] text-white/80 mt-1 mb-4">
+              <p className="text-[12px] text-white/70 mt-2">
                 worth of goods in {displayTo}
               </p>
-              <div className="flex items-center justify-center gap-2">
-                <span className="inline-flex items-center gap-1 text-[14px] font-bold text-[#fecaca] bg-white/15 px-3 py-1.5 rounded-full">
-                  <span className="text-[12px]">▼</span>
-                  {(100 - (displayPower / parsedAmount) * 100).toFixed(1)}%
-                </span>
-                <span className="text-[12px] text-white/80">purchasing power lost</span>
+              <div className="mt-4 flex justify-center">
+                <div className="inline-flex items-center gap-2 bg-white/10 rounded-full px-3 py-1.5">
+                  <span className="text-[12px] font-bold text-[#fecaca]">
+                    ▼ {(100 - (displayPower / parsedAmount) * 100).toFixed(1)}%
+                  </span>
+                  <span className="text-[11px] text-white/70">purchasing power lost</span>
+                </div>
               </div>
             </div>
           </div>
