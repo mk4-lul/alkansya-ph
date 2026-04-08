@@ -200,9 +200,12 @@ export default function InflationPage() {
 
         {/* Result card */}
         {!loading && parsedAmount > 0 && fromCpi > 0 && toCpi > 0 && (
-          <div className="relative overflow-hidden rounded-[20px] p-5 mb-4 shadow-sm text-white text-center bg-[url('/miscphotos/marketcrash.jpg')] bg-cover bg-center">
+          <div
+            className="relative overflow-hidden rounded-[20px] p-5 mb-4 shadow-sm text-white text-center bg-cover bg-center min-h-[220px]"
+            style={{ backgroundImage: "url('/miscphotos/marketcrash.jpg')" }}
+          >
             <div className="absolute inset-0 bg-[#7f1d1d]/75" aria-hidden="true" />
-            <div className="relative z-10 flex flex-col items-center">
+            <div className="relative z-10 h-full flex flex-col items-center justify-center">
               <p className="text-[11px] font-semibold uppercase tracking-[1px] text-white/80 mb-1">
                 ₱{parsedAmount.toLocaleString("en-PH")} from {displayFrom} can only buy
               </p>
