@@ -22,6 +22,8 @@ from typing import Optional
 import requests
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 load_dotenv()
 
@@ -55,12 +57,34 @@ HEADERS = {
     "Accept-Language": "en-US,en;q=0.9",
 }
 
+# Reuse one HTTP session for all requests in a run.
+SESSION = requests.Session()
+retry = Retry(
+    total=3,
+    backoff_factor=0.5,
+    status_forcelist=[429, 500, 502, 503, 504],
+    allowed_methods=["GET", "POST", "PATCH"],
+)
+adapter = HTTPAdapter(max_retries=retry, pool_connections=10, pool_maxsize=10)
+SESSION.mount("http://", adapter)
+SESSION.mount("https://", adapter)
+SESSION.headers.update(HEADERS)
+
+_PAGE_CACHE: dict[tuple[str, bool], BeautifulSoup] = {}
+
+
 def fetch_page(url: str, timeout: int = 30, verify_ssl: bool = True) -> Optional[BeautifulSoup]:
     """Fetch a page and return parsed BeautifulSoup, or None on failure."""
+    cache_key = (url, verify_ssl)
+    if cache_key in _PAGE_CACHE:
+        return _PAGE_CACHE[cache_key]
+
     try:
-        resp = requests.get(url, headers=HEADERS, timeout=timeout, verify=verify_ssl)
+        resp = SESSION.get(url, timeout=timeout, verify=verify_ssl)
         resp.raise_for_status()
-        return BeautifulSoup(resp.text, "lxml")
+        soup = BeautifulSoup(resp.text, "lxml")
+        _PAGE_CACHE[cache_key] = soup
+        return soup
     except Exception as e:
         log.error(f"Failed to fetch {url}: {e}")
         return None
@@ -79,8 +103,8 @@ def find_rate_near_keyword(soup: BeautifulSoup, keywords: list[str], min_rate: f
     body = soup.get_text(" ", strip=True)
     for keyword in keywords:
         # Look for keyword followed by a rate within ~200 chars
-        pattern = rf"{keyword}[^%]{{0,200}}?(\d+\.?\d*)\s*%"
-        matches = re.findall(pattern, body, re.IGNORECASE)
+        pattern = re.compile(rf"{keyword}[^%]{{0,200}}?(\d+\.?\d*)\s*%", re.IGNORECASE)
+        matches = pattern.findall(body)
         for m in matches:
             val = float(m)
             if min_rate <= val <= max_rate:
@@ -310,8 +334,40 @@ def write_to_supabase(scraped: list[ScrapedRate]):
         "Prefer": "return=minimal",
     }
 
+    # Fetch current rates once to avoid unnecessary DB writes.
+    current_rates: dict[tuple[str, str, Optional[int]], float] = {}
+    try:
+        current_resp = SESSION.get(
+            f"{url}/rest/v1/rates",
+            headers=headers,
+            params={
+                "select": "bank_id,product_type,term_days,rate",
+                "is_current": "eq.true",
+            },
+            timeout=20,
+        )
+        current_resp.raise_for_status()
+        for row in current_resp.json():
+            key_tuple = (row["bank_id"], row["product_type"], row.get("term_days"))
+            current_rates[key_tuple] = float(row["rate"])
+    except Exception as e:
+        log.warning(f"Failed to preload current rates; falling back to full writes: {e}")
+
+    updates_applied = 0
+    skipped_unchanged = 0
+
     for rate in scraped:
         try:
+            record_key = (rate.bank_id, rate.product_type, rate.term_days)
+            existing_rate = current_rates.get(record_key)
+            if existing_rate is not None and abs(existing_rate - rate.rate) < 1e-9:
+                skipped_unchanged += 1
+                log.info(
+                    f"Skipping unchanged {rate.bank_id} {rate.product_type} "
+                    f"{'(' + str(rate.term_days) + 'd)' if rate.term_days else ''}: {rate.rate}%"
+                )
+                continue
+
             # Mark existing current rates as not current
             params = {
                 "bank_id": f"eq.{rate.bank_id}",
@@ -323,15 +379,17 @@ def write_to_supabase(scraped: list[ScrapedRate]):
             else:
                 params["term_days"] = "is.null"
 
-            requests.patch(
+            patch_resp = SESSION.patch(
                 f"{url}/rest/v1/rates",
                 headers=headers,
                 params=params,
                 json={"is_current": False},
+                timeout=20,
             )
+            patch_resp.raise_for_status()
 
             # Insert new rate
-            resp = requests.post(
+            resp = SESSION.post(
                 f"{url}/rest/v1/rates",
                 headers=headers,
                 json={
@@ -344,14 +402,20 @@ def write_to_supabase(scraped: list[ScrapedRate]):
                     "source": "scraper",
                     "is_current": True,
                 },
+                timeout=20,
             )
             resp.raise_for_status()
+            updates_applied += 1
 
             log.info(f"Updated {rate.bank_id} {rate.product_type} "
                      f"{'(' + str(rate.term_days) + 'd)' if rate.term_days else ''}: {rate.rate}%")
 
         except Exception as e:
             log.error(f"DB write failed for {rate.bank_id}: {e}")
+
+    log.info(
+        f"Supabase sync complete: {updates_applied} updated, {skipped_unchanged} skipped (unchanged)."
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -375,7 +439,7 @@ def scrape_gold_price():
         headers = {}
         if cg_key:
             headers["x-cg-demo-api-key"] = cg_key
-        resp = requests.get(
+        resp = SESSION.get(
             "https://api.coingecko.com/api/v3/simple/price?ids=pax-gold&vs_currencies=usd",
             timeout=10,
             headers=headers,
@@ -400,10 +464,11 @@ def scrape_gold_price():
             "Content-Type": "application/json",
             "Prefer": "resolution=merge-duplicates,return=minimal",
         }
-        resp = requests.post(
+        resp = SESSION.post(
             f"{url}/rest/v1/gold_prices",
             headers=sb_headers,
             json={"date": today, "price_usd": price},
+            timeout=20,
         )
         resp.raise_for_status()
         log.info(f"Gold price stored: {today} = ${price:.2f}")
